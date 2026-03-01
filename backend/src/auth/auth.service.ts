@@ -2,7 +2,6 @@ import {
   Injectable,
   ConflictException,
   UnauthorizedException,
-  NotFoundException,
   BadRequestException,
   Logger,
 } from '@nestjs/common';
@@ -11,6 +10,7 @@ import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import { PrismaService } from '../prisma/prisma.service';
+import { MailService } from '../mail/mail.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
@@ -25,6 +25,7 @@ export class AuthService {
     private prisma: PrismaService,
     private jwtService: JwtService,
     private config: ConfigService,
+    private mailService: MailService,
   ) {}
 
   // ─── REGISTER ───────────────────────────────
@@ -69,6 +70,9 @@ export class AuthService {
 
     const tokens = await this.generateTokens(user.id, user.email);
 
+    // Send welcome email (non-blocking)
+    this.mailService.sendWelcome(user.email, user.name).catch(() => {});
+
     this.logger.log(`New user registered: ${user.email}`);
 
     return { user, ...tokens };
@@ -84,6 +88,10 @@ export class AuthService {
 
     if (!user) {
       throw new UnauthorizedException('E-mail ou senha incorretos.');
+    }
+
+    if (!user.passwordHash) {
+      throw new UnauthorizedException('Esta conta usa login com Google. Use "Continuar com Google".');
     }
 
     const passwordMatch = await bcrypt.compare(dto.password, user.passwordHash);
@@ -143,15 +151,20 @@ export class AuthService {
     }
 
     const token = uuidv4();
-    const expiry = new Date(Date.now() + 1000 * 60 * 60); // 1h
+    const expiry = new Date(Date.now() + 1000 * 60 * 60); // 1 hour
 
     await this.prisma.user.update({
       where: { id: user.id },
       data: { resetPasswordToken: token, resetPasswordExpiry: expiry },
     });
 
-    // In production: send email with token
-    this.logger.log(`Password reset token for ${user.email}: ${token}`);
+    const frontendUrl = this.config.get<string>('frontendUrl') || 'http://localhost:3000';
+    const resetUrl = `${frontendUrl}/auth/reset-password?token=${token}`;
+
+    // Send password reset email
+    await this.mailService.sendPasswordReset(user.email, user.name, resetUrl);
+
+    this.logger.log(`Password reset requested for ${user.email}`);
 
     return {
       message: 'Se o e-mail estiver cadastrado, você receberá um link de recuperação.',
@@ -187,9 +200,15 @@ export class AuthService {
     return { message: 'Senha alterada com sucesso.' };
   }
 
-  // ─── HELPERS ─────────────────────────────────
+  // ─── GOOGLE OAUTH (upsert user) ───────────────
 
-  private async generateTokens(userId: string, email: string) {
+  async googleLogin(user: any) {
+    return this.generateTokens(user.id, user.email);
+  }
+
+  // ─── HELPERS (public for GoogleStrategy) ─────
+
+  async generateTokens(userId: string, email: string) {
     const payload = { sub: userId, email };
 
     const accessToken = this.jwtService.sign(payload, {
@@ -198,16 +217,11 @@ export class AuthService {
     });
 
     const refreshTokenValue = uuidv4();
-    const refreshExpiry = this.config.get('jwt.refreshExpiry') || '7d';
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7);
 
     await this.prisma.refreshToken.create({
-      data: {
-        token: refreshTokenValue,
-        userId,
-        expiresAt,
-      },
+      data: { token: refreshTokenValue, userId, expiresAt },
     });
 
     return { accessToken, refreshToken: refreshTokenValue };

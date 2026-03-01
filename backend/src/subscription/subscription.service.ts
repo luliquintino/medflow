@@ -19,7 +19,7 @@ export class SubscriptionService {
     private config: ConfigService,
   ) {
     this.stripe = new Stripe(this.config.get<string>('stripe.secretKey') || '', {
-      apiVersion: '2025-01-27.acacia',
+      apiVersion: '2026-02-25.clover',
     });
   }
 
@@ -136,15 +136,20 @@ export class SubscriptionService {
       session.subscription as string,
     );
 
+    const firstItem = subscription.items.data[0];
     await this.prisma.subscription.upsert({
       where: { userId },
       update: {
         plan,
         status: SubscriptionStatus.ACTIVE,
         stripeSubscriptionId: subscription.id,
-        stripePriceId: subscription.items.data[0]?.price.id,
-        currentPeriodStart: new Date(subscription.current_period_start * 1000),
-        currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+        stripePriceId: firstItem?.price.id,
+        currentPeriodStart: firstItem?.current_period_start
+          ? new Date(firstItem.current_period_start * 1000)
+          : undefined,
+        currentPeriodEnd: firstItem?.current_period_end
+          ? new Date(firstItem.current_period_end * 1000)
+          : undefined,
       },
       create: {
         userId,
@@ -152,9 +157,13 @@ export class SubscriptionService {
         status: SubscriptionStatus.ACTIVE,
         stripeCustomerId: session.customer as string,
         stripeSubscriptionId: subscription.id,
-        stripePriceId: subscription.items.data[0]?.price.id,
-        currentPeriodStart: new Date(subscription.current_period_start * 1000),
-        currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+        stripePriceId: firstItem?.price.id,
+        currentPeriodStart: firstItem?.current_period_start
+          ? new Date(firstItem.current_period_start * 1000)
+          : undefined,
+        currentPeriodEnd: firstItem?.current_period_end
+          ? new Date(firstItem.current_period_end * 1000)
+          : undefined,
       },
     });
   }
@@ -166,12 +175,17 @@ export class SubscriptionService {
     if (!sub) return;
 
     const status = this.mapStripeStatus(subscription.status);
+    const updatedFirstItem = subscription.items.data[0];
     await this.prisma.subscription.update({
       where: { id: sub.id },
       data: {
         status,
-        currentPeriodStart: new Date(subscription.current_period_start * 1000),
-        currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+        currentPeriodStart: updatedFirstItem?.current_period_start
+          ? new Date(updatedFirstItem.current_period_start * 1000)
+          : undefined,
+        currentPeriodEnd: updatedFirstItem?.current_period_end
+          ? new Date(updatedFirstItem.current_period_end * 1000)
+          : undefined,
         cancelAtPeriodEnd: subscription.cancel_at_period_end,
       },
     });

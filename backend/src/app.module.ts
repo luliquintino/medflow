@@ -13,6 +13,7 @@ import { RiskEngineModule } from './risk-engine/risk-engine.module';
 import { SubscriptionModule } from './subscription/subscription.module';
 import { WearableModule } from './wearable/wearable.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { MailModule } from './mail/mail.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
@@ -38,6 +39,7 @@ import { ResponseInterceptor } from './common/interceptors/response.interceptor'
     SubscriptionModule,
     WearableModule,
     DashboardModule,
+    MailModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },

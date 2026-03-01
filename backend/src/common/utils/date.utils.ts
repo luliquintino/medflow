@@ -4,6 +4,10 @@ export function startOfMonth(date = new Date()) {
   return { start, end };
 }
 
+export function endOfMonth(date = new Date()): Date {
+  return new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59, 999);
+}
+
 export function startOfWeek(date = new Date()) {
   const d = new Date(date);
   const day = d.getDay();

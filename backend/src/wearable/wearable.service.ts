@@ -39,7 +39,7 @@ export class WearableService {
         recoveryScore: recovery.score,
         restingHR: recovery.restingHR,
         stressLevel: recovery.stressLevel,
-        rawData: { hrv, sleep, recovery },
+        rawData: { hrv, sleep, recovery } as any,
       },
     });
 

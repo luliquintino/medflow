@@ -1,12 +1,18 @@
 import {
   Controller,
   Post,
+  Get,
   Body,
   HttpCode,
   HttpStatus,
   UseGuards,
+  Req,
+  Res,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
+import { ConfigService } from '@nestjs/config';
+import { Response, Request } from 'express';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -20,7 +26,10 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private config: ConfigService,
+  ) {}
 
   @Public()
   @Post('register')
@@ -71,5 +80,29 @@ export class AuthController {
   @ApiOperation({ summary: 'Redefinir senha com token' })
   async resetPassword(@Body() dto: ResetPasswordDto) {
     return this.authService.resetPassword(dto);
+  }
+
+  // ─── GOOGLE OAUTH ─────────────────────────────
+
+  @Public()
+  @Get('google')
+  @UseGuards(AuthGuard('google'))
+  @ApiOperation({ summary: 'Iniciar login com Google' })
+  async googleAuth() {
+    // Passport redirects to Google automatically
+  }
+
+  @Public()
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google'))
+  @ApiOperation({ summary: 'Callback do Google OAuth' })
+  async googleCallback(@Req() req: Request, @Res() res: Response) {
+    const user = (req as any).user;
+    const tokens = await this.authService.googleLogin(user);
+    const frontendUrl =
+      this.config.get<string>('frontendUrl') || 'http://localhost:3000';
+    res.redirect(
+      `${frontendUrl}/auth/callback?token=${tokens.accessToken}&refresh=${tokens.refreshToken}`,
+    );
   }
 }
