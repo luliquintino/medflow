@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm init -y)",
+      "Bash(npm install @nestjs/core @nestjs/common @nestjs/platform-express @nestjs/config @nestjs/jwt @nestjs/passport @nestjs/swagger @nestjs/throttler @nestjs/schedule reflect-metadata rxjs class-validator class-transformer passport passport-jwt passport-local bcryptjs @prisma/client stripe nodemailer @nestjs/nodemailer handlebars uuid)",
+      "Bash(npm install @nestjs/core @nestjs/common @nestjs/platform-express @nestjs/config @nestjs/jwt @nestjs/passport @nestjs/swagger @nestjs/throttler @nestjs/schedule reflect-metadata rxjs class-validator class-transformer passport passport-jwt passport-local bcryptjs @prisma/client stripe nodemailer @nestjs-modules/mailer handlebars uuid)",
+      "Bash(npm install -D typescript @types/node @types/bcryptjs @types/nodemailer @types/passport-jwt @types/passport-local @types/uuid ts-node tsconfig-paths prisma rimraf nest-cli @nestjs/cli)",
+      "Bash(npx create-next-app@14 . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --no-git --yes)",
+      "Bash(npm install @tanstack/react-query axios zustand react-hook-form @hookform/resolvers zod clsx tailwind-merge lucide-react recharts date-fns)",
+      "Bash(npm install -D @types/node)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(node -e \":*)",
+      "Bash(npx tsc --noEmit)",
+      "Bash(cat /Users/luizaquintino/Desktop/Medflow/frontend/src/app/'\\(app\\)'/layout.tsx)",
+      "Bash(/usr/bin/git -C /Users/luizaquintino/Desktop/Medflow/frontend status)",
+      "Bash(DEVELOPER_DIR=\"\" /usr/bin/git -C /Users/luizaquintino/Desktop/Medflow/frontend status)",
+      "Bash(sudo xcode-select --switch /Library/Developer/CommandLineTools)",
+      "Bash(DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer /Applications/Xcode.app/Contents/Developer/usr/bin/git -C /Users/luizaquintino/Desktop/Medflow/frontend status)",
+      "Bash(DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer /Applications/Xcode.app/Contents/Developer/usr/bin/git -C /Users/luizaquintino/Desktop/Medflow/frontend init)",
+      "Bash(DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer /Applications/Xcode.app/Contents/Developer/usr/bin/git -C /Users/luizaquintino/Desktop/Medflow/frontend diff --stat)",
+      "Bash(DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer /Applications/Xcode.app/Contents/Developer/usr/bin/git -C /Users/luizaquintino/Desktop/Medflow/frontend log --oneline -5)",
+      "Bash(DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer /Applications/Xcode.app/Contents/Developer/usr/bin/git -C /Users/luizaquintino/Desktop/Medflow/frontend add src/store/auth.store.ts \"src/app/\\(app\\)/layout.tsx\" \"src/app/\\(app\\)/dashboard/page.tsx\" src/components/layout/sidebar.tsx src/components/layout/topbar.tsx)",
+      "Bash(/Applications/Xcode.app/Contents/Developer/usr/bin/git -C:*)"
+    ]
+  }
+}

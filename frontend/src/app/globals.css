@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: #eef2ea;   /* moss-50 pastel */
+    --foreground: #1e2a16;
+    --card: #fdfcf8;
+    --border: #d8e4cc;
+    --muted: #7a9462;
+    --font-inter: "Inter", system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { -webkit-font-smoothing: antialiased; }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-inter);
+    min-height: 100dvh;
+  }
+
+  /* Scrollbar fina */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #c4d4b8; border-radius: 4px; }
+}
+
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+
+  /* Card padrão do Med Flow */
+  .card {
+    @apply bg-cream-50 rounded-2xl shadow-card border border-cream-200 p-6;
+  }
+
+  /* Input padrão */
+  .input-field {
+    @apply w-full rounded-xl border border-cream-300 bg-white/70 px-4 py-3
+           text-sm text-gray-800 placeholder-gray-400
+           focus:outline-none focus:ring-2 focus:ring-moss-400 focus:border-transparent
+           transition-all duration-200;
+  }
+
+  /* Botão primário */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2
+           bg-moss-600 hover:bg-moss-700 active:bg-moss-800
+           text-white font-medium rounded-xl px-5 py-3
+           transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* Botão secundário */
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2
+           bg-cream-100 hover:bg-cream-200 active:bg-cream-300
+           text-moss-700 font-medium rounded-xl px-5 py-3 border border-cream-300
+           transition-all duration-200 disabled:opacity-50;
+  }
+
+  /* Badge de risco */
+  .badge-safe     { @apply bg-moss-100 text-moss-700 border border-moss-200; }
+  .badge-moderate { @apply bg-amber-100 text-amber-700 border border-amber-200; }
+  .badge-high     { @apply bg-red-100 text-red-700 border border-red-200; }
+}

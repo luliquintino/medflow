@@ -1,0 +1,256 @@
+// Med Flow — Prisma Schema
+// PostgreSQL + Prisma ORM
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────────
+
+enum ShiftType {
+  TWELVE_HOURS
+  TWENTY_FOUR_HOURS
+  NIGHT
+}
+
+enum ShiftStatus {
+  CONFIRMED
+  SIMULATED
+  CANCELLED
+}
+
+enum RiskLevel {
+  SAFE
+  MODERATE
+  HIGH
+}
+
+enum SubscriptionPlan {
+  ESSENTIAL
+  PRO
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  INACTIVE
+  TRIALING
+  PAST_DUE
+  CANCELLED
+}
+
+// ─────────────────────────────────────────────
+// USER
+// ─────────────────────────────────────────────
+
+model User {
+  id                String   @id @default(uuid())
+  email             String   @unique
+  name              String
+  passwordHash      String
+  avatarUrl         String?
+  isEmailVerified   Boolean  @default(false)
+  emailVerifyToken  String?
+  resetPasswordToken String?
+  resetPasswordExpiry DateTime?
+  onboardingCompleted Boolean @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  financialProfile  FinancialProfile?
+  workProfile       WorkProfile?
+  shifts            Shift[]
+  riskHistory       RiskHistory[]
+  subscription      Subscription?
+  wearableData      WearableData[]
+  refreshTokens     RefreshToken[]
+
+  @@map("users")
+}
+
+// ─────────────────────────────────────────────
+// REFRESH TOKEN
+// ─────────────────────────────────────────────
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@map("refresh_tokens")
+}
+
+// ─────────────────────────────────────────────
+// FINANCIAL PROFILE
+// ─────────────────────────────────────────────
+
+model FinancialProfile {
+  id                  String   @id @default(uuid())
+  userId              String   @unique
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  fixedMonthlyCosts   Float    @default(0)
+  savingsGoal         Float    @default(0)
+  averageShiftValue   Float    @default(0)
+  minimumMonthlyGoal  Float    @default(0) // costs + installments minimum
+  idealMonthlyGoal    Float    @default(0) // costs + installments + savings
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  installments        Installment[]
+
+  @@map("financial_profiles")
+}
+
+// ─────────────────────────────────────────────
+// INSTALLMENTS
+// ─────────────────────────────────────────────
+
+model Installment {
+  id                 String           @id @default(uuid())
+  financialProfileId String
+  financialProfile   FinancialProfile @relation(fields: [financialProfileId], references: [id], onDelete: Cascade)
+
+  description        String
+  monthlyValue       Float
+  remainingMonths    Int
+  totalValue         Float            @default(0)
+
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+
+  @@map("installments")
+}
+
+// ─────────────────────────────────────────────
+// WORK PROFILE
+// ─────────────────────────────────────────────
+
+model WorkProfile {
+  id                    String      @id @default(uuid())
+  userId                String      @unique
+  user                  User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  shiftTypes            ShiftType[]
+  maxWeeklyHours        Int?        // optional personal limit
+  preferredRestDays     Int[]       // 0=Sunday ... 6=Saturday
+  maxConsecutiveShifts  Int         @default(3)
+  maxConsecutiveNights  Int         @default(2)
+
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+
+  @@map("work_profiles")
+}
+
+// ─────────────────────────────────────────────
+// SHIFTS
+// ─────────────────────────────────────────────
+
+model Shift {
+  id          String      @id @default(uuid())
+  userId      String
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  date        DateTime
+  endDate     DateTime
+  type        ShiftType
+  hours       Int         // 12 or 24
+  value       Float
+  location    String
+  notes       String?
+  status      ShiftStatus @default(CONFIRMED)
+
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@index([userId, date])
+  @@map("shifts")
+}
+
+// ─────────────────────────────────────────────
+// RISK HISTORY
+// ─────────────────────────────────────────────
+
+model RiskHistory {
+  id              String    @id @default(uuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  riskLevel       RiskLevel
+  riskScore       Float
+  triggerRules    String[]  // which rules were triggered
+  recommendation  String
+  periodStart     DateTime
+  periodEnd       DateTime
+  hoursIn5Days    Float
+  hoursInWeek     Float
+  consecutiveNights Int
+  createdAt       DateTime  @default(now())
+
+  @@index([userId, createdAt])
+  @@map("risk_history")
+}
+
+// ─────────────────────────────────────────────
+// SUBSCRIPTION
+// ─────────────────────────────────────────────
+
+model Subscription {
+  id                   String             @id @default(uuid())
+  userId               String             @unique
+  user                 User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  plan                 SubscriptionPlan   @default(ESSENTIAL)
+  status               SubscriptionStatus @default(TRIALING)
+  stripeCustomerId     String?            @unique
+  stripeSubscriptionId String?            @unique
+  stripePriceId        String?
+  currentPeriodStart   DateTime?
+  currentPeriodEnd     DateTime?
+  cancelAtPeriodEnd    Boolean            @default(false)
+  trialEndAt           DateTime?
+
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  @@map("subscriptions")
+}
+
+// ─────────────────────────────────────────────
+// WEARABLE DATA (structure ready for future)
+// ─────────────────────────────────────────────
+
+model WearableData {
+  id             String   @id @default(uuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  source         String   // "apple_health" | "garmin" | "oura" | "whoop" | "mock"
+  recordedAt     DateTime
+
+  hrv            Float?   // Heart Rate Variability (ms)
+  sleepScore     Float?   // 0–100
+  sleepHours     Float?
+  recoveryScore  Float?   // 0–100
+  restingHR      Float?
+  stressLevel    Float?
+
+  rawData        Json?    // provider-specific payload
+
+  createdAt      DateTime @default(now())
+
+  @@index([userId, recordedAt])
+  @@map("wearable_data")
+}
