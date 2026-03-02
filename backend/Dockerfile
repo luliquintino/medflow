@@ -3,9 +3,9 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Install dependencies
+# Install ALL dependencies (including devDeps for nest build)
 COPY package*.json ./
-RUN npm install --ignore-scripts
+RUN npm install
 
 # Copy source
 COPY . .
@@ -23,7 +23,7 @@ ENV NODE_ENV=production
 
 # Install only production deps
 COPY package*.json ./
-RUN npm install --omit=dev --ignore-scripts
+RUN npm install --omit=dev
 
 # Copy build artifacts and prisma
 COPY --from=builder /app/dist ./dist
