@@ -17,6 +17,7 @@ import { MailModule } from './mail/mail.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
+import { HealthController } from './health.controller';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { ResponseInterceptor } from './common/interceptors/response.interceptor'
     DashboardModule,
     MailModule,
   ],
+  controllers: [HealthController],
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: ThrottlerGuard },
