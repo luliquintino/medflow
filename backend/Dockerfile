@@ -3,16 +3,20 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Install ALL dependencies (including devDeps for nest build)
+# Install ALL dependencies (including devDeps for compilation)
 COPY package*.json ./
 RUN npm install
 
 # Copy source
 COPY . .
 
-# Generate Prisma client and build
+# Generate Prisma client
 RUN npx prisma generate
-RUN npm run build
+
+# Build with tsc directly (more reliable than nest build in Docker)
+RUN npx tsc -p tsconfig.build.json
+# Verify dist was created
+RUN ls -la dist/ && ls dist/main.js
 
 # ── Production stage ───────────────────────────────────────────────
 FROM node:20-alpine AS production
