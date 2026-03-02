@@ -19,25 +19,12 @@ export default () => ({
     rounds: parseInt(process.env.BCRYPT_ROUNDS || '10', 10),
   },
 
-  stripe: {
-    secretKey: process.env.STRIPE_SECRET_KEY || '',
-    webhookSecret: process.env.STRIPE_WEBHOOK_SECRET || '',
-    prices: {
-      essential: process.env.STRIPE_PRICE_ESSENTIAL || '',
-      pro: process.env.STRIPE_PRICE_PRO || '',
-    },
-  },
-
   smtp: {
     host: process.env.SMTP_HOST || 'smtp.gmail.com',
     port: parseInt(process.env.SMTP_PORT || '587', 10),
     user: process.env.SMTP_USER || '',
     pass: process.env.SMTP_PASS || '',
     from: process.env.SMTP_FROM || 'Med Flow <no-reply@medflow.app>',
-  },
-
-  trial: {
-    days: parseInt(process.env.TRIAL_DAYS || '14', 10),
   },
 
   google: {

@@ -4,8 +4,6 @@ import { ShiftType } from '@prisma/client';
 import { RiskEngineService } from './risk-engine.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
-import { RequirePlan } from '../common/decorators/plan.decorator';
-import { PlanGuard } from '../common/guards/plan.guard';
 
 @ApiTags('Risk Engine')
 @ApiBearerAuth()
@@ -30,9 +28,7 @@ export class RiskEngineController {
   }
 
   @Get('history')
-  @UseGuards(PlanGuard)
-  @RequirePlan('PRO')
-  @ApiOperation({ summary: '[Pro] Histórico de risco acumulado' })
+  @ApiOperation({ summary: 'Histórico de risco acumulado' })
   history(
     @CurrentUser('id') userId: string,
     @Query('limit') limit?: string,

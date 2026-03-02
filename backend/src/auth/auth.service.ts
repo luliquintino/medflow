@@ -42,20 +42,16 @@ export class AuthService {
     const rounds = this.config.get<number>('bcrypt.rounds') || 10;
     const passwordHash = await bcrypt.hash(dto.password, rounds);
 
-    const trialDays = this.config.get<number>('trial.days') || 14;
-    const trialEndAt = new Date();
-    trialEndAt.setDate(trialEndAt.getDate() + trialDays);
-
     const user = await this.prisma.user.create({
       data: {
         name: dto.name,
+        crm: dto.crm,
         email: dto.email.toLowerCase(),
         passwordHash,
         subscription: {
           create: {
             plan: 'ESSENTIAL',
-            status: SubscriptionStatus.TRIALING,
-            trialEndAt,
+            status: SubscriptionStatus.ACTIVE,
           },
         },
       },
@@ -63,8 +59,9 @@ export class AuthService {
         id: true,
         name: true,
         email: true,
+        crm: true,
         onboardingCompleted: true,
-        subscription: { select: { plan: true, status: true, trialEndAt: true } },
+        subscription: { select: { plan: true, status: true } },
       },
     });
 
@@ -91,7 +88,7 @@ export class AuthService {
     }
 
     if (!user.passwordHash) {
-      throw new UnauthorizedException('Esta conta usa login com Google. Use "Continuar com Google".');
+      throw new UnauthorizedException('E-mail ou senha incorretos.');
     }
 
     const passwordMatch = await bcrypt.compare(dto.password, user.passwordHash);

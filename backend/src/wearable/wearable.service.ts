@@ -1,24 +1,12 @@
-import { Injectable, ForbiddenException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { createWearableAdapter, WearableProvider } from './wearable.adapter';
-import { SubscriptionPlan } from '@prisma/client';
+import { createWearableAdapter } from './wearable.adapter';
 
 @Injectable()
 export class WearableService {
   constructor(private prisma: PrismaService) {}
 
-  private async assertProPlan(userId: string) {
-    const sub = await this.prisma.subscription.findUnique({ where: { userId } });
-    if (!sub || sub.plan !== SubscriptionPlan.PRO) {
-      throw new ForbiddenException(
-        'Integração com wearables está disponível apenas no plano Pro.',
-      );
-    }
-  }
-
   async getLatestData(userId: string) {
-    await this.assertProPlan(userId);
-
     const adapter = createWearableAdapter('mock'); // TODO: load from user settings
 
     const [hrv, sleep, recovery] = await Promise.all([
@@ -52,8 +40,6 @@ export class WearableService {
   }
 
   async getHistory(userId: string, days = 7) {
-    await this.assertProPlan(userId);
-
     const since = new Date();
     since.setDate(since.getDate() - days);
 

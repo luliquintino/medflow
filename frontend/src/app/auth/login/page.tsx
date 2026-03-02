@@ -15,6 +15,7 @@ import {
   ShieldCheck,
   Watch,
   ArrowLeft,
+  FileText,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -56,6 +57,7 @@ const loginSchema = z.object({
 const registerSchema = z
   .object({
     name: z.string().min(2, "Nome muito curto"),
+    crm: z.string().min(4, "CRM inválido"),
     email: z.string().email("E-mail inválido"),
     password: z.string().min(8, "Mínimo 8 caracteres"),
     confirmPassword: z.string(),
@@ -189,6 +191,13 @@ function RegisterForm() {
         {...register("name")}
       />
       <Input
+        label="CRM"
+        placeholder="Ex: 123456/SP"
+        leftIcon={<FileText className="w-4 h-4" />}
+        error={errors.crm?.message}
+        {...register("crm")}
+      />
+      <Input
         label="E-mail"
         type="email"
         placeholder="seu@email.com"
@@ -220,11 +229,8 @@ function RegisterForm() {
       )}
 
       <Button type="submit" className="w-full" loading={isSubmitting}>
-        Criar minha conta grátis
+        Criar minha conta
       </Button>
-      <p className="text-center text-xs text-gray-400">
-        14 dias grátis · Sem cartão de crédito
-      </p>
     </form>
   );
 }

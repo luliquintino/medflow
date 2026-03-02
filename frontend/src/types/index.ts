@@ -4,6 +4,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
+  crm?: string;
   avatarUrl?: string;
   onboardingCompleted: boolean;
   createdAt: string;
@@ -167,21 +168,11 @@ export interface DashboardData {
 // ─── Subscription ────────────────────────────────────────────────────────────
 
 export type SubscriptionPlan = "ESSENTIAL" | "PRO";
-export type SubscriptionStatus =
-  | "ACTIVE"
-  | "INACTIVE"
-  | "TRIALING"
-  | "PAST_DUE"
-  | "CANCELLED";
+export type SubscriptionStatus = "ACTIVE" | "INACTIVE";
 
 export interface Subscription {
   plan: SubscriptionPlan;
   status: SubscriptionStatus;
-  currentPeriodEnd?: string;
-  trialEndAt?: string;
-  cancelAtPeriodEnd?: boolean;
-  stripeSubscriptionId?: string;
-  stripeCustomerId?: string;
 }
 
 // ─── API ─────────────────────────────────────────────────────────────────────

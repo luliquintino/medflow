@@ -52,6 +52,7 @@ model User {
   id                String   @id @default(uuid())
   email             String   @unique
   name              String
+  crm               String?
   passwordHash      String?
   googleId          String?  @unique
   avatarUrl         String?
@@ -213,14 +214,7 @@ model Subscription {
   user                 User               @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   plan                 SubscriptionPlan   @default(ESSENTIAL)
-  status               SubscriptionStatus @default(TRIALING)
-  stripeCustomerId     String?            @unique
-  stripeSubscriptionId String?            @unique
-  stripePriceId        String?
-  currentPeriodStart   DateTime?
-  currentPeriodEnd     DateTime?
-  cancelAtPeriodEnd    Boolean            @default(false)
-  trialEndAt           DateTime?
+  status               SubscriptionStatus @default(ACTIVE)
 
   createdAt            DateTime           @default(now())
   updatedAt            DateTime           @updatedAt

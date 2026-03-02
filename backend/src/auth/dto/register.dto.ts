@@ -8,6 +8,12 @@ export class RegisterDto {
   @MaxLength(100)
   name: string;
 
+  @ApiProperty({ example: '123456/SP' })
+  @IsString()
+  @MinLength(4, { message: 'CRM inválido' })
+  @MaxLength(20)
+  crm: string;
+
   @ApiProperty({ example: 'ana@medflow.app' })
   @IsEmail()
   email: string;
