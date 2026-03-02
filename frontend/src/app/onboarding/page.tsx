@@ -22,7 +22,7 @@ const DAYS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 const schema = z.object({
   fixedMonthlyCosts: z.coerce.number().min(0),
   savingsGoal: z.coerce.number().min(0),
-  averageShiftValue: z.coerce.number().min(1, "Informe o valor médio"),
+  averageShiftValue: z.coerce.number().min(0),
   installments: z.array(z.object({
     description: z.string().min(1),
     monthlyValue: z.coerce.number().min(1),
@@ -41,7 +41,7 @@ export default function OnboardingPage() {
   const [step, setStep] = useState(1);
   const [error, setError] = useState("");
 
-  const { register, handleSubmit, watch, setValue, formState: { errors, isSubmitting } } =
+  const { register, handleSubmit, watch, setValue, trigger, formState: { errors, isSubmitting } } =
     useForm<FormData>({
       resolver: zodResolver(schema) as any,
       defaultValues: {
@@ -219,7 +219,10 @@ export default function OnboardingPage() {
                 </div>
               </div>
 
-              <Button type="button" className="w-full" onClick={() => setStep(2)}
+              <Button type="button" className="w-full" onClick={async () => {
+                  const valid = await trigger(["fixedMonthlyCosts", "savingsGoal", "averageShiftValue"]);
+                  if (valid) setStep(2);
+                }}
                 icon={<ChevronRight className="w-4 h-4" />}>
                 Próximo
               </Button>
@@ -304,7 +307,13 @@ export default function OnboardingPage() {
                   icon={<ChevronLeft className="w-4 h-4" />}>
                   Voltar
                 </Button>
-                <Button type="submit" className="flex-1" loading={isSubmitting}>
+                <Button type="submit" className="flex-1" loading={isSubmitting}
+                  onClick={async () => {
+                    const valid = await trigger();
+                    if (!valid && (errors.fixedMonthlyCosts || errors.savingsGoal || errors.averageShiftValue)) {
+                      setStep(1);
+                    }
+                  }}>
                   Começar a usar
                 </Button>
               </div>
