@@ -28,9 +28,6 @@ export class UsersService {
           select: {
             plan: true,
             status: true,
-            currentPeriodEnd: true,
-            trialEndAt: true,
-            cancelAtPeriodEnd: true,
           },
         },
       },

@@ -50,10 +50,6 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       }
     } else {
       // Create new user via Google
-      const trialDays = this.config.get<number>('trial.days') || 14;
-      const trialEndAt = new Date();
-      trialEndAt.setDate(trialEndAt.getDate() + trialDays);
-
       user = await this.prisma.user.create({
         data: {
           name: displayName || email.split('@')[0],
@@ -63,8 +59,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
           subscription: {
             create: {
               plan: 'ESSENTIAL',
-              status: SubscriptionStatus.TRIALING,
-              trialEndAt,
+              status: SubscriptionStatus.ACTIVE,
             },
           },
         },
