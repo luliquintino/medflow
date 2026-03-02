@@ -5,7 +5,7 @@ WORKDIR /app
 
 # Install dependencies
 COPY package*.json ./
-RUN npm ci
+RUN npm install --ignore-scripts
 
 # Copy source
 COPY . .
@@ -23,7 +23,7 @@ ENV NODE_ENV=production
 
 # Install only production deps
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm install --omit=dev --ignore-scripts
 
 # Copy build artifacts and prisma
 COPY --from=builder /app/dist ./dist
