@@ -8,13 +8,8 @@ RUN npm install
 COPY . .
 
 RUN npx prisma generate
-
-# Debug: show what nest build does
-RUN echo "=== Files before build ===" && ls -la src/main.ts && cat nest-cli.json && cat tsconfig.build.json
-RUN npm run build 2>&1 || true
-RUN echo "=== Files after build ===" && ls -la dist/ 2>/dev/null || echo "dist/ does not exist!"
-RUN echo "=== Trying tsc directly ===" && npx tsc --version && npx tsc -p tsconfig.build.json --listEmittedFiles 2>&1 || true
-RUN echo "=== dist after tsc ===" && ls -la dist/ 2>/dev/null || echo "Still no dist!"
+RUN npm run build
+RUN test -f dist/main.js || (echo "ERROR: dist/main.js not found" && ls -la dist/ && exit 1)
 
 RUN npm prune --omit=dev
 
