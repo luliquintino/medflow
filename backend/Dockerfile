@@ -13,6 +13,9 @@ RUN test -f dist/main.js || (echo "ERROR: dist/main.js not found" && ls -la dist
 
 RUN npm prune --omit=dev
 
+COPY start.sh ./
+RUN chmod +x start.sh
+
 ENV NODE_ENV=production
 EXPOSE 3001
-CMD ["node", "dist/main.js"]
+CMD ["./start.sh"]
