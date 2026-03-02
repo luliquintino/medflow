@@ -13,10 +13,11 @@ COPY . .
 # Generate Prisma client
 RUN npx prisma generate
 
-# Build with tsc directly (more reliable than nest build in Docker)
+# Build with tsc
 RUN npx tsc -p tsconfig.build.json
+
 # Verify dist was created
-RUN ls -la dist/ && ls dist/main.js
+RUN ls -la dist/main.js
 
 # ── Production stage ───────────────────────────────────────────────
 FROM node:20-alpine AS production
@@ -35,6 +36,10 @@ COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 
+# Verify dist exists in production image
+RUN ls -la /app/dist/main.js
+
 EXPOSE 3001
 
-CMD ["node", "dist/main"]
+# Use sh -c to get better error messages
+CMD ["sh", "-c", "echo 'Starting app...' && ls /app/dist/main.js && node /app/dist/main.js"]
