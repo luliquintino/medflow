@@ -14,6 +14,14 @@ export const metadata: Metadata = {
   description:
     "Planeje plantões, monitore carga horária e tome decisões mais conscientes sobre trabalho e descanso.",
   icons: { icon: "/favicon.ico" },
+  robots: {
+    index: false,
+    follow: false,
+    googleBot: {
+      index: false,
+      follow: false,
+    },
+  },
 };
 
 export default function RootLayout({

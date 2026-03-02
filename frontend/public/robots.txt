@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /
+
+# Med Flow is a private SaaS platform — not for public indexing
