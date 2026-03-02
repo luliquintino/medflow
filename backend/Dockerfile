@@ -1,26 +1,23 @@
-# Single-stage build to avoid COPY issues
 FROM node:20-alpine
 
 WORKDIR /app
 
-# Install dependencies
 COPY package*.json ./
 RUN npm install
 
-# Copy source
 COPY . .
 
-# Generate Prisma client and build
 RUN npx prisma generate
-RUN npm run build
 
-# Remove devDependencies after build
+# Debug: show what nest build does
+RUN echo "=== Files before build ===" && ls -la src/main.ts && cat nest-cli.json && cat tsconfig.build.json
+RUN npm run build 2>&1 || true
+RUN echo "=== Files after build ===" && ls -la dist/ 2>/dev/null || echo "dist/ does not exist!"
+RUN echo "=== Trying tsc directly ===" && npx tsc --version && npx tsc -p tsconfig.build.json --listEmittedFiles 2>&1 || true
+RUN echo "=== dist after tsc ===" && ls -la dist/ 2>/dev/null || echo "Still no dist!"
+
 RUN npm prune --omit=dev
-
-# Verify dist exists
-RUN test -f dist/main.js && echo "dist/main.js exists" || (echo "dist/main.js NOT FOUND" && ls -la dist/ && exit 1)
 
 ENV NODE_ENV=production
 EXPOSE 3001
-
 CMD ["node", "dist/main.js"]
