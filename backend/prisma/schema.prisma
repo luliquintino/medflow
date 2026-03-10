@@ -44,6 +44,20 @@ enum SubscriptionStatus {
   CANCELLED
 }
 
+enum ShiftTemplateType {
+  DIURNO_12H
+  NOTURNO_12H
+  PLANTAO_24H
+  PERSONALIZADO
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  NON_BINARY
+  PREFER_NOT_TO_SAY
+}
+
 // ─────────────────────────────────────────────
 // USER
 // ─────────────────────────────────────────────
@@ -52,6 +66,7 @@ model User {
   id                String   @id @default(uuid())
   email             String   @unique
   name              String
+  gender            Gender?
   crm               String?
   passwordHash      String?
   googleId          String?  @unique
@@ -72,6 +87,7 @@ model User {
   subscription      Subscription?
   wearableData      WearableData[]
   refreshTokens     RefreshToken[]
+  hospitals         Hospital[]
 
   @@map("users")
 }
@@ -100,38 +116,15 @@ model FinancialProfile {
   userId              String   @unique
   user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  fixedMonthlyCosts   Float    @default(0)
   savingsGoal         Float    @default(0)
   averageShiftValue   Float    @default(0)
-  minimumMonthlyGoal  Float    @default(0) // costs + installments minimum
-  idealMonthlyGoal    Float    @default(0) // costs + installments + savings
+  minimumMonthlyGoal  Float    @default(0)
+  idealMonthlyGoal    Float    @default(0)
 
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 
-  installments        Installment[]
-
   @@map("financial_profiles")
-}
-
-// ─────────────────────────────────────────────
-// INSTALLMENTS
-// ─────────────────────────────────────────────
-
-model Installment {
-  id                 String           @id @default(uuid())
-  financialProfileId String
-  financialProfile   FinancialProfile @relation(fields: [financialProfileId], references: [id], onDelete: Cascade)
-
-  description        String
-  monthlyValue       Float
-  remainingMonths    Int
-  totalValue         Float            @default(0)
-
-  createdAt          DateTime         @default(now())
-  updatedAt          DateTime         @updatedAt
-
-  @@map("installments")
 }
 
 // ─────────────────────────────────────────────
@@ -149,6 +142,11 @@ model WorkProfile {
   maxConsecutiveShifts  Int         @default(3)
   maxConsecutiveNights  Int         @default(2)
 
+  // Custos energéticos por tipo de plantão (editáveis pelo usuário)
+  energyCostDiurno      Float       @default(1.0)   // 12h diurno
+  energyCostNoturno     Float       @default(1.5)   // 12h noturno
+  energyCost24h         Float       @default(2.5)   // 24h
+
   createdAt             DateTime    @default(now())
   updatedAt             DateTime    @updatedAt
 
@@ -164,6 +162,9 @@ model Shift {
   userId      String
   user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  hospitalId  String?
+  hospital    Hospital?   @relation(fields: [hospitalId], references: [id], onDelete: SetNull)
+
   date        DateTime
   endDate     DateTime
   type        ShiftType
@@ -172,12 +173,60 @@ model Shift {
   location    String
   notes       String?
   status      ShiftStatus @default(CONFIRMED)
+  realized    Boolean?
 
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 
   @@index([userId, date])
   @@map("shifts")
+}
+
+// ─────────────────────────────────────────────
+// HOSPITAL
+// ─────────────────────────────────────────────
+
+model Hospital {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name       String
+  city       String?
+  state      String?
+  notes      String?
+  paymentDay Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  templates ShiftTemplate[]
+  shifts    Shift[]
+
+  @@index([userId])
+  @@map("hospitals")
+}
+
+// ─────────────────────────────────────────────
+// SHIFT TEMPLATE
+// ─────────────────────────────────────────────
+
+model ShiftTemplate {
+  id              String            @id @default(uuid())
+  hospitalId      String
+  hospital        Hospital          @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  name            String?
+  type            ShiftTemplateType
+  durationInHours Int
+  defaultValue    Float
+  isNightShift    Boolean           @default(false)
+
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@index([hospitalId])
+  @@map("shift_templates")
 }
 
 // ─────────────────────────────────────────────

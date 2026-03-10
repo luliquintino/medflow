@@ -1,0 +1,43 @@
+export const mockPrismaService = {
+  user: {
+    findUnique: jest.fn(),
+    create: jest.fn(),
+    update: jest.fn(),
+    delete: jest.fn(),
+    findFirst: jest.fn(),
+  },
+  refreshToken: {
+    findUnique: jest.fn(),
+    create: jest.fn(),
+    delete: jest.fn(),
+    deleteMany: jest.fn(),
+  },
+  subscription: { create: jest.fn(), findUnique: jest.fn() },
+  shift: {
+    findMany: jest.fn(),
+    findUnique: jest.fn(),
+    create: jest.fn(),
+    update: jest.fn(),
+    delete: jest.fn(),
+  },
+  financialProfile: { findUnique: jest.fn(), create: jest.fn(), update: jest.fn() },
+  workProfile: { findUnique: jest.fn(), upsert: jest.fn(), update: jest.fn(), create: jest.fn() },
+  hospital: {
+    findFirst: jest.fn(),
+    findMany: jest.fn(),
+    findUnique: jest.fn(),
+    create: jest.fn(),
+    update: jest.fn(),
+    delete: jest.fn(),
+  },
+  shiftTemplate: {
+    findMany: jest.fn(),
+    findUnique: jest.fn(),
+    create: jest.fn(),
+    update: jest.fn(),
+    delete: jest.fn(),
+    createMany: jest.fn(),
+  },
+  riskHistory: { create: jest.fn(), findMany: jest.fn() },
+  wearableData: { create: jest.fn(), findMany: jest.fn() },
+};

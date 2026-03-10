@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { RiskEngine, RiskInput } from './risk.engine';
-import { WorkloadEngine } from '../shifts/shifts.engine';
+import { WorkloadEngine, EnergyCosts, DEFAULT_ENERGY_COSTS } from '../shifts/shifts.engine';
 import { diffHours, subtractDays } from '../common/utils/date.utils';
 import { ShiftType } from '@prisma/client';
 
@@ -22,12 +22,13 @@ export class RiskEngineService {
       this.prisma.workProfile.findUnique({ where: { userId } }),
     ]);
 
-    const workload = WorkloadEngine.calculate(shifts as any, now);
+    const energyCosts = this.getEnergyCosts(workProfile);
+    // Exclude shifts marked as not realized
+    const realizedShifts = shifts.filter((s) => s.realized !== false);
+    const workload = WorkloadEngine.calculate(realizedShifts as any, now, energyCosts);
 
-    const lastShift = shifts[shifts.length - 1];
-    const hoursSinceLastShift = lastShift
-      ? diffHours(now, lastShift.endDate)
-      : null;
+    const lastShift = realizedShifts[realizedShifts.length - 1];
+    const hoursSinceLastShift = lastShift ? diffHours(now, lastShift.endDate) : null;
 
     const input: RiskInput = {
       hoursInLast5Days: workload.hoursInLast5Days,
@@ -35,6 +36,9 @@ export class RiskEngineService {
       consecutiveNightShifts: workload.consecutiveNightShifts,
       hoursSinceLastShift,
       userMaxWeeklyHours: workProfile?.maxWeeklyHours ?? undefined,
+      shifts: realizedShifts as any,
+      energyCosts,
+      revenueThisMonth: workload.revenueThisMonth,
     };
 
     const result = RiskEngine.evaluate(input);
@@ -71,6 +75,10 @@ export class RiskEngineService {
       this.prisma.workProfile.findUnique({ where: { userId } }),
     ]);
 
+    const energyCosts = this.getEnergyCosts(workProfile);
+    // Exclude shifts marked as not realized
+    const realizedShifts = shifts.filter((s) => s.realized !== false);
+
     const hyp = {
       date: new Date(hypothetical.date),
       type: hypothetical.type,
@@ -79,16 +87,28 @@ export class RiskEngineService {
     };
 
     const workloadAfter = WorkloadEngine.calculateWithHypothetical(
-      shifts as any,
+      realizedShifts as any,
       hyp,
       now,
+      energyCosts,
     );
 
-    const lastShift = shifts[shifts.length - 1];
+    const lastShift = realizedShifts[realizedShifts.length - 1];
     const newDate = new Date(hypothetical.date);
-    const hoursSinceLastShift = lastShift
-      ? diffHours(newDate, lastShift.endDate)
-      : null;
+    const hoursSinceLastShift = lastShift ? diffHours(newDate, lastShift.endDate) : null;
+
+    // Include the hypothetical shift in the shifts array for exhaustion calculation
+    const allShifts = [
+      ...realizedShifts,
+      {
+        date: hyp.date,
+        endDate: new Date(hyp.date.getTime() + hyp.hours * 3600000),
+        type: hyp.type,
+        hours: hyp.hours,
+        value: hyp.value,
+        status: 'CONFIRMED',
+      },
+    ];
 
     const input: RiskInput = {
       hoursInLast5Days: workloadAfter.hoursInLast5Days,
@@ -96,6 +116,9 @@ export class RiskEngineService {
       consecutiveNightShifts: workloadAfter.consecutiveNightShifts,
       hoursSinceLastShift,
       userMaxWeeklyHours: workProfile?.maxWeeklyHours ?? undefined,
+      shifts: allShifts as any,
+      energyCosts,
+      revenueThisMonth: workloadAfter.revenueThisMonth,
     };
 
     const result = RiskEngine.evaluate(input);
@@ -108,5 +131,14 @@ export class RiskEngineService {
       orderBy: { createdAt: 'desc' },
       take: limit,
     });
+  }
+
+  private getEnergyCosts(workProfile: any): EnergyCosts {
+    if (!workProfile) return DEFAULT_ENERGY_COSTS;
+    return {
+      diurno: workProfile.energyCostDiurno ?? DEFAULT_ENERGY_COSTS.diurno,
+      noturno: workProfile.energyCostNoturno ?? DEFAULT_ENERGY_COSTS.noturno,
+      h24: workProfile.energyCost24h ?? DEFAULT_ENERGY_COSTS.h24,
+    };
   }
 }

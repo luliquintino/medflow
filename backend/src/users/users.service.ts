@@ -1,8 +1,5 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { Gender } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CompleteOnboardingDto } from './dto/onboarding.dto';
 
@@ -16,13 +13,12 @@ export class UsersService {
       select: {
         id: true,
         name: true,
+        gender: true,
         email: true,
         avatarUrl: true,
         onboardingCompleted: true,
         createdAt: true,
-        financialProfile: {
-          include: { installments: true },
-        },
+        financialProfile: true,
         workProfile: true,
         subscription: {
           select: {
@@ -40,61 +36,29 @@ export class UsersService {
   async completeOnboarding(userId: string, dto: CompleteOnboardingDto) {
     const { financial, work } = dto;
 
-    // Calculate monthly installment total
-    const installmentTotal = (financial.installments || []).reduce(
-      (sum, i) => sum + i.monthlyValue,
-      0,
-    );
-
-    const minimumMonthlyGoal = financial.fixedMonthlyCosts + installmentTotal;
-    const idealMonthlyGoal = minimumMonthlyGoal + financial.savingsGoal;
-
     // Upsert financial profile
     const existingFP = await this.prisma.financialProfile.findUnique({
       where: { userId },
     });
 
     if (existingFP) {
-      // Delete old installments
-      await this.prisma.installment.deleteMany({
-        where: { financialProfileId: existingFP.id },
-      });
-
       await this.prisma.financialProfile.update({
         where: { userId },
         data: {
-          fixedMonthlyCosts: financial.fixedMonthlyCosts,
           savingsGoal: financial.savingsGoal,
           averageShiftValue: financial.averageShiftValue,
-          minimumMonthlyGoal,
-          idealMonthlyGoal,
-          installments: {
-            create: (financial.installments || []).map((i) => ({
-              description: i.description,
-              monthlyValue: i.monthlyValue,
-              remainingMonths: i.remainingMonths,
-              totalValue: i.monthlyValue * i.remainingMonths,
-            })),
-          },
+          minimumMonthlyGoal: financial.minimumMonthlyGoal,
+          idealMonthlyGoal: financial.idealMonthlyGoal,
         },
       });
     } else {
       await this.prisma.financialProfile.create({
         data: {
           userId,
-          fixedMonthlyCosts: financial.fixedMonthlyCosts,
           savingsGoal: financial.savingsGoal,
           averageShiftValue: financial.averageShiftValue,
-          minimumMonthlyGoal,
-          idealMonthlyGoal,
-          installments: {
-            create: (financial.installments || []).map((i) => ({
-              description: i.description,
-              monthlyValue: i.monthlyValue,
-              remainingMonths: i.remainingMonths,
-              totalValue: i.monthlyValue * i.remainingMonths,
-            })),
-          },
+          minimumMonthlyGoal: financial.minimumMonthlyGoal,
+          idealMonthlyGoal: financial.idealMonthlyGoal,
         },
       });
     }
@@ -106,12 +70,18 @@ export class UsersService {
         shiftTypes: work.shiftTypes,
         maxWeeklyHours: work.maxWeeklyHours,
         preferredRestDays: work.preferredRestDays || [],
+        ...(work.energyCostDiurno !== undefined && { energyCostDiurno: work.energyCostDiurno }),
+        ...(work.energyCostNoturno !== undefined && { energyCostNoturno: work.energyCostNoturno }),
+        ...(work.energyCost24h !== undefined && { energyCost24h: work.energyCost24h }),
       },
       create: {
         userId,
         shiftTypes: work.shiftTypes,
         maxWeeklyHours: work.maxWeeklyHours,
         preferredRestDays: work.preferredRestDays || [],
+        ...(work.energyCostDiurno !== undefined && { energyCostDiurno: work.energyCostDiurno }),
+        ...(work.energyCostNoturno !== undefined && { energyCostNoturno: work.energyCostNoturno }),
+        ...(work.energyCost24h !== undefined && { energyCost24h: work.energyCost24h }),
       },
     });
 
@@ -126,12 +96,34 @@ export class UsersService {
 
   async updateProfile(
     userId: string,
-    data: { name?: string; avatarUrl?: string },
+    data: { name?: string; avatarUrl?: string; gender?: Gender },
   ) {
     return this.prisma.user.update({
       where: { id: userId },
       data,
-      select: { id: true, name: true, email: true, avatarUrl: true },
+      select: { id: true, name: true, gender: true, email: true, avatarUrl: true },
+    });
+  }
+
+  async updateWorkProfile(
+    userId: string,
+    data: {
+      maxWeeklyHours?: number;
+      preferredRestDays?: number[];
+      energyCostDiurno?: number;
+      energyCostNoturno?: number;
+      energyCost24h?: number;
+    },
+  ) {
+    const existing = await this.prisma.workProfile.findUnique({ where: { userId } });
+    if (!existing)
+      throw new NotFoundException(
+        'Perfil de trabalho não encontrado. Complete o onboarding primeiro.',
+      );
+
+    return this.prisma.workProfile.update({
+      where: { userId },
+      data,
     });
   }
 

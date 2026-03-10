@@ -12,6 +12,7 @@ import {
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { CompleteOnboardingDto } from './dto/onboarding.dto';
+import { UpdateWorkProfileDto } from './dto/update-work-profile.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 
@@ -30,10 +31,7 @@ export class UsersController {
 
   @Post('onboarding')
   @ApiOperation({ summary: 'Completar onboarding inicial' })
-  completeOnboarding(
-    @CurrentUser('id') userId: string,
-    @Body() dto: CompleteOnboardingDto,
-  ) {
+  completeOnboarding(@CurrentUser('id') userId: string, @Body() dto: CompleteOnboardingDto) {
     return this.usersService.completeOnboarding(userId, dto);
   }
 
@@ -41,9 +39,20 @@ export class UsersController {
   @ApiOperation({ summary: 'Atualizar perfil' })
   updateProfile(
     @CurrentUser('id') userId: string,
-    @Body() body: { name?: string; avatarUrl?: string },
+    @Body()
+    body: {
+      name?: string;
+      avatarUrl?: string;
+      gender?: 'MALE' | 'FEMALE' | 'NON_BINARY' | 'PREFER_NOT_TO_SAY';
+    },
   ) {
     return this.usersService.updateProfile(userId, body);
+  }
+
+  @Patch('work-profile')
+  @ApiOperation({ summary: 'Atualizar perfil de trabalho (custos energéticos, limites)' })
+  updateWorkProfile(@CurrentUser('id') userId: string, @Body() dto: UpdateWorkProfileDto) {
+    return this.usersService.updateWorkProfile(userId, dto);
   }
 
   @Delete('account')

@@ -1,78 +1,104 @@
 import axios, { AxiosError } from "axios";
+import type { InternalAxiosRequestConfig } from "axios";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
+const BASE_URL = "/api/v1";
 
 export const api = axios.create({
   baseURL: BASE_URL,
   headers: { "Content-Type": "application/json" },
 });
 
-// ── Request: attach JWT ──────────────────────────────────────────────────────
-api.interceptors.request.use((config) => {
+// ── Request interceptor: inject Bearer token ───────────────────────────────
+api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   if (typeof window !== "undefined") {
-    const token = localStorage.getItem("accessToken");
-    if (token) config.headers.Authorization = `Bearer ${token}`;
+    try {
+      const raw = localStorage.getItem("medflow-auth");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        const token = parsed?.state?.accessToken;
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+      }
+    } catch {}
   }
   return config;
 });
 
-// ── Response: auto refresh token ─────────────────────────────────────────────
+// ── Response interceptor: handle 401 + refresh ─────────────────────────────
 let isRefreshing = false;
-let failedQueue: Array<{ resolve: (v: string) => void; reject: (e: any) => void }> = [];
+let failedQueue: Array<{ resolve: (v: string | null) => void; reject: (e: unknown) => void }> = [];
 
-function processQueue(error: any, token: string | null) {
-  failedQueue.forEach((p) => (error ? p.reject(error) : p.resolve(token!)));
+const processQueue = (error: unknown, token: string | null = null) => {
+  failedQueue.forEach(({ resolve, reject }) => {
+    if (error) reject(error);
+    else resolve(token);
+  });
   failedQueue = [];
-}
+};
 
 api.interceptors.response.use(
-  (res) => res,
+  (response) => response,
   async (error: AxiosError) => {
-    const original = error.config as any;
+    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
-    if (error.response?.status === 401 && !original._retry) {
-      if (isRefreshing) {
-        return new Promise((resolve, reject) => {
-          failedQueue.push({ resolve, reject });
-        })
-          .then((token) => {
-            original.headers.Authorization = `Bearer ${token}`;
-            return api(original);
-          })
-          .catch((e) => Promise.reject(e));
-      }
-
-      original._retry = true;
-      isRefreshing = true;
-
-      const refreshToken = localStorage.getItem("refreshToken");
-      if (!refreshToken) {
-        isRefreshing = false;
-        window.location.href = "/auth/login";
-        return Promise.reject(error);
-      }
-
-      try {
-        const { data } = await axios.post(`${BASE_URL}/auth/refresh`, {
-          refreshToken,
-        });
-        const newToken = data.data.accessToken;
-        localStorage.setItem("accessToken", newToken);
-        localStorage.setItem("refreshToken", data.data.refreshToken);
-        processQueue(null, newToken);
-        original.headers.Authorization = `Bearer ${newToken}`;
-        return api(original);
-      } catch (e) {
-        processQueue(e, null);
-        localStorage.clear();
-        window.location.href = "/auth/login";
-        return Promise.reject(e);
-      } finally {
-        isRefreshing = false;
-      }
+    if (error.response?.status !== 401 || originalRequest._retry) {
+      return Promise.reject(error);
     }
 
-    return Promise.reject(error);
+    // Don't retry auth endpoints
+    if (originalRequest.url?.includes("/auth/")) {
+      return Promise.reject(error);
+    }
+
+    if (isRefreshing) {
+      return new Promise((resolve, reject) => {
+        failedQueue.push({ resolve, reject });
+      }).then((token) => {
+        originalRequest.headers.Authorization = `Bearer ${token}`;
+        return api(originalRequest);
+      });
+    }
+
+    originalRequest._retry = true;
+    isRefreshing = true;
+
+    try {
+      const raw = localStorage.getItem("medflow-auth");
+      const parsed = raw ? JSON.parse(raw) : null;
+      const refreshToken = parsed?.state?.refreshToken;
+
+      if (!refreshToken) throw new Error("No refresh token");
+
+      const { data } = await axios.post(`${BASE_URL}/auth/refresh`, { refreshToken });
+      const newAccessToken = data.data?.accessToken || data.accessToken;
+      const newRefreshToken = data.data?.refreshToken || data.refreshToken;
+
+      // Update localStorage directly (zustand persist reads from here)
+      const newState = {
+        state: {
+          accessToken: newAccessToken,
+          refreshToken: newRefreshToken,
+        },
+        version: parsed?.version || 0,
+      };
+      localStorage.setItem("medflow-auth", JSON.stringify(newState));
+
+      processQueue(null, newAccessToken);
+
+      originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+      return api(originalRequest);
+    } catch (refreshError) {
+      processQueue(refreshError, null);
+      // Clear auth and redirect to login
+      localStorage.removeItem("medflow-auth");
+      if (typeof window !== "undefined") {
+        window.location.href = "/auth/login";
+      }
+      return Promise.reject(refreshError);
+    } finally {
+      isRefreshing = false;
+    }
   }
 );
 

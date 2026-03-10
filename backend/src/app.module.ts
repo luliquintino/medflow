@@ -14,6 +14,10 @@ import { SubscriptionModule } from './subscription/subscription.module';
 import { WearableModule } from './wearable/wearable.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { MailModule } from './mail/mail.module';
+import { HospitalsModule } from './hospitals/hospitals.module';
+import { ShiftTemplatesModule } from './shift-templates/shift-templates.module';
+import { OptimizationModule } from './optimization/optimization.module';
+import { AnalyticsModule } from './analytics/analytics.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
@@ -41,6 +45,10 @@ import { HealthController } from './health.controller';
     WearableModule,
     DashboardModule,
     MailModule,
+    HospitalsModule,
+    ShiftTemplatesModule,
+    OptimizationModule,
+    AnalyticsModule,
   ],
   controllers: [HealthController],
   providers: [

@@ -11,14 +11,14 @@
  */
 
 export interface HRVData {
-  value: number;        // milliseconds
+  value: number; // milliseconds
   recordedAt: Date;
   source: string;
 }
 
 export interface SleepData {
   totalHours: number;
-  score: number;        // 0–100
+  score: number; // 0–100
   deepSleepHours: number;
   remSleepHours: number;
   awakenings: number;
@@ -27,9 +27,9 @@ export interface SleepData {
 }
 
 export interface RecoveryData {
-  score: number;        // 0–100
+  score: number; // 0–100
   restingHR: number;
-  stressLevel: number;  // 0–100
+  stressLevel: number; // 0–100
   recordedAt: Date;
   source: string;
 }

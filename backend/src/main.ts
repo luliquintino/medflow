@@ -1,30 +1,35 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import helmet from 'helmet';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
-    logger: process.env.NODE_ENV === 'production' ? ['error', 'warn'] : ['log', 'debug', 'error', 'verbose', 'warn'],
+    logger:
+      process.env.NODE_ENV === 'production'
+        ? ['error', 'warn']
+        : ['log', 'debug', 'error', 'verbose', 'warn'],
   });
 
-  // ── Security headers ─────────────────────────────────────────────────────
-  app.use((_req: any, res: any, next: any) => {
-    res.setHeader('X-Content-Type-Options', 'nosniff');
-    res.setHeader('X-Frame-Options', 'DENY');
-    res.setHeader('X-XSS-Protection', '1; mode=block');
-    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-    res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
-    if (process.env.NODE_ENV === 'production') {
-      res.setHeader('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
-    }
-    next();
-  });
+  // ── Security headers (Helmet) ───────────────────────────────────────────
+  app.use(
+    helmet({
+      contentSecurityPolicy: false, // CSP managed separately if needed
+      hsts:
+        process.env.NODE_ENV === 'production'
+          ? { maxAge: 63072000, includeSubDomains: true, preload: true }
+          : false,
+    }),
+  );
 
   // ── CORS ────────────────────────────────────────────────────────────────
   const allowedOrigins = [
     process.env.FRONTEND_URL || 'http://localhost:3000',
     'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'http://localhost:3002',
+    'http://127.0.0.1:3002',
   ].filter(Boolean);
 
   app.enableCors({

@@ -4,14 +4,18 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Activity, Lock, CheckCircle2, AlertCircle } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import Image from "next/image";
+import { CheckCircle2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { PasswordInput } from "@/components/ui/password-input";
 import { api, getErrorMessage } from "@/lib/api";
 
 const schema = z
   .object({
-    password: z.string().min(8, "Mínimo 8 caracteres"),
+    password: z
+      .string()
+      .min(8, "Mínimo 8 caracteres")
+      .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, "Deve conter maiúscula, minúscula e número"),
     confirmPassword: z.string(),
   })
   .refine((d) => d.password === d.confirmPassword, {
@@ -58,9 +62,7 @@ function ResetPasswordInner() {
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <div className="w-12 h-12 rounded-2xl bg-moss-600 flex items-center justify-center mb-3 shadow-float">
-            <Activity className="w-6 h-6 text-white" />
-          </div>
+          <Image src="/logo.png" alt="Med Flow" width={112} height={112} className="mb-3" />
           <h1 className="text-xl font-bold text-moss-800">Med Flow</h1>
           <p className="text-sm text-gray-500 mt-0.5">Seu copiloto de plantões</p>
         </div>
@@ -77,7 +79,7 @@ function ResetPasswordInner() {
                 Este link de recuperação é inválido ou já foi utilizado.
               </p>
               <button
-                onClick={() => router.push("/auth/login?tab=forgot")}
+                onClick={() => router.push("/auth/forgot-password")}
                 className="text-sm text-moss-600 font-medium hover:underline"
               >
                 Solicitar novo link
@@ -111,19 +113,15 @@ function ResetPasswordInner() {
               </p>
 
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                <Input
+                <PasswordInput
                   label="Nova senha"
-                  type="password"
                   placeholder="Mínimo 8 caracteres"
-                  leftIcon={<Lock className="w-4 h-4" />}
                   error={errors.password?.message}
                   {...register("password")}
                 />
-                <Input
+                <PasswordInput
                   label="Confirmar nova senha"
-                  type="password"
                   placeholder="Repita a nova senha"
-                  leftIcon={<Lock className="w-4 h-4" />}
                   error={errors.confirmPassword?.message}
                   {...register("confirmPassword")}
                 />

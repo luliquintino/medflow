@@ -3,18 +3,24 @@
   "configurations": [
     {
       "name": "frontend",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
-      "port": 3000,
-      "autoPort": true,
-      "cwd": "${workspaceRoot}/frontend"
+      "runtimeExecutable": "/usr/local/bin/npm",
+      "runtimeArgs": ["run", "dev", "--", "-p", "3002"],
+      "port": 3002,
+      "cwd": "${workspaceRoot}/frontend",
+      "env": {
+        "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+      }
     },
     {
       "name": "backend",
-      "runtimeExecutable": "npm",
+      "runtimeExecutable": "/usr/local/bin/npm",
       "runtimeArgs": ["run", "start:dev"],
       "port": 3001,
-      "cwd": "${workspaceRoot}/backend"
+      "autoPort": true,
+      "cwd": "${workspaceRoot}/backend",
+      "env": {
+        "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+      }
     }
   ]
 }

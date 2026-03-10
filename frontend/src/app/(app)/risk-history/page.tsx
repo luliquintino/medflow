@@ -3,14 +3,26 @@ import { useQuery } from "@tanstack/react-query";
 import { Shield } from "lucide-react";
 import { api, unwrap } from "@/lib/api";
 import { formatDate } from "@/lib/format";
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { RiskBadge } from "@/components/ui/risk-badge";
 import { PageSpinner } from "@/components/ui/spinner";
+import type { RiskLevel } from "@/types";
+
+interface RiskHistoryRecord {
+  id: string;
+  riskLevel: RiskLevel;
+  riskScore: number;
+  createdAt: string;
+  hoursIn5Days: number;
+  hoursInWeek: number;
+  consecutiveNights: number;
+  recommendation?: string;
+}
 
 export default function RiskHistoryPage() {
   const { data: history = [], isLoading } = useQuery({
     queryKey: ["risk-history"],
-    queryFn: () => api.get("/risk/history?limit=30").then((r) => unwrap<any[]>(r)),
+    queryFn: () => api.get("/risk/history?limit=30").then((r) => unwrap<RiskHistoryRecord[]>(r)),
   });
 
   if (isLoading) return <PageSpinner />;
@@ -31,7 +43,7 @@ export default function RiskHistoryPage() {
         </Card>
       ) : (
         <div className="space-y-3">
-          {history.map((record: any) => (
+          {history.map((record) => (
             <Card key={record.id} padding="sm">
               <div className="flex items-center justify-between">
                 <div>
@@ -53,7 +65,7 @@ export default function RiskHistoryPage() {
               </div>
               {record.recommendation && (
                 <p className="text-xs text-gray-600 italic mt-2 bg-sand-100 rounded-lg px-3 py-2">
-                  "{record.recommendation}"
+                  &ldquo;{record.recommendation}&rdquo;
                 </p>
               )}
             </Card>

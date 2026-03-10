@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  CanActivate,
-  ExecutionContext,
-  ForbiddenException,
-} from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { SubscriptionPlan } from '@prisma/client';
 import { PLAN_KEY } from '../decorators/plan.decorator';
@@ -17,10 +12,10 @@ export class PlanGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const requiredPlans = this.reflector.getAllAndOverride<SubscriptionPlan[]>(
-      PLAN_KEY,
-      [context.getHandler(), context.getClass()],
-    );
+    const requiredPlans = this.reflector.getAllAndOverride<SubscriptionPlan[]>(PLAN_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
 
     if (!requiredPlans || requiredPlans.length === 0) return true;
 

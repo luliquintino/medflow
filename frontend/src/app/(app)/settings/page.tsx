@@ -1,12 +1,31 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { User, Watch, Heart, Moon, Zap, Activity, RefreshCw } from "lucide-react";
+import { User, Watch, Activity, Battery, RotateCcw, Save, Pencil } from "lucide-react";
+import { toast } from "sonner";
 import { api, unwrap, getErrorMessage } from "@/lib/api";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useAuthStore } from "@/store/auth.store";
 import { clsx } from "clsx";
+import type { User as UserType, Gender } from "@/types";
+
+const selectClass =
+  "w-full rounded-xl border border-cream-300 bg-white/70 px-4 py-3 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-moss-400 focus:border-transparent transition-all duration-200";
+
+const ENERGY_DEFAULTS = {
+  energyCostDiurno: 1.0,
+  energyCostNoturno: 1.5,
+  energyCost24h: 2.5,
+};
+
+const GENDER_OPTIONS: { value: Gender; label: string }[] = [
+  { value: "MALE", label: "Masculino" },
+  { value: "FEMALE", label: "Feminino" },
+  { value: "NON_BINARY", label: "Não-binário" },
+  { value: "PREFER_NOT_TO_SAY", label: "Prefiro não informar" },
+];
 
 const WEARABLE_PROVIDERS = [
   {
@@ -36,40 +55,78 @@ const WEARABLE_PROVIDERS = [
 ];
 
 export default function SettingsPage() {
-  const { user } = useAuthStore();
+  const { user, setUser } = useAuthStore();
   const queryClient = useQueryClient();
-  const [syncLoading, setSyncLoading] = useState(false);
 
-  const { data: wearableData, isLoading: wearableLoading } = useQuery({
-    queryKey: ["wearable-latest"],
-    queryFn: () => api.get("/wearable/latest").then((r) => unwrap<any>(r)),
-    retry: false,
+  // Profile edit state
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [profileName, setProfileName] = useState(user?.name ?? "");
+  const [profileGender, setProfileGender] = useState<string>(user?.gender ?? "");
+  // Energy costs state
+  const [energyCostDiurno, setEnergyCostDiurno] = useState(ENERGY_DEFAULTS.energyCostDiurno);
+  const [energyCostNoturno, setEnergyCostNoturno] = useState(ENERGY_DEFAULTS.energyCostNoturno);
+  const [energyCost24h, setEnergyCost24h] = useState(ENERGY_DEFAULTS.energyCost24h);
+
+  const { data: profile } = useQuery({
+    queryKey: ["me"],
+    queryFn: () => api.get("/users/me").then((r) => unwrap<UserType>(r)),
   });
 
-  const { data: wearableHistory } = useQuery({
-    queryKey: ["wearable-history"],
-    queryFn: () => api.get("/wearable/history?days=7").then((r) => unwrap<any[]>(r)),
-    retry: false,
-  });
-
-  async function handleSync() {
-    try {
-      setSyncLoading(true);
-      await api.post("/wearable/sync");
-      queryClient.invalidateQueries({ queryKey: ["wearable-latest"] });
-      queryClient.invalidateQueries({ queryKey: ["wearable-history"] });
-    } catch (e) {
-      alert(getErrorMessage(e));
-    } finally {
-      setSyncLoading(false);
+  useEffect(() => {
+    if (profile?.workProfile) {
+      setEnergyCostDiurno(profile.workProfile.energyCostDiurno ?? ENERGY_DEFAULTS.energyCostDiurno);
+      setEnergyCostNoturno(profile.workProfile.energyCostNoturno ?? ENERGY_DEFAULTS.energyCostNoturno);
+      setEnergyCost24h(profile.workProfile.energyCost24h ?? ENERGY_DEFAULTS.energyCost24h);
     }
+  }, [profile]);
+
+  useEffect(() => {
+    if (profile) {
+      setProfileName(profile.name ?? "");
+      setProfileGender(profile.gender ?? "");
+    }
+  }, [profile]);
+
+  const profileMutation = useMutation({
+    mutationFn: (data: { name: string; gender?: string }) =>
+      api.patch("/users/profile", data),
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: ["me"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      const updated = res.data?.data || res.data;
+      if (updated && user) {
+        setUser({ ...user, ...updated });
+      }
+      setIsEditingProfile(false);
+      toast.success("Perfil atualizado");
+    },
+  });
+
+  const energyMutation = useMutation({
+    mutationFn: (data: { energyCostDiurno: number; energyCostNoturno: number; energyCost24h: number }) =>
+      api.patch("/users/work-profile", data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["me"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["optimization"] });
+      toast.success("Custos energéticos salvos");
+    },
+  });
+
+  function handleProfileSave(e: React.FormEvent) {
+    e.preventDefault();
+    if (!profileName.trim()) return;
+    profileMutation.mutate({
+      name: profileName.trim(),
+      gender: profileGender || undefined,
+    });
   }
 
   return (
     <div className="max-w-3xl space-y-8">
       <div>
-        <h2 className="text-xl font-bold text-gray-800">Configuracoes</h2>
-        <p className="text-sm text-gray-500 mt-0.5">Gerencie sua conta e wearables</p>
+        <h2 className="text-xl font-bold text-gray-800">Configurações</h2>
+        <p className="text-sm text-gray-500 mt-0.5">Gerencie sua conta e preferências</p>
       </div>
 
       {/* Profile */}
@@ -79,18 +136,164 @@ export default function SettingsPage() {
             <User className="w-4 h-4 text-moss-600" />
             Perfil
           </CardTitle>
+          {!isEditingProfile && (
+            <button
+              onClick={() => setIsEditingProfile(true)}
+              className="text-xs text-moss-600 hover:text-moss-700 font-medium flex items-center gap-1 transition-colors"
+            >
+              <Pencil className="w-3 h-3" />
+              Editar
+            </button>
+          )}
         </CardHeader>
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-moss-200 flex items-center justify-center">
-            <span className="text-lg font-bold text-moss-700">
-              {user?.name?.charAt(0).toUpperCase()}
-            </span>
+
+        {isEditingProfile ? (
+          <form onSubmit={handleProfileSave} className="space-y-4">
+            <Input
+              label="Nome"
+              value={profileName}
+              onChange={(e) => setProfileName(e.target.value)}
+              placeholder="Seu nome"
+            />
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-gray-700">Gênero</label>
+              <select
+                value={profileGender}
+                onChange={(e) => setProfileGender(e.target.value)}
+                className={selectClass}
+              >
+                <option value="">Selecionar...</option>
+                {GENDER_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-gray-700">E-mail</label>
+              <p className="text-sm text-gray-500 bg-cream-100 rounded-xl px-4 py-3 border border-cream-200">
+                {user?.email}
+              </p>
+            </div>
+
+            {profileMutation.isError && (
+              <p className="text-sm text-red-500 bg-red-50 rounded-xl px-3 py-2">
+                {getErrorMessage(profileMutation.error)}
+              </p>
+            )}
+
+            <div className="flex gap-3">
+              <Button
+                type="submit"
+                loading={profileMutation.isPending}
+                icon={<Save className="w-4 h-4" />}
+                className="flex-1"
+              >
+                Salvar
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => {
+                  setIsEditingProfile(false);
+                  setProfileName(profile?.name ?? user?.name ?? "");
+                  setProfileGender(profile?.gender ?? user?.gender ?? "");
+                }}
+              >
+                Cancelar
+              </Button>
+            </div>
+          </form>
+        ) : (
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-moss-200 flex items-center justify-center">
+              <span className="text-lg font-bold text-moss-700">
+                {user?.name?.charAt(0).toUpperCase()}
+              </span>
+            </div>
+            <div>
+              <p className="font-semibold text-gray-800">{user?.name}</p>
+              <p className="text-sm text-gray-500">{user?.email}</p>
+              {user?.gender && (
+                <p className="text-xs text-gray-400 mt-0.5">
+                  {GENDER_OPTIONS.find((o) => o.value === user.gender)?.label}
+                </p>
+              )}
+            </div>
           </div>
-          <div>
-            <p className="font-semibold text-gray-800">{user?.name}</p>
-            <p className="text-sm text-gray-500">{user?.email}</p>
+        )}
+      </Card>
+
+      {/* Energy Costs */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Battery className="w-4 h-4 text-purple-500" />
+            Custos Energéticos Pessoais
+          </CardTitle>
+        </CardHeader>
+
+        {profile?.workProfile ? (
+          <div className="space-y-5">
+            <p className="text-sm text-gray-500">
+              Ajuste se você sente mais ou menos impacto que a média em cada tipo de plantão.
+            </p>
+
+            <EnergyCostSlider
+              label="12h Diurno"
+              value={energyCostDiurno}
+              defaultValue={ENERGY_DEFAULTS.energyCostDiurno}
+              onChange={setEnergyCostDiurno}
+            />
+            <EnergyCostSlider
+              label="12h Noturno"
+              value={energyCostNoturno}
+              defaultValue={ENERGY_DEFAULTS.energyCostNoturno}
+              onChange={setEnergyCostNoturno}
+            />
+            <EnergyCostSlider
+              label="24h"
+              value={energyCost24h}
+              defaultValue={ENERGY_DEFAULTS.energyCost24h}
+              onChange={setEnergyCost24h}
+            />
+
+            <div className="flex gap-3 pt-2">
+              <Button
+                onClick={() => energyMutation.mutate({ energyCostDiurno, energyCostNoturno, energyCost24h })}
+                loading={energyMutation.isPending}
+                icon={<Save className="w-4 h-4" />}
+                className="flex-1"
+              >
+                Salvar
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  setEnergyCostDiurno(ENERGY_DEFAULTS.energyCostDiurno);
+                  setEnergyCostNoturno(ENERGY_DEFAULTS.energyCostNoturno);
+                  setEnergyCost24h(ENERGY_DEFAULTS.energyCost24h);
+                }}
+                icon={<RotateCcw className="w-4 h-4" />}
+              >
+                Restaurar padrões
+              </Button>
+            </div>
+
+            {energyMutation.isError && (
+              <p className="text-sm text-red-500 bg-red-50 rounded-xl px-3 py-2">
+                {getErrorMessage(energyMutation.error)}
+              </p>
+            )}
           </div>
-        </div>
+        ) : (
+          <div className="text-center py-8">
+            <p className="text-sm text-gray-500">
+              Complete o onboarding primeiro para configurar seus custos energéticos.
+            </p>
+          </div>
+        )}
       </Card>
 
       {/* Wearable Providers */}
@@ -121,91 +324,45 @@ export default function SettingsPage() {
           Integracao direta com wearables esta em desenvolvimento. Dados de demonstracao estao disponiveis.
         </p>
       </div>
+    </div>
+  );
+}
 
-      {/* Sync & Latest Data */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-base font-semibold text-gray-800 flex items-center gap-2">
-            <Zap className="w-4 h-4 text-moss-600" />
-            Dados recentes
-          </h3>
-          <Button
-            variant="secondary"
-            size="sm"
-            loading={syncLoading}
-            onClick={handleSync}
-            icon={<RefreshCw className="w-3.5 h-3.5" />}
-          >
-            Sincronizar
-          </Button>
+function EnergyCostSlider({
+  label,
+  value,
+  defaultValue,
+  onChange,
+}: {
+  label: string;
+  value: number;
+  defaultValue: number;
+  onChange: (v: number) => void;
+}) {
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-2">
+        <label className="text-sm font-medium text-gray-700">{label}</label>
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-bold text-gray-800">{value.toFixed(1)}</span>
+          {value !== defaultValue && (
+            <span className="text-xs text-gray-400">(padrão: {defaultValue.toFixed(1)})</span>
+          )}
         </div>
-
-        {wearableData ? (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <Card padding="sm" className="text-center">
-              <Heart className="w-5 h-5 text-red-500 mx-auto mb-2" />
-              <p className="text-2xl font-bold text-gray-800">{wearableData.hrv?.value ?? "—"}</p>
-              <p className="text-xs text-gray-500 mt-0.5">HRV (ms)</p>
-            </Card>
-            <Card padding="sm" className="text-center">
-              <Moon className="w-5 h-5 text-indigo-500 mx-auto mb-2" />
-              <p className="text-2xl font-bold text-gray-800">{wearableData.sleep?.score ?? "—"}</p>
-              <p className="text-xs text-gray-500 mt-0.5">Sono (score)</p>
-            </Card>
-            <Card padding="sm" className="text-center">
-              <Zap className="w-5 h-5 text-amber-500 mx-auto mb-2" />
-              <p className="text-2xl font-bold text-gray-800">{wearableData.recovery?.score ?? "—"}</p>
-              <p className="text-xs text-gray-500 mt-0.5">Recuperacao</p>
-            </Card>
-            <Card padding="sm" className="text-center">
-              <Activity className="w-5 h-5 text-moss-500 mx-auto mb-2" />
-              <p className="text-2xl font-bold text-gray-800">{wearableData.recovery?.restingHR ?? "—"}</p>
-              <p className="text-xs text-gray-500 mt-0.5">FC Repouso</p>
-            </Card>
-          </div>
-        ) : (
-          <Card className="text-center py-10">
-            <Watch className="w-10 h-10 text-moss-300 mx-auto mb-3" />
-            <p className="text-gray-500 text-sm">
-              Nenhum dado de wearable ainda. Clique em "Sincronizar" para buscar dados.
-            </p>
-          </Card>
-        )}
-
-        {wearableData?.interpretation && (
-          <Card className="mt-3 bg-moss-50 border-moss-200">
-            <p className="text-sm text-moss-800 font-medium">
-              {wearableData.interpretation.message}
-            </p>
-          </Card>
-        )}
       </div>
-
-      {/* History */}
-      {wearableHistory && wearableHistory.length > 0 && (
-        <div>
-          <h3 className="text-base font-semibold text-gray-800 mb-4">
-            Historico (ultimos 7 dias)
-          </h3>
-          <div className="space-y-2">
-            {wearableHistory.map((entry: any) => (
-              <Card key={entry.id} padding="sm">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-500">
-                    {new Date(entry.recordedAt).toLocaleDateString("pt-BR")}
-                  </span>
-                  <div className="flex items-center gap-4 text-xs text-gray-600">
-                    {entry.hrv != null && <span>HRV: {entry.hrv}</span>}
-                    {entry.sleepScore != null && <span>Sono: {entry.sleepScore}</span>}
-                    {entry.recoveryScore != null && <span>Rec: {entry.recoveryScore}</span>}
-                    {entry.restingHR != null && <span>FC: {entry.restingHR}</span>}
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </div>
-      )}
+      <input
+        type="range"
+        min="0.5"
+        max="5.0"
+        step="0.1"
+        value={value}
+        onChange={(e) => onChange(parseFloat(e.target.value))}
+        className="w-full h-2 bg-cream-200 rounded-full appearance-none cursor-pointer accent-moss-600"
+      />
+      <div className="flex justify-between text-xs text-gray-400 mt-1">
+        <span>0.5</span>
+        <span>5.0</span>
+      </div>
     </div>
   );
 }

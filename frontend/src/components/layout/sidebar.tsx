@@ -2,17 +2,20 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { clsx } from "clsx";
+import Image from "next/image";
 import {
-  LayoutDashboard, Calendar, TrendingUp, AlertTriangle,
-  Zap, Settings, LogOut, Activity,
+  LayoutDashboard, Calendar, AlertTriangle,
+  Zap, Settings, LogOut, Building2, Brain, BarChart3,
 } from "lucide-react";
 import { useAuthStore } from "@/store/auth.store";
 import { api } from "@/lib/api";
 
 const NAV = [
-  { href: "/dashboard",      icon: LayoutDashboard, label: "Dashboard" },
+  { href: "/dashboard",      icon: LayoutDashboard, label: "Meu Painel" },
+  { href: "/hospitals",      icon: Building2,       label: "Hospitais" },
   { href: "/shifts",         icon: Calendar,        label: "Plantões" },
-  { href: "/finance",        icon: TrendingUp,      label: "Financeiro" },
+  { href: "/analytics",      icon: BarChart3,       label: "Analytics" },
+  { href: "/smart-planner",  icon: Brain,           label: "Planejamento" },
   { href: "/simulate",       icon: Zap,             label: "Aceito ou Não?" },
   { href: "/risk-history",   icon: AlertTriangle,   label: "Histórico de Risco" },
   { href: "/settings",       icon: Settings,        label: "Configurações" },
@@ -26,15 +29,16 @@ interface SidebarProps {
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, logout } = useAuthStore();
+  const { user, logout, refreshToken } = useAuthStore();
 
   async function handleLogout() {
     try {
-      const refreshToken = localStorage.getItem("refreshToken");
       await api.post("/auth/logout", { refreshToken });
-    } catch {}
+    } catch {
+      // Ignore errors — we log out locally regardless
+    }
     logout();
-    router.push("/auth/login");
+    router.replace("/auth/login");
   }
 
   return (
@@ -61,9 +65,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         {/* Logo */}
         <div className="px-6 py-6 border-b border-cream-200">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-moss-gradient flex items-center justify-center">
-              <Activity className="w-4 h-4 text-white" />
-            </div>
+            <Image src="/logo.png" alt="Med Flow" width={64} height={64} />
             <span className="font-semibold text-moss-800 text-lg">Med Flow</span>
           </div>
         </div>
@@ -93,24 +95,26 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
         {/* User footer */}
         <div className="px-4 py-4 border-t border-cream-200">
-          <div className="flex items-center gap-3 mb-3 px-1">
+          <div className="flex items-center gap-3 px-1">
             <div className="w-8 h-8 rounded-full bg-moss-200 flex items-center justify-center flex-shrink-0">
               <span className="text-xs font-bold text-moss-700">
                 {user?.name?.charAt(0).toUpperCase()}
               </span>
             </div>
-            <div className="min-w-0">
-              <p className="text-sm font-medium text-gray-800 truncate">{user?.name}</p>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium text-gray-800 truncate">
+                {user?.gender === "MALE" ? "Dr. " : user?.gender === "FEMALE" ? "Dra. " : ""}{user?.name}
+              </p>
               <p className="text-xs text-gray-500 truncate">{user?.email}</p>
             </div>
+            <button
+              onClick={handleLogout}
+              className="w-8 h-8 rounded-lg hover:bg-red-50 flex items-center justify-center transition-colors flex-shrink-0"
+              title="Sair"
+            >
+              <LogOut className="w-4 h-4 text-gray-400 hover:text-red-500" />
+            </button>
           </div>
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-gray-500 hover:bg-red-50 hover:text-red-600 transition-all duration-150"
-          >
-            <LogOut className="w-4 h-4" />
-            Sair
-          </button>
         </div>
       </aside>
     </>

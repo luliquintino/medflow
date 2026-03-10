@@ -4,24 +4,24 @@
  */
 
 export interface FinancialInput {
-  fixedMonthlyCosts: number;
+  minimumMonthlyGoal: number;
+  idealMonthlyGoal: number;
   savingsGoal: number;
   averageShiftValue: number;
-  installmentMonthlyTotal: number;
   confirmedShiftsThisMonth: number;
   confirmedRevenueThisMonth: number;
 }
 
 export interface FinancialProjection {
-  minimumMonthlyGoal: number;   // costs + installments
-  idealMonthlyGoal: number;     // minimum + savings
+  minimumMonthlyGoal: number;
+  idealMonthlyGoal: number;
   minimumShiftsRequired: number;
   idealShiftsRequired: number;
   currentRevenue: number;
-  revenueToMinimum: number;     // gap to minimum
-  revenueToIdeal: number;       // gap to ideal
-  progressToMinimum: number;    // 0-100%
-  progressToIdeal: number;      // 0-100%
+  revenueToMinimum: number; // gap to minimum
+  revenueToIdeal: number; // gap to ideal
+  progressToMinimum: number; // 0-100%
+  progressToIdeal: number; // 0-100%
   isMinimumReached: boolean;
   isIdealReached: boolean;
   projections: {
@@ -54,15 +54,23 @@ export interface SimulationResult {
 }
 
 const MONTH_NAMES = [
-  'Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun',
-  'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez',
+  'Jan',
+  'Fev',
+  'Mar',
+  'Abr',
+  'Mai',
+  'Jun',
+  'Jul',
+  'Ago',
+  'Set',
+  'Out',
+  'Nov',
+  'Dez',
 ];
 
 export class FinanceEngine {
   static calculate(input: FinancialInput): FinancialProjection {
-    const minimumMonthlyGoal =
-      input.fixedMonthlyCosts + input.installmentMonthlyTotal;
-    const idealMonthlyGoal = minimumMonthlyGoal + input.savingsGoal;
+    const { minimumMonthlyGoal, idealMonthlyGoal } = input;
 
     const avgValue = input.averageShiftValue || 1;
 
@@ -73,13 +81,11 @@ export class FinanceEngine {
     const revenueToMinimum = Math.max(0, minimumMonthlyGoal - currentRevenue);
     const revenueToIdeal = Math.max(0, idealMonthlyGoal - currentRevenue);
 
-    const progressToMinimum = minimumMonthlyGoal > 0
-      ? Math.min(100, (currentRevenue / minimumMonthlyGoal) * 100)
-      : 100;
+    const progressToMinimum =
+      minimumMonthlyGoal > 0 ? Math.min(100, (currentRevenue / minimumMonthlyGoal) * 100) : 100;
 
-    const progressToIdeal = idealMonthlyGoal > 0
-      ? Math.min(100, (currentRevenue / idealMonthlyGoal) * 100)
-      : 100;
+    const progressToIdeal =
+      idealMonthlyGoal > 0 ? Math.min(100, (currentRevenue / idealMonthlyGoal) * 100) : 100;
 
     const now = new Date();
 
@@ -88,9 +94,10 @@ export class FinanceEngine {
       // Average shifts per month based on current pace
       const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
       const daysPassed = now.getDate();
-      const pace = daysPassed > 0
-        ? (input.confirmedShiftsThisMonth / daysPassed) * daysInMonth
-        : input.confirmedShiftsThisMonth;
+      const pace =
+        daysPassed > 0
+          ? (input.confirmedShiftsThisMonth / daysPassed) * daysInMonth
+          : input.confirmedShiftsThisMonth;
 
       for (let i = 1; i <= months; i++) {
         const monthIndex = (now.getMonth() + i) % 12;
@@ -126,10 +133,7 @@ export class FinanceEngine {
     };
   }
 
-  static simulate(
-    input: FinancialInput,
-    hypotheticalShiftValue: number,
-  ): SimulationResult {
+  static simulate(input: FinancialInput, hypotheticalShiftValue: number): SimulationResult {
     const before = this.calculate(input);
 
     const afterInput = {
@@ -142,9 +146,7 @@ export class FinanceEngine {
 
     const revenueGain = hypotheticalShiftValue;
     const impactPercentage =
-      before.idealMonthlyGoal > 0
-        ? (revenueGain / before.idealMonthlyGoal) * 100
-        : 0;
+      before.idealMonthlyGoal > 0 ? (revenueGain / before.idealMonthlyGoal) * 100 : 0;
 
     return {
       beforeRevenue: before.currentRevenue,

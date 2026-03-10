@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
+import { Throttle } from '@nestjs/throttler';
 import { ConfigService } from '@nestjs/config';
 import { Response, Request } from 'express';
 import { AuthService } from './auth.service';
@@ -32,6 +33,7 @@ export class AuthController {
   ) {}
 
   @Public()
+  @Throttle({ default: { ttl: 60000, limit: 5 } })
   @Post('register')
   @ApiOperation({ summary: 'Cadastro de novo médico' })
   async register(@Body() dto: RegisterDto) {
@@ -39,6 +41,7 @@ export class AuthController {
   }
 
   @Public()
+  @Throttle({ default: { ttl: 60000, limit: 5 } })
   @HttpCode(HttpStatus.OK)
   @Post('login')
   @ApiOperation({ summary: 'Login' })
@@ -59,14 +62,12 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Post('logout')
   @ApiOperation({ summary: 'Logout' })
-  async logout(
-    @CurrentUser('id') userId: string,
-    @Body() dto: RefreshTokenDto,
-  ) {
+  async logout(@CurrentUser('id') userId: string, @Body() dto: RefreshTokenDto) {
     return this.authService.logout(userId, dto.refreshToken);
   }
 
   @Public()
+  @Throttle({ default: { ttl: 60000, limit: 3 } })
   @HttpCode(HttpStatus.OK)
   @Post('forgot-password')
   @ApiOperation({ summary: 'Solicitar recuperação de senha' })
@@ -75,6 +76,7 @@ export class AuthController {
   }
 
   @Public()
+  @Throttle({ default: { ttl: 60000, limit: 5 } })
   @HttpCode(HttpStatus.OK)
   @Post('reset-password')
   @ApiOperation({ summary: 'Redefinir senha com token' })
@@ -99,8 +101,7 @@ export class AuthController {
   async googleCallback(@Req() req: Request, @Res() res: Response) {
     const user = (req as any).user;
     const tokens = await this.authService.googleLogin(user);
-    const frontendUrl =
-      this.config.get<string>('frontendUrl') || 'http://localhost:3000';
+    const frontendUrl = this.config.get<string>('frontendUrl') || 'http://localhost:3000';
     res.redirect(
       `${frontendUrl}/auth/callback?token=${tokens.accessToken}&refresh=${tokens.refreshToken}`,
     );

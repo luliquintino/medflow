@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Zap, TrendingUp, Clock, AlertTriangle, CheckCircle2, XCircle, ArrowRight } from "lucide-react";
+import { Zap, TrendingUp, Clock, CheckCircle2, XCircle, ArrowRight, Battery } from "lucide-react";
 import { api, unwrap, getErrorMessage } from "@/lib/api";
 import { formatCurrency } from "@/lib/format";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
@@ -35,6 +35,7 @@ export default function SimulatePage() {
 
   const { register, handleSubmit, watch, setValue, formState: { errors } } =
     useForm<FormData>({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       resolver: zodResolver(schema) as any,
       defaultValues: { type: "TWELVE_HOURS" },
     });
@@ -86,6 +87,7 @@ export default function SimulatePage() {
           <CardTitle>Dados do plantão</CardTitle>
           <Zap className="w-5 h-5 text-moss-500" />
         </CardHeader>
+        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
         <form onSubmit={handleSubmit(onSubmit as any)} className="space-y-4">
           {/* Type */}
           <div>
@@ -236,6 +238,46 @@ export default function SimulatePage() {
                 </p>
               </div>
             )}
+          </Card>
+
+          {/* Exhaustion impact */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Battery className="w-4 h-4 text-purple-500" />
+                Custo energético
+              </CardTitle>
+            </CardHeader>
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div className={clsx("rounded-xl p-3", result.risk.exhaustionScore >= 10 ? "bg-red-50" : result.risk.exhaustionScore >= 7 ? "bg-amber-50" : "bg-sand-100")}>
+                  <p className="text-xs text-gray-500">Exaustão total</p>
+                  <p className={clsx("text-lg font-bold mt-0.5", result.risk.exhaustionScore >= 10 ? "text-red-600" : result.risk.exhaustionScore >= 7 ? "text-amber-700" : "text-gray-800")}>
+                    {result.risk.exhaustionScore?.toFixed(1) ?? "0.0"} <span className="text-xs font-normal text-gray-400">/ 10.0</span>
+                  </p>
+                </div>
+                <div className="rounded-xl p-3 bg-sand-100">
+                  <p className="text-xs text-gray-500">Sustentabilidade</p>
+                  <p className="text-lg font-bold text-gray-800 mt-0.5">
+                    {result.risk.sustainabilityIndex ? formatCurrency(result.risk.sustainabilityIndex) : "—"}
+                    <span className="text-xs font-normal text-gray-400"> / exaustão</span>
+                  </p>
+                </div>
+              </div>
+              {result.risk.workload.sustainabilityIndex > 0 && result.risk.sustainabilityIndex > 0 && (
+                <div className={clsx(
+                  "rounded-xl p-3 border text-xs",
+                  result.risk.sustainabilityIndex < result.risk.workload.sustainabilityIndex
+                    ? "bg-amber-50 border-amber-200 text-amber-700"
+                    : "bg-moss-50 border-moss-200 text-moss-700"
+                )}>
+                  {result.risk.sustainabilityIndex < result.risk.workload.sustainabilityIndex
+                    ? `Este plantão reduz sua sustentabilidade (média atual: ${formatCurrency(result.risk.workload.sustainabilityIndex)}/exaustão)`
+                    : `Este plantão melhora sua sustentabilidade (média atual: ${formatCurrency(result.risk.workload.sustainabilityIndex)}/exaustão)`
+                  }
+                </div>
+              )}
+            </div>
           </Card>
         </div>
       )}

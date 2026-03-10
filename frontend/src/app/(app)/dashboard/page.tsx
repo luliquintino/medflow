@@ -1,15 +1,14 @@
 "use client";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { TrendingUp, Clock, Calendar, Zap, ArrowRight, AlertTriangle } from "lucide-react";
+import { TrendingUp, Clock, Calendar, Zap, ArrowRight, AlertTriangle, Battery } from "lucide-react";
 import { api, unwrap } from "@/lib/api";
-import { formatCurrency, formatPercent } from "@/lib/format";
+import { formatCurrency } from "@/lib/format";
 import { useAuthStore } from "@/store/auth.store";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { RiskBadge } from "@/components/ui/risk-badge";
 import { PageSpinner } from "@/components/ui/spinner";
-import { Button } from "@/components/ui/button";
 import type { DashboardData } from "@/types";
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer
@@ -31,18 +30,24 @@ export default function DashboardPage() {
   const risk = data?.risk;
 
   const greeting = () => {
-    const h = new Date().getHours();
-    if (h < 12) return "Bom dia";
-    if (h < 18) return "Boa tarde";
-    return "Boa noite";
+    const firstName = user?.name?.split(" ")[0] ?? "";
+    if (user?.gender === "FEMALE") return `Olá, Dra. ${firstName}`;
+    if (user?.gender === "MALE") return `Olá, Dr. ${firstName}`;
+    return `Olá, ${firstName}`;
   };
 
   const monthMessage = () => {
-    if (!finance) return "Configure seu perfil financeiro para começar.";
-    if (finance.isIdealReached) return "🎯 Você já atingiu sua meta ideal este mês!";
-    if (finance.isMinimumReached) return "✅ Você já garantiu sua meta mínima.";
-    if (finance.progressToMinimum >= 70) return "Seu mês está fluindo bem.";
-    return "Vamos lá — há espaço para mais plantões este mês.";
+    if (!risk) return "Configure seus dados para acompanhar seu mês.";
+    switch (risk.level) {
+      case "SAFE":
+        return "Seu mês está equilibrado. Você tem margem para mais plantões, se desejar.";
+      case "MODERATE":
+        return "Atenção: sua carga de trabalho está moderada. Cuide-se.";
+      case "HIGH":
+        return "Alerta: sua carga está elevada. Considere avaliar seu bem-estar.";
+      default:
+        return "Acompanhe seu mês aqui.";
+    }
   };
 
   const chartData = finance?.projections?.threeMonths?.map((p) => ({
@@ -56,7 +61,7 @@ export default function DashboardPage() {
       {/* Header greeting */}
       <div>
         <h2 className="text-2xl font-bold text-gray-800">
-          {greeting()}, {user?.name?.split(" ")[0]} 👋
+          {greeting()}
         </h2>
         <p className="text-gray-500 mt-1">{monthMessage()}</p>
       </div>
@@ -119,7 +124,7 @@ export default function DashboardPage() {
                 showLabel
                 label="Meta ideal"
               />
-              <div className="grid grid-cols-2 gap-3 pt-2">
+              <div className="grid grid-cols-3 gap-3 pt-2">
                 <div className="bg-sand-100 rounded-xl p-3">
                   <p className="text-xs text-gray-500">Falta para mínimo</p>
                   <p className="text-sm font-bold text-gray-800 mt-0.5">
@@ -130,6 +135,12 @@ export default function DashboardPage() {
                   <p className="text-xs text-gray-500">Plantões mínimos</p>
                   <p className="text-sm font-bold text-gray-800 mt-0.5">
                     {finance.minimumShiftsRequired} plantões
+                  </p>
+                </div>
+                <div className="bg-moss-50 rounded-xl p-3">
+                  <p className="text-xs text-gray-500">Valor médio/plantão</p>
+                  <p className="text-sm font-bold text-moss-700 mt-0.5">
+                    {formatCurrency(finance.profile.averageShiftValue)}
                   </p>
                 </div>
               </div>
@@ -148,13 +159,34 @@ export default function DashboardPage() {
           {risk && workload ? (
             <div className="space-y-4">
               <p className="text-sm text-gray-600 italic bg-sand-100 rounded-xl p-3 leading-relaxed">
-                "{risk.recommendation}"
+                &ldquo;{risk.recommendation}&rdquo;
               </p>
               <div className="grid grid-cols-2 gap-3">
                 <Metric label="Horas nos 5 dias" value={`${workload.hoursInLast5Days}h`} limit="/ 60h" warn={workload.hoursInLast5Days >= 48} />
                 <Metric label="Horas na semana" value={`${workload.totalHoursThisWeek}h`} limit="/ 72h" warn={workload.totalHoursThisWeek >= 56} />
                 <Metric label="Noturno consecutivo" value={`${workload.consecutiveNightShifts}x`} limit="/ 3x" warn={workload.consecutiveNightShifts >= 2} />
                 <Metric label="Plantões seguidos" value={`${workload.consecutiveShifts}x`} limit="/ 3x" warn={workload.consecutiveShifts >= 2} />
+              </div>
+              {/* Exhaustion & Sustainability */}
+              <div className="grid grid-cols-2 gap-3 border-t border-sand-200 pt-3">
+                <div className={`rounded-xl p-3 ${workload.totalExhaustionScore >= 7 ? "bg-amber-50" : "bg-sand-100"}`}>
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <Battery className="w-3.5 h-3.5 text-gray-500" />
+                    <p className="text-xs text-gray-500">Exaustão</p>
+                  </div>
+                  <p className={`text-sm font-bold ${workload.totalExhaustionScore >= 10 ? "text-red-600" : workload.totalExhaustionScore >= 7 ? "text-amber-700" : "text-gray-800"}`}>
+                    {workload.totalExhaustionScore?.toFixed(1) ?? "0.0"} <span className="text-xs font-normal text-gray-400">/ 10.0</span>
+                  </p>
+                </div>
+                <div className="rounded-xl p-3 bg-sand-100">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <TrendingUp className="w-3.5 h-3.5 text-gray-500" />
+                    <p className="text-xs text-gray-500">Sustentabilidade</p>
+                  </div>
+                  <p className="text-sm font-bold text-gray-800">
+                    {workload.sustainabilityIndex ? formatCurrency(workload.sustainabilityIndex) : "—"} <span className="text-xs font-normal text-gray-400">/ exaustão</span>
+                  </p>
+                </div>
               </div>
             </div>
           ) : (
@@ -181,7 +213,7 @@ export default function DashboardPage() {
                 <XAxis dataKey="name" tick={{ fontSize: 12, fill: "#888" }} axisLine={false} tickLine={false} />
                 <YAxis hide />
                 <Tooltip
-                  formatter={(v: any) => [formatCurrency(Number(v)), ""]}
+                  formatter={(v) => [formatCurrency(Number(v ?? 0)), ""]}
                   contentStyle={{ borderRadius: 12, border: "1px solid #e8dfd3", fontSize: 12 }}
                 />
                 <Area type="monotone" dataKey="meta" stroke="#e0c9b8" strokeWidth={1} fill="none" strokeDasharray="4 4" />

@@ -4,9 +4,10 @@ import {
   IsNumber,
   IsString,
   IsOptional,
+  IsBoolean,
   Min,
 } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { ShiftType, ShiftStatus } from '@prisma/client';
 
 export class CreateShiftDto {
@@ -32,13 +33,23 @@ export class CreateShiftDto {
   @IsString()
   location: string;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional()
   @IsOptional()
   @IsString()
   notes?: string;
 
-  @ApiProperty({ enum: ShiftStatus, default: ShiftStatus.CONFIRMED })
+  @ApiPropertyOptional({ enum: ShiftStatus, default: ShiftStatus.CONFIRMED })
   @IsOptional()
   @IsEnum(ShiftStatus)
   status?: ShiftStatus;
+
+  @ApiPropertyOptional({ description: 'ID do hospital associado' })
+  @IsOptional()
+  @IsString()
+  hospitalId?: string;
+
+  @ApiPropertyOptional({ description: 'Se o plantão foi realizado' })
+  @IsOptional()
+  @IsBoolean()
+  realized?: boolean;
 }

@@ -4,36 +4,24 @@ import {
   IsEnum,
   IsOptional,
   ValidateNested,
-  IsString,
-  Min,
   IsInt,
+  Min,
   Max,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 import { ShiftType } from '@prisma/client';
 
-export class InstallmentDto {
-  @ApiProperty({ example: 'Financiamento carro' })
-  @IsString()
-  description: string;
-
-  @ApiProperty({ example: 800 })
-  @IsNumber()
-  @Min(0)
-  monthlyValue: number;
-
-  @ApiProperty({ example: 18 })
-  @IsInt()
-  @Min(1)
-  remainingMonths: number;
-}
-
 export class OnboardingFinancialDto {
-  @ApiProperty({ example: 5000 })
+  @ApiProperty({ example: 7000 })
   @IsNumber()
   @Min(0)
-  fixedMonthlyCosts: number;
+  minimumMonthlyGoal: number;
+
+  @ApiProperty({ example: 10000 })
+  @IsNumber()
+  @Min(0)
+  idealMonthlyGoal: number;
 
   @ApiProperty({ example: 2000 })
   @IsNumber()
@@ -44,13 +32,6 @@ export class OnboardingFinancialDto {
   @IsNumber()
   @Min(0)
   averageShiftValue: number;
-
-  @ApiProperty({ type: [InstallmentDto], required: false })
-  @IsOptional()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => InstallmentDto)
-  installments?: InstallmentDto[];
 }
 
 export class OnboardingWorkDto {
@@ -71,6 +52,35 @@ export class OnboardingWorkDto {
   @IsArray()
   @IsInt({ each: true })
   preferredRestDays?: number[];
+
+  @ApiProperty({
+    example: 1.0,
+    required: false,
+    description: 'Custo energético 12h diurno (0.5-5.0)',
+  })
+  @IsOptional()
+  @IsNumber()
+  @Min(0.5)
+  @Max(5.0)
+  energyCostDiurno?: number;
+
+  @ApiProperty({
+    example: 1.5,
+    required: false,
+    description: 'Custo energético 12h noturno (0.5-5.0)',
+  })
+  @IsOptional()
+  @IsNumber()
+  @Min(0.5)
+  @Max(5.0)
+  energyCostNoturno?: number;
+
+  @ApiProperty({ example: 2.5, required: false, description: 'Custo energético 24h (0.5-5.0)' })
+  @IsOptional()
+  @IsNumber()
+  @Min(0.5)
+  @Max(5.0)
+  energyCost24h?: number;
 }
 
 export class CompleteOnboardingDto {

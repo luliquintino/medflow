@@ -13,8 +13,11 @@ import { GoogleStrategy } from './strategies/google.strategy';
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (config: ConfigService) => ({
-        secret: config.get<string>('jwt.secret') || 'dev-secret',
-        signOptions: { expiresIn: (config.get<string>('jwt.expiry') || '15m') as any },
+        secret: config.get<string>('jwt.secret'),
+        signOptions: {
+          expiresIn: (config.get<string>('jwt.expiry') || '15m') as any,
+          algorithm: 'HS256' as const,
+        },
       }),
       inject: [ConfigService],
     }),

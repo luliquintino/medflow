@@ -1,6 +1,15 @@
 import {
-  Controller, Get, Post, Patch, Delete,
-  Body, Param, Query, UseGuards, HttpCode, HttpStatus,
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { ShiftType } from '@prisma/client';
@@ -53,11 +62,7 @@ export class ShiftsController {
 
   @Patch(':id')
   @ApiOperation({ summary: 'Atualizar plantão' })
-  update(
-    @CurrentUser('id') userId: string,
-    @Param('id') id: string,
-    @Body() dto: UpdateShiftDto,
-  ) {
+  update(@CurrentUser('id') userId: string, @Param('id') id: string, @Body() dto: UpdateShiftDto) {
     return this.shiftsService.update(userId, id, dto);
   }
 

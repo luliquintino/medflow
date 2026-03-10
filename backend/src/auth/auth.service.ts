@@ -3,6 +3,7 @@ import {
   ConflictException,
   UnauthorizedException,
   BadRequestException,
+  InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -45,7 +46,8 @@ export class AuthService {
     const user = await this.prisma.user.create({
       data: {
         name: dto.name,
-        crm: dto.crm,
+        crm: dto.crm.toUpperCase(),
+        gender: dto.gender,
         email: dto.email.toLowerCase(),
         passwordHash,
         subscription: {
@@ -58,6 +60,7 @@ export class AuthService {
       select: {
         id: true,
         name: true,
+        gender: true,
         email: true,
         crm: true,
         onboardingCompleted: true,
@@ -140,11 +143,11 @@ export class AuthService {
       where: { email: dto.email.toLowerCase() },
     });
 
-    // Always return success to avoid email enumeration
+    const genericMessage = 'Se o e-mail estiver cadastrado, enviaremos um link de recuperação.';
+
+    // Always return same message to prevent email enumeration
     if (!user) {
-      return {
-        message: 'Se o e-mail estiver cadastrado, você receberá um link de recuperação.',
-      };
+      return { message: genericMessage };
     }
 
     const token = uuidv4();
@@ -155,16 +158,22 @@ export class AuthService {
       data: { resetPasswordToken: token, resetPasswordExpiry: expiry },
     });
 
-    const frontendUrl = this.config.get<string>('frontendUrl') || 'http://localhost:3000';
+    const frontendUrl = this.config.get<string>('frontendUrl') || 'http://localhost:3002';
     const resetUrl = `${frontendUrl}/auth/reset-password?token=${token}`;
 
     // Send password reset email
-    await this.mailService.sendPasswordReset(user.email, user.name, resetUrl);
+    try {
+      await this.mailService.sendPasswordReset(user.email, user.name, resetUrl);
+      this.logger.log(`Password reset email sent to ${user.email}`);
+    } catch {
+      this.logger.warn(`Could not send password reset email for ${user.email}`);
+    }
 
-    this.logger.log(`Password reset requested for ${user.email}`);
-
+    // Only return resetUrl in development (when email may not work)
+    const isDev = this.config.get<string>('env') !== 'production';
     return {
-      message: 'Se o e-mail estiver cadastrado, você receberá um link de recuperação.',
+      message: genericMessage,
+      ...(isDev ? { resetUrl } : {}),
     };
   }
 
@@ -193,6 +202,9 @@ export class AuthService {
         resetPasswordExpiry: null,
       },
     });
+
+    // Invalidate all refresh tokens — force re-login on all devices
+    await this.prisma.refreshToken.deleteMany({ where: { userId: user.id } });
 
     return { message: 'Senha alterada com sucesso.' };
   }

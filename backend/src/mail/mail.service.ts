@@ -1,30 +1,20 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 
 @Injectable()
 export class MailService {
   private readonly logger = new Logger(MailService.name);
-  private transporter: nodemailer.Transporter;
+  private resend: Resend;
+  private from: string;
 
   constructor(private config: ConfigService) {
-    this.transporter = nodemailer.createTransport({
-      host: this.config.get<string>('smtp.host') || 'smtp.gmail.com',
-      port: this.config.get<number>('smtp.port') || 587,
-      secure: false,
-      auth: {
-        user: this.config.get<string>('smtp.user'),
-        pass: this.config.get<string>('smtp.pass'),
-      },
-    });
+    const apiKey = this.config.get<string>('resend.apiKey') || '';
+    this.resend = new Resend(apiKey);
+    this.from = this.config.get<string>('resend.from') || 'Med Flow <onboarding@resend.dev>';
   }
 
-  async sendPasswordReset(
-    email: string,
-    name: string,
-    resetUrl: string,
-  ): Promise<void> {
-    const from = this.config.get<string>('smtp.from') || 'Med Flow <noreply@medflow.app>';
+  async sendPasswordReset(email: string, name: string, resetUrl: string): Promise<void> {
     const firstName = name.split(' ')[0];
     const year = new Date().getFullYear();
 
@@ -79,15 +69,26 @@ export class MailService {
 </html>`;
 
     try {
-      await this.transporter.sendMail({ from, to: email, subject: 'Redefinir senha — Med Flow', html });
+      const { error } = await this.resend.emails.send({
+        from: this.from,
+        to: email,
+        subject: 'Redefinir senha — Med Flow',
+        html,
+      });
+
+      if (error) {
+        this.logger.error(`Resend error for ${email}: ${error.message}`);
+        throw new Error(error.message);
+      }
+
       this.logger.log(`Password reset email sent to ${email}`);
     } catch (err) {
       this.logger.error(`Failed to send password reset email to ${email}`, err);
+      throw new Error('Falha ao enviar e-mail de recuperação.');
     }
   }
 
   async sendWelcome(email: string, name: string): Promise<void> {
-    const from = this.config.get<string>('smtp.from') || 'Med Flow <noreply@medflow.app>';
     const firstName = name.split(' ')[0];
     const year = new Date().getFullYear();
 
@@ -132,7 +133,16 @@ export class MailService {
 </html>`;
 
     try {
-      await this.transporter.sendMail({ from, to: email, subject: 'Bem-vindo ao Med Flow! 🎉', html });
+      const { error } = await this.resend.emails.send({
+        from: this.from,
+        to: email,
+        subject: 'Bem-vindo ao Med Flow! 🎉',
+        html,
+      });
+
+      if (error) {
+        this.logger.error(`Resend welcome error for ${email}: ${error.message}`);
+      }
     } catch (err) {
       this.logger.error(`Failed to send welcome email to ${email}`, err);
     }

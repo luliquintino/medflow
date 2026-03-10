@@ -1,10 +1,6 @@
-import {
-  Injectable,
-  NotFoundException,
-  ForbiddenException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { WorkloadEngine } from './shifts.engine';
+import { WorkloadEngine, EnergyCosts, DEFAULT_ENERGY_COSTS } from './shifts.engine';
 import { CreateShiftDto } from './dto/create-shift.dto';
 import { UpdateShiftDto } from './dto/update-shift.dto';
 import { QueryShiftsDto } from './dto/query-shifts.dto';
@@ -18,6 +14,16 @@ export class ShiftsService {
     const date = new Date(dto.date);
     const endDate = new Date(date.getTime() + dto.hours * 60 * 60 * 1000);
 
+    // If hospitalId provided, validate ownership
+    if (dto.hospitalId) {
+      const hospital = await this.prisma.hospital.findFirst({
+        where: { id: dto.hospitalId, userId },
+      });
+      if (!hospital) {
+        throw new NotFoundException('Hospital não encontrado.');
+      }
+    }
+
     return this.prisma.shift.create({
       data: {
         userId,
@@ -29,6 +35,10 @@ export class ShiftsService {
         location: dto.location,
         notes: dto.notes,
         status: dto.status || 'CONFIRMED',
+        hospitalId: dto.hospitalId || null,
+      },
+      include: {
+        hospital: { select: { id: true, name: true } },
       },
     });
   }
@@ -45,6 +55,9 @@ export class ShiftsService {
 
     return this.prisma.shift.findMany({
       where,
+      include: {
+        hospital: { select: { id: true, name: true } },
+      },
       orderBy: { date: 'desc' },
     });
   }
@@ -64,7 +77,13 @@ export class ShiftsService {
       const hours = dto.hours ?? (await this.findOne(userId, id)).hours;
       data.endDate = new Date(data.date.getTime() + hours * 60 * 60 * 1000);
     }
-    return this.prisma.shift.update({ where: { id }, data });
+    return this.prisma.shift.update({
+      where: { id },
+      data,
+      include: {
+        hospital: { select: { id: true, name: true } },
+      },
+    });
   }
 
   async remove(userId: string, id: string) {
@@ -74,24 +93,31 @@ export class ShiftsService {
   }
 
   async getWorkloadSummary(userId: string) {
-    const shifts = await this.prisma.shift.findMany({
-      where: { userId },
-      orderBy: { date: 'asc' },
-    });
+    const [shifts, workProfile] = await Promise.all([
+      this.prisma.shift.findMany({
+        where: { userId },
+        orderBy: { date: 'asc' },
+      }),
+      this.prisma.workProfile.findUnique({ where: { userId } }),
+    ]);
 
-    const summary = WorkloadEngine.calculate(shifts as any);
-    return summary;
+    const energyCosts = this.getEnergyCosts(workProfile);
+    return WorkloadEngine.calculate(shifts as any, new Date(), energyCosts);
   }
 
   async simulateWorkload(
     userId: string,
     hypothetical: { date: string; type: ShiftType; hours: number; value: number },
   ) {
-    const shifts = await this.prisma.shift.findMany({
-      where: { userId, status: 'CONFIRMED' },
-      orderBy: { date: 'asc' },
-    });
+    const [shifts, workProfile] = await Promise.all([
+      this.prisma.shift.findMany({
+        where: { userId, status: 'CONFIRMED' },
+        orderBy: { date: 'asc' },
+      }),
+      this.prisma.workProfile.findUnique({ where: { userId } }),
+    ]);
 
+    const energyCosts = this.getEnergyCosts(workProfile);
     const hyp = {
       date: new Date(hypothetical.date),
       type: hypothetical.type,
@@ -99,9 +125,23 @@ export class ShiftsService {
       value: hypothetical.value,
     };
 
-    const before = WorkloadEngine.calculate(shifts as any);
-    const after = WorkloadEngine.calculateWithHypothetical(shifts as any, hyp);
+    const before = WorkloadEngine.calculate(shifts as any, new Date(), energyCosts);
+    const after = WorkloadEngine.calculateWithHypothetical(
+      shifts as any,
+      hyp,
+      new Date(),
+      energyCosts,
+    );
 
     return { before, after };
+  }
+
+  private getEnergyCosts(workProfile: any): EnergyCosts {
+    if (!workProfile) return DEFAULT_ENERGY_COSTS;
+    return {
+      diurno: workProfile.energyCostDiurno ?? DEFAULT_ENERGY_COSTS.diurno,
+      noturno: workProfile.energyCostNoturno ?? DEFAULT_ENERGY_COSTS.noturno,
+      h24: workProfile.energyCost24h ?? DEFAULT_ENERGY_COSTS.h24,
+    };
   }
 }

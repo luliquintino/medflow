@@ -29,10 +29,7 @@ export class RiskEngineController {
 
   @Get('history')
   @ApiOperation({ summary: 'Histórico de risco acumulado' })
-  history(
-    @CurrentUser('id') userId: string,
-    @Query('limit') limit?: string,
-  ) {
+  history(@CurrentUser('id') userId: string, @Query('limit') limit?: string) {
     return this.riskService.getHistory(userId, limit ? parseInt(limit) : 30);
   }
 }

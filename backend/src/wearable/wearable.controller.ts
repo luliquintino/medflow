@@ -19,10 +19,7 @@ export class WearableController {
 
   @Get('history')
   @ApiOperation({ summary: '[Pro] Histórico de dados do wearable' })
-  getHistory(
-    @CurrentUser('id') userId: string,
-    @Query('days') days?: string,
-  ) {
+  getHistory(@CurrentUser('id') userId: string, @Query('days') days?: string) {
     return this.wearableService.getHistory(userId, days ? parseInt(days) : 7);
   }
 }
