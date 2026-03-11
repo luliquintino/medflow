@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Image from "next/image";
 import { Mail } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { api, getErrorMessage } from "@/lib/api";
 import { useAuthStore } from "@/store/auth.store";
 import { Button } from "@/components/ui/button";
@@ -14,17 +15,23 @@ import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import type { User } from "@/types";
 
-const loginSchema = z.object({
-  email: z.string().email("E-mail invalido"),
-  password: z.string().min(1, "Senha obrigatoria"),
-});
+type LoginForm = z.infer<ReturnType<typeof createLoginSchema>>;
 
-type LoginForm = z.infer<typeof loginSchema>;
+function createLoginSchema(tv: (key: string) => string) {
+  return z.object({
+    email: z.string().email(tv("emailInvalid")),
+    password: z.string().min(1, tv("passwordRequired")),
+  });
+}
 
 export default function LoginPage() {
   const router = useRouter();
   const { setTokens, setUser } = useAuthStore();
   const [error, setError] = useState("");
+  const t = useTranslations("auth.login");
+  const tv = useTranslations("validation");
+
+  const loginSchema = useMemo(() => createLoginSchema(tv), [tv]);
 
   const {
     register,
@@ -59,25 +66,25 @@ export default function LoginPage() {
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
           <Image src="/logo.png" alt="Med Flow" width={112} height={112} className="mb-3" />
-          <h1 className="text-2xl font-bold text-moss-800">Med Flow</h1>
-          <p className="text-sm text-gray-500 mt-1">Entre na sua conta</p>
+          <h1 className="text-2xl font-bold text-moss-800">{t("title")}</h1>
+          <p className="text-sm text-gray-500 mt-1">{t("subtitle")}</p>
         </div>
 
         {/* Card */}
         <div className="bg-cream-50 rounded-3xl shadow-float border border-cream-200 p-8">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <Input
-              label="E-mail"
+              label={t("emailLabel")}
               type="email"
-              placeholder="seu@email.com"
+              placeholder={t("emailPlaceholder")}
               leftIcon={<Mail className="w-4 h-4" />}
               error={errors.email?.message}
               {...register("email")}
             />
 
             <PasswordInput
-              label="Senha"
-              placeholder="Sua senha"
+              label={t("passwordLabel")}
+              placeholder={t("passwordPlaceholder")}
               error={errors.password?.message}
               {...register("password")}
             />
@@ -94,7 +101,7 @@ export default function LoginPage() {
               size="lg"
               loading={isSubmitting}
             >
-              Entrar
+              {t("submit")}
             </Button>
 
             <div className="text-right mt-2">
@@ -102,18 +109,18 @@ export default function LoginPage() {
                 href="/auth/forgot-password"
                 className="text-sm text-moss-600 font-medium hover:text-moss-700 transition-colors"
               >
-                Esqueceu a senha?
+                {t("forgotPassword")}
               </Link>
             </div>
           </form>
 
           <p className="text-center text-sm text-gray-500 mt-6">
-            Nao tem conta?{" "}
+            {t("noAccount")}{" "}
             <Link
               href="/auth/register"
               className="text-moss-600 font-medium hover:text-moss-700 transition-colors"
             >
-              Criar conta
+              {t("createAccount")}
             </Link>
           </p>
         </div>

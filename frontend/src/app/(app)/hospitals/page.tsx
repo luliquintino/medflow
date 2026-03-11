@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Plus, Pencil, Trash2, Building2, MapPin, FileText, X, ChevronRight, CalendarDays } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Link from "next/link";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { api, unwrap, getErrorMessage } from "@/lib/api";
 import { BRAZIL_STATES, fetchCitiesByUF } from "@/lib/brazil-states";
 import { Card } from "@/components/ui/card";
@@ -19,19 +20,24 @@ import type { Hospital } from "@/types";
 const selectClass =
   "w-full rounded-xl border border-cream-300 bg-white/70 px-4 py-3 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-moss-400 focus:border-transparent transition-all duration-200";
 
-const schema = z.object({
-  name: z.string().min(2, "Nome obrigatório (mínimo 2 caracteres)"),
-  state: z.string().optional(),
-  city: z.string().optional(),
-  notes: z.string().optional(),
-  paymentDay: z.union([
-    z.coerce.number().int().min(1).max(31),
-    z.literal("").transform(() => undefined),
-  ]).optional(),
-});
-type FormData = z.infer<typeof schema>;
-
 export default function HospitalsPage() {
+  const t = useTranslations("hospitals");
+  const tValidation = useTranslations("validation");
+  const tCommon = useTranslations("common");
+
+  const schema = useMemo(() => z.object({
+    name: z.string().min(2, tValidation("nameMinChars")),
+    state: z.string().optional(),
+    city: z.string().optional(),
+    notes: z.string().optional(),
+    paymentDay: z.union([
+      z.coerce.number().int().min(1).max(31),
+      z.literal("").transform(() => undefined),
+    ]).optional(),
+  }), [tValidation]);
+
+  type FormData = z.infer<typeof schema>;
+
   const qc = useQueryClient();
   const { confirm, ConfirmDialogComponent } = useConfirm();
   const [showForm, setShowForm] = useState(false);
@@ -77,7 +83,7 @@ export default function HospitalsPage() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["hospitals"] });
-      toast.success(editing ? "Hospital atualizado" : "Hospital adicionado");
+      toast.success(editing ? t("toastUpdated") : t("toastAdded"));
       closeForm();
     },
     onError: (e) => setError(getErrorMessage(e)),
@@ -87,7 +93,7 @@ export default function HospitalsPage() {
     mutationFn: (id: string) => api.delete(`/hospitals/${id}`),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["hospitals"] });
-      toast.success("Hospital removido");
+      toast.success(t("toastDeleted"));
     },
   });
 
@@ -133,13 +139,13 @@ export default function HospitalsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-gray-800">Meus Hospitais</h2>
+          <h2 className="text-xl font-bold text-gray-800">{t("title")}</h2>
           <p className="text-sm text-gray-500 mt-0.5">
-            {hospitals.length} {hospitals.length === 1 ? "hospital cadastrado" : "hospitais cadastrados"}
+            {t("count", { count: hospitals.length })}
           </p>
         </div>
         <Button onClick={() => setShowForm(true)} icon={<Plus className="w-4 h-4" />}>
-          Novo hospital
+          {t("newHospital")}
         </Button>
       </div>
 
@@ -149,7 +155,7 @@ export default function HospitalsPage() {
           <div className="bg-cream-50 rounded-3xl shadow-float border border-cream-200 p-8 w-full max-w-md">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-semibold text-gray-800">
-                {editing ? "Editar hospital" : "Novo hospital"}
+                {editing ? t("editHospital") : t("newHospital")}
               </h3>
               <button onClick={closeForm} className="text-gray-400 hover:text-gray-600">
                 <X className="w-5 h-5" />
@@ -158,22 +164,22 @@ export default function HospitalsPage() {
 
             <form onSubmit={handleSubmit((d) => saveMutation.mutate(d))} className="space-y-4">
               <Input
-                label="Nome"
-                placeholder="Ex: Hospital Santa Casa"
+                label={t("nameLabel")}
+                placeholder={t("namePlaceholder")}
                 error={errors.name?.message}
                 {...register("name")}
               />
 
               {/* Estado */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-gray-700">Estado</label>
+                <label className="text-sm font-medium text-gray-700">{t("stateLabel")}</label>
                 <select
                   {...register("state", {
                     onChange: () => setValue("city", ""),
                   })}
                   className={selectClass}
                 >
-                  <option value="">Selecione o estado</option>
+                  <option value="">{t("statePlaceholder")}</option>
                   {BRAZIL_STATES.map((s) => (
                     <option key={s.uf} value={s.uf}>{s.name}</option>
                   ))}
@@ -182,7 +188,7 @@ export default function HospitalsPage() {
 
               {/* Cidade */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-gray-700">Cidade</label>
+                <label className="text-sm font-medium text-gray-700">{t("cityLabel")}</label>
                 <select
                   {...register("city")}
                   disabled={!selectedState || loadingCities}
@@ -190,10 +196,10 @@ export default function HospitalsPage() {
                 >
                   <option value="">
                     {loadingCities
-                      ? "Carregando cidades..."
+                      ? t("cityLoadingPlaceholder")
                       : !selectedState
-                        ? "Selecione o estado primeiro"
-                        : "Selecione a cidade"}
+                        ? t("cityNoStatePlaceholder")
+                        : t("cityPlaceholder")}
                   </option>
                   {cities.map((c) => (
                     <option key={c} value={c}>{c}</option>
@@ -203,14 +209,14 @@ export default function HospitalsPage() {
 
               {/* Dia de pagamento */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-gray-700">Dia de pagamento</label>
+                <label className="text-sm font-medium text-gray-700">{t("paymentDayLabel")}</label>
                 <select
                   {...register("paymentDay")}
                   className={selectClass}
                 >
-                  <option value="">Selecione o dia</option>
+                  <option value="">{t("paymentDayPlaceholder")}</option>
                   {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => (
-                    <option key={d} value={d}>Todo dia {d}</option>
+                    <option key={d} value={d}>{t("paymentDayOption", { day: d })}</option>
                   ))}
                 </select>
                 {errors.paymentDay?.message && (
@@ -219,8 +225,8 @@ export default function HospitalsPage() {
               </div>
 
               <Input
-                label="Observações (opcional)"
-                placeholder="Pronto-socorro, UTI, etc."
+                label={t("notesLabel")}
+                placeholder={t("notesPlaceholder")}
                 {...register("notes")}
               />
 
@@ -228,10 +234,10 @@ export default function HospitalsPage() {
 
               <div className="flex gap-3 pt-2">
                 <Button type="button" variant="secondary" onClick={closeForm} className="flex-1">
-                  Cancelar
+                  {tCommon("cancel")}
                 </Button>
                 <Button type="submit" className="flex-1" loading={isSubmitting || saveMutation.isPending}>
-                  {editing ? "Salvar" : "Adicionar"}
+                  {editing ? tCommon("save") : tCommon("add")}
                 </Button>
               </div>
             </form>
@@ -242,9 +248,9 @@ export default function HospitalsPage() {
       {/* Hospitals list */}
       {hospitals.length === 0 ? (
         <Card className="text-center py-12">
-          <p className="text-gray-500 mb-3">Você ainda não tem hospitais cadastrados.</p>
+          <p className="text-gray-500 mb-3">{t("emptyState")}</p>
           <Button onClick={() => setShowForm(true)} icon={<Plus className="w-4 h-4" />}>
-            Adicionar primeiro hospital
+            {t("addFirstHospital")}
           </Button>
         </Card>
       ) : (
@@ -266,12 +272,12 @@ export default function HospitalsPage() {
                   )}
                   <span className="flex items-center gap-1">
                     <FileText className="w-3 h-3" />
-                    {hospital._count?.templates ?? 0} modelos
+                    {t("modelsCount", { count: hospital._count?.templates ?? 0 })}
                   </span>
                   {hospital.paymentDay && (
                     <span className="flex items-center gap-1">
                       <CalendarDays className="w-3 h-3" />
-                      Dia {hospital.paymentDay}
+                      {t("dayLabel", { day: hospital.paymentDay })}
                     </span>
                   )}
                 </div>
@@ -281,7 +287,7 @@ export default function HospitalsPage() {
                 <Link
                   href={`/hospitals/${hospital.id}/templates`}
                   className="w-8 h-8 rounded-lg hover:bg-cream-200 flex items-center justify-center transition-colors"
-                  title="Modelos de plantão"
+                  title={t("shiftTemplates")}
                 >
                   <ChevronRight className="w-4 h-4 text-gray-500" />
                 </Link>
@@ -291,9 +297,9 @@ export default function HospitalsPage() {
                 <button
                   onClick={async () => {
                     const ok = await confirm({
-                      title: "Remover hospital",
-                      message: "Remover este hospital e todos os modelos de plantão associados? Esta ação não pode ser desfeita.",
-                      confirmLabel: "Remover",
+                      title: t("confirmDeleteTitle"),
+                      message: t("confirmDeleteMessage"),
+                      confirmLabel: t("confirmDeleteLabel"),
                       variant: "danger",
                     });
                     if (ok) deleteMutation.mutate(hospital.id);

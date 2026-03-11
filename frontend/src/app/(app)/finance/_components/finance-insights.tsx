@@ -1,5 +1,6 @@
 "use client";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { api, unwrap } from "@/lib/api";
 import type { FinanceInsight } from "@/types";
 
@@ -18,6 +19,8 @@ const BG_COLORS: Record<FinanceInsight["type"], string> = {
 };
 
 export function FinanceInsights() {
+  const t = useTranslations("financeInsights");
+
   const { data: insights = [] } = useQuery({
     queryKey: ["finance-insights"],
     queryFn: () => api.get("/finance/insights").then((r) => unwrap<FinanceInsight[]>(r)),
@@ -29,7 +32,7 @@ export function FinanceInsights() {
   return (
     <div className="space-y-3">
       <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-        <span>💡</span> Assistente Financeiro
+        <span>💡</span> {t("title")}
       </h3>
 
       <div className="space-y-2">

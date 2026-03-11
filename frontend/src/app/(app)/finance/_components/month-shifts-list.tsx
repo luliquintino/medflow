@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Plus, ChevronDown, ChevronUp } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { formatCurrency } from "@/lib/format";
 import { Card } from "@/components/ui/card";
 import { ShiftCard } from "@/components/shifts/shift-card";
@@ -15,6 +16,7 @@ interface MonthShiftsListProps {
 }
 
 export function MonthShiftsList({ shifts, monthContext, onEdit, onDelete, onAdd }: MonthShiftsListProps) {
+  const t = useTranslations("monthShiftsList");
   const [expanded, setExpanded] = useState(shifts.length <= 5);
 
   // Split confirmed into realized (or pending) vs unrealized — matches finance engine
@@ -36,17 +38,17 @@ export function MonthShiftsList({ shifts, monthContext, onEdit, onDelete, onAdd 
           className="flex items-center gap-2 text-sm font-semibold text-gray-700 hover:text-gray-900 transition-colors"
         >
           {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-          Plantões do mês
+          {t("title")}
         </button>
 
         <div className="flex items-center gap-4">
           <span className="text-xs text-gray-500">
-            {confirmed.length} confirmado{confirmed.length !== 1 ? "s" : ""}
+            {t("confirmed", { count: confirmed.length })}
             {simulated.length > 0 && (
-              <> · {simulated.length} simulado{simulated.length !== 1 ? "s" : ""}</>
+              <> · {t("simulated", { count: simulated.length })}</>
             )}
             {unrealized.length > 0 && (
-              <> · <span className="text-red-500">{unrealized.length} não realizado{unrealized.length !== 1 ? "s" : ""}</span></>
+              <> · <span className="text-red-500">{t("unrealized", { count: unrealized.length })}</span></>
             )}
             {" · "}
             <span className="font-semibold text-moss-600">{formatCurrency(totalRevenue)}</span>
@@ -59,7 +61,7 @@ export function MonthShiftsList({ shifts, monthContext, onEdit, onDelete, onAdd 
         <div className="space-y-2">
           {sorted.length === 0 ? (
             <p className="text-sm text-gray-400 text-center py-4">
-              Nenhum plantão neste mês.
+              {t("emptyState")}
             </p>
           ) : (
             sorted.map((shift) => (
@@ -80,7 +82,7 @@ export function MonthShiftsList({ shifts, monthContext, onEdit, onDelete, onAdd 
               className="w-full py-3 border-2 border-dashed border-cream-300 rounded-xl text-sm font-medium text-gray-500 hover:text-moss-600 hover:border-moss-300 transition-colors flex items-center justify-center gap-2"
             >
               <Plus className="w-4 h-4" />
-              Adicionar plantão
+              {t("addShift")}
             </button>
           )}
         </div>

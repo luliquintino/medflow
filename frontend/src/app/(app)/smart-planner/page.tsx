@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Brain, TrendingUp, Clock, Calendar, ChevronDown, ChevronUp, Zap, Check, Battery } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { api, unwrap } from "@/lib/api";
 import { formatCurrency } from "@/lib/format";
 import { Card } from "@/components/ui/card";
@@ -13,6 +14,7 @@ import { clsx } from "clsx";
 import type { OptimizationResult, OptimizationScenario } from "@/types";
 
 export default function SmartPlannerPage() {
+  const t = useTranslations("smartPlanner");
   const qc = useQueryClient();
   const [expandedIdx, setExpandedIdx] = useState<number | null>(null);
   const [appliedIdx, setAppliedIdx] = useState<number | null>(null);
@@ -49,9 +51,9 @@ export default function SmartPlannerPage() {
       <div className="max-w-3xl">
         <Card className="text-center py-12">
           <Brain className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-          <p className="text-gray-500 mb-1">Não foi possível gerar sugestões.</p>
+          <p className="text-gray-500 mb-1">{t("noSuggestionsTitle")}</p>
           <p className="text-sm text-gray-400">
-            Complete seu perfil financeiro e cadastre hospitais com modelos de plantão para usar o planejamento inteligente.
+            {t("noSuggestionsDesc")}
           </p>
         </Card>
       </div>
@@ -66,9 +68,9 @@ export default function SmartPlannerPage() {
     <div className="max-w-3xl space-y-6">
       {/* Header */}
       <div>
-        <h2 className="text-xl font-bold text-gray-800">Planejamento Inteligente</h2>
+        <h2 className="text-xl font-bold text-gray-800">{t("title")}</h2>
         <p className="text-sm text-gray-500 mt-0.5">
-          Sugestões otimizadas para atingir sua meta financeira
+          {t("subtitle")}
         </p>
       </div>
 
@@ -80,12 +82,12 @@ export default function SmartPlannerPage() {
               <TrendingUp className="w-5 h-5 text-moss-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">Meta ideal mensal</p>
+              <p className="text-sm text-gray-500">{t("idealMonthlyGoal")}</p>
               <p className="text-lg font-bold text-gray-800">{formatCurrency(result.targetRevenue)}</p>
             </div>
           </div>
           <div className="text-right">
-            <p className="text-sm text-gray-500">Receita atual</p>
+            <p className="text-sm text-gray-500">{t("currentRevenue")}</p>
             <p className="text-lg font-bold text-moss-700">{formatCurrency(result.currentRevenue)}</p>
           </div>
         </div>
@@ -95,7 +97,7 @@ export default function SmartPlannerPage() {
           color={result.isGoalAlreadyMet ? "moss" : progress >= 70 ? "amber" : "red"}
           size="lg"
           showLabel
-          label="Progresso"
+          label={t("progress")}
         />
 
         {result.isGoalAlreadyMet ? (
@@ -103,14 +105,14 @@ export default function SmartPlannerPage() {
             <div className="flex items-center gap-2">
               <Check className="w-5 h-5 text-moss-600" />
               <p className="text-sm font-medium text-moss-700">
-                Parabéns! Você já atingiu sua meta ideal este mês.
+                {t("goalMet")}
               </p>
             </div>
           </div>
         ) : (
           <div className="bg-amber-50 rounded-xl p-4 border border-amber-100">
             <p className="text-sm text-amber-800">
-              Faltam <span className="font-bold">{formatCurrency(result.financialGap)}</span> para atingir sua meta ideal.
+              {t("financialGap", { value: formatCurrency(result.financialGap) })}
             </p>
           </div>
         )}
@@ -121,7 +123,7 @@ export default function SmartPlannerPage() {
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
             <Zap className="w-5 h-5 text-amber-500" />
-            Cenários sugeridos
+            {t("suggestedScenarios")}
           </h3>
 
           {result.suggestedScenarios.map((scenario, idx) => (
@@ -134,6 +136,7 @@ export default function SmartPlannerPage() {
               isApplying={appliedIdx === idx && applyMutation.isPending}
               onToggle={() => setExpandedIdx(expandedIdx === idx ? null : idx)}
               onApply={() => handleApply(scenario, idx)}
+              t={t}
             />
           ))}
         </div>
@@ -142,9 +145,9 @@ export default function SmartPlannerPage() {
       {!result.isGoalAlreadyMet && result.suggestedScenarios.length === 0 && (
         <Card className="text-center py-12">
           <Brain className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-          <p className="text-gray-500 mb-1">Nenhum cenário disponível.</p>
+          <p className="text-gray-500 mb-1">{t("noScenariosTitle")}</p>
           <p className="text-sm text-gray-400">
-            Cadastre hospitais e modelos de plantão para receber sugestões otimizadas.
+            {t("noScenariosDesc")}
           </p>
         </Card>
       )}
@@ -153,7 +156,7 @@ export default function SmartPlannerPage() {
 }
 
 function ScenarioCard({
-  scenario, rank, isExpanded, isApplied, isApplying, onToggle, onApply,
+  scenario, rank, isExpanded, isApplied, isApplying, onToggle, onApply, t,
 }: {
   scenario: OptimizationScenario;
   rank: number;
@@ -162,6 +165,8 @@ function ScenarioCard({
   isApplying: boolean;
   onToggle: () => void;
   onApply: () => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  t: any;
 }) {
   return (
     <Card className="overflow-hidden">
@@ -176,7 +181,7 @@ function ScenarioCard({
           <div className="flex items-center gap-3 mt-1 flex-wrap">
             <span className="text-xs text-gray-500 flex items-center gap-1">
               <Calendar className="w-3 h-3" />
-              {scenario.totalShifts} plantões
+              {t("shiftsLabel", { count: scenario.totalShifts })}
             </span>
             <span className="text-xs text-gray-500 flex items-center gap-1">
               <Clock className="w-3 h-3" />
@@ -222,7 +227,7 @@ function ScenarioCard({
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-gray-700 truncate">{shift.hospitalName}</p>
                 <p className="text-xs text-gray-500">
-                  {shift.durationInHours}h · {shift.isNightShift ? "Noturno" : "Diurno"} · {formatCurrency(shift.value)}
+                  {shift.durationInHours}h · {shift.isNightShift ? t("nightShift") : t("dayShift")} · {formatCurrency(shift.value)}
                 </p>
               </div>
             </div>
@@ -232,15 +237,15 @@ function ScenarioCard({
           {scenario.totalExhaustion > 0 && (
             <div className="grid grid-cols-2 gap-3">
               <div className={clsx("rounded-xl p-3", scenario.totalExhaustion >= 10 ? "bg-red-50" : scenario.totalExhaustion >= 7 ? "bg-amber-50" : "bg-sand-100")}>
-                <p className="text-xs text-gray-500">Exaustão total</p>
+                <p className="text-xs text-gray-500">{t("totalExhaustion")}</p>
                 <p className={clsx("text-sm font-bold mt-0.5", scenario.totalExhaustion >= 10 ? "text-red-600" : scenario.totalExhaustion >= 7 ? "text-amber-700" : "text-gray-800")}>
                   {scenario.totalExhaustion.toFixed(1)}
                 </p>
               </div>
               <div className="rounded-xl p-3 bg-sand-100">
-                <p className="text-xs text-gray-500">Sustentabilidade</p>
+                <p className="text-xs text-gray-500">{t("sustainability")}</p>
                 <p className="text-sm font-bold text-gray-800 mt-0.5">
-                  {scenario.sustainabilityIndex ? formatCurrency(scenario.sustainabilityIndex) : "—"}<span className="text-xs font-normal text-gray-400"> / exaustão</span>
+                  {scenario.sustainabilityIndex ? formatCurrency(scenario.sustainabilityIndex) : "—"}<span className="text-xs font-normal text-gray-400"> {t("perExhaustion")}</span>
                 </p>
               </div>
             </div>
@@ -250,7 +255,7 @@ function ScenarioCard({
             {isApplied ? (
               <div className="flex items-center gap-2 text-sm text-moss-700 bg-moss-50 rounded-xl px-4 py-3 border border-moss-100">
                 <Check className="w-4 h-4" />
-                Cenário aplicado com sucesso! Os plantões foram adicionados como simulados.
+                {t("scenarioApplied")}
               </div>
             ) : (
               <Button
@@ -259,7 +264,7 @@ function ScenarioCard({
                 className="w-full"
                 icon={<Zap className="w-4 h-4" />}
               >
-                Aplicar cenário (criar como simulados)
+                {t("applyScenario")}
               </Button>
             )}
           </div>

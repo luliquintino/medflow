@@ -1,4 +1,5 @@
 "use client";
+import { useTranslations } from "next-intl";
 import { formatCurrency } from "@/lib/format";
 import { Card } from "@/components/ui/card";
 import type { FinanceSummary } from "@/types";
@@ -8,21 +9,22 @@ interface FinanceKPIsProps {
 }
 
 export function FinanceKPIs({ finance }: FinanceKPIsProps) {
+  const t = useTranslations("financeKpis");
   const { monthContext } = finance;
   const isFuture = monthContext.isFuture;
 
   const kpis = isFuture
     ? [
-        { label: "Confirmado", value: formatCurrency(finance.confirmedRevenue), color: "text-moss-700" },
-        { label: "Simulado", value: formatCurrency(finance.simulatedRevenue), color: "text-gray-500" },
-        { label: "Meta mínima", value: formatCurrency(finance.minimumMonthlyGoal), color: "text-gray-800" },
-        { label: "Falta para ideal", value: formatCurrency(finance.revenueToIdeal), color: "text-amber-700" },
+        { label: t("confirmed"), value: formatCurrency(finance.confirmedRevenue), color: "text-moss-700" },
+        { label: t("simulated"), value: formatCurrency(finance.simulatedRevenue), color: "text-gray-500" },
+        { label: t("minimumGoal"), value: formatCurrency(finance.minimumMonthlyGoal), color: "text-gray-800" },
+        { label: t("remainingToIdeal"), value: formatCurrency(finance.revenueToIdeal), color: "text-amber-700" },
       ]
     : [
-        { label: "Receita atual", value: formatCurrency(finance.currentRevenue), color: "text-moss-700" },
-        { label: "Meta mínima", value: formatCurrency(finance.minimumMonthlyGoal), color: "text-gray-800" },
-        { label: "Meta ideal", value: formatCurrency(finance.idealMonthlyGoal), color: "text-gray-800" },
-        { label: "Falta para ideal", value: formatCurrency(finance.revenueToIdeal), color: "text-amber-700" },
+        { label: t("currentRevenue"), value: formatCurrency(finance.currentRevenue), color: "text-moss-700" },
+        { label: t("minimumGoal"), value: formatCurrency(finance.minimumMonthlyGoal), color: "text-gray-800" },
+        { label: t("idealGoal"), value: formatCurrency(finance.idealMonthlyGoal), color: "text-gray-800" },
+        { label: t("remainingToIdeal"), value: formatCurrency(finance.revenueToIdeal), color: "text-amber-700" },
       ];
 
   return (

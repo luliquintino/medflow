@@ -1,6 +1,7 @@
 "use client";
 import { useQuery } from "@tanstack/react-query";
 import { Shield } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { api, unwrap } from "@/lib/api";
 import { formatDate } from "@/lib/format";
 import { Card } from "@/components/ui/card";
@@ -20,6 +21,8 @@ interface RiskHistoryRecord {
 }
 
 export default function RiskHistoryPage() {
+  const t = useTranslations("riskHistory");
+
   const { data: history = [], isLoading } = useQuery({
     queryKey: ["risk-history"],
     queryFn: () => api.get("/risk/history?limit=30").then((r) => unwrap<RiskHistoryRecord[]>(r)),
@@ -30,16 +33,16 @@ export default function RiskHistoryPage() {
   return (
     <div className="max-w-2xl space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-gray-800">Historico de Risco</h2>
+        <h2 className="text-xl font-bold text-gray-800">{t("title")}</h2>
         <p className="text-sm text-gray-500 mt-0.5">
-          Acompanhe como sua carga de trabalho evoluiu ao longo do tempo.
+          {t("subtitle")}
         </p>
       </div>
 
       {history.length === 0 ? (
         <Card className="text-center py-12">
           <Shield className="w-10 h-10 text-moss-400 mx-auto mb-3" />
-          <p className="text-gray-500">Nenhum registro ainda. O historico e gerado automaticamente.</p>
+          <p className="text-gray-500">{t("emptyState")}</p>
         </Card>
       ) : (
         <div className="space-y-3">
@@ -50,7 +53,7 @@ export default function RiskHistoryPage() {
                   <div className="flex items-center gap-2 mb-1">
                     <RiskBadge level={record.riskLevel} size="sm" />
                     <span className="text-xs text-gray-400">
-                      Score: {record.riskScore}/100
+                      {t("scoreLabel", { score: record.riskScore })}
                     </span>
                   </div>
                   <p className="text-xs text-gray-500 mt-1">
@@ -58,9 +61,9 @@ export default function RiskHistoryPage() {
                   </p>
                 </div>
                 <div className="text-right text-xs text-gray-500 space-y-0.5">
-                  <p>{record.hoursIn5Days}h / 5 dias</p>
-                  <p>{record.hoursInWeek}h / semana</p>
-                  <p>{record.consecutiveNights} noturno(s) seguido(s)</p>
+                  <p>{t("hoursIn5Days", { hours: record.hoursIn5Days })}</p>
+                  <p>{t("hoursInWeek", { hours: record.hoursInWeek })}</p>
+                  <p>{t("consecutiveNights", { count: record.consecutiveNights })}</p>
                 </div>
               </div>
               {record.recommendation && (

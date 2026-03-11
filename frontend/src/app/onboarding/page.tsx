@@ -1,11 +1,12 @@
 "use client";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Image from "next/image";
 import { ChevronRight, ChevronLeft } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { api, unwrap, getErrorMessage } from "@/lib/api";
@@ -13,31 +14,39 @@ import { useAuthStore } from "@/store/auth.store";
 import { clsx } from "clsx";
 import type { User } from "@/types";
 
-const SHIFT_TYPES = [
-  { value: "TWELVE_HOURS", label: "12 horas", desc: "Plantão diurno" },
-  { value: "TWENTY_FOUR_HOURS", label: "24 horas", desc: "Plantão completo" },
-  { value: "NIGHT", label: "Noturno", desc: "Plantão noturno" },
+const SHIFT_TYPE_KEYS = [
+  { value: "TWELVE_HOURS", labelKey: "twelveHours" as const, descKey: "twelveHours" as const },
+  { value: "TWENTY_FOUR_HOURS", labelKey: "twentyFourHours" as const, descKey: "twentyFourHours" as const },
+  { value: "NIGHT", labelKey: "night" as const, descKey: "night" as const },
 ];
 
-const DAYS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+const DAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] as const;
 
-const schema = z.object({
-  minimumMonthlyGoal: z.coerce.number().min(0),
-  idealMonthlyGoal: z.coerce.number().min(0),
-  savingsGoal: z.coerce.number().min(0),
-  averageShiftValue: z.coerce.number().min(0),
-  shiftTypes: z.array(z.string()).min(1, "Selecione ao menos um tipo"),
-  maxWeeklyHours: z.coerce.number().min(1).max(120).optional(),
-  preferredRestDays: z.array(z.number()).optional(),
-});
+function createSchema(tv: (key: string) => string) {
+  return z.object({
+    minimumMonthlyGoal: z.coerce.number().min(0),
+    idealMonthlyGoal: z.coerce.number().min(0),
+    savingsGoal: z.coerce.number().min(0),
+    averageShiftValue: z.coerce.number().min(0),
+    shiftTypes: z.array(z.string()).min(1, tv("selectAtLeastOneType")),
+    maxWeeklyHours: z.coerce.number().min(1).max(120).optional(),
+    preferredRestDays: z.array(z.number()).optional(),
+  });
+}
 
-type FormData = z.infer<typeof schema>;
+type FormData = z.infer<ReturnType<typeof createSchema>>;
 
 export default function OnboardingPage() {
   const router = useRouter();
   const { setUser } = useAuthStore();
   const [step, setStep] = useState(1);
   const [error, setError] = useState("");
+  const t = useTranslations("onboarding");
+  const tv = useTranslations("validation");
+  const tShiftTypes = useTranslations("shiftTypes");
+  const tShiftTypeDesc = useTranslations("shiftTypeDesc");
+
+  const schema = useMemo(() => createSchema(tv), [tv]);
 
   const { register, handleSubmit, watch, setValue, trigger, formState: { errors, isSubmitting } } =
     useForm<FormData>({
@@ -105,8 +114,8 @@ export default function OnboardingPage() {
         <div className="flex items-center gap-3 mb-8">
           <Image src="/logo.png" alt="Med Flow" width={80} height={80} />
           <div>
-            <h1 className="text-xl font-bold text-moss-800">Vamos começar</h1>
-            <p className="text-sm text-gray-500">Passo {step} de 2</p>
+            <h1 className="text-xl font-bold text-moss-800">{t("title")}</h1>
+            <p className="text-sm text-gray-500">{t("step", { step })}</p>
           </div>
         </div>
 
@@ -123,42 +132,42 @@ export default function OnboardingPage() {
           {step === 1 && (
             <div className="bg-cream-50 rounded-3xl shadow-card border border-cream-200 p-8 space-y-5">
               <div>
-                <h2 className="text-lg font-semibold text-gray-800">Perfil financeiro</h2>
+                <h2 className="text-lg font-semibold text-gray-800">{t("financialProfile.title")}</h2>
                 <p className="text-sm text-gray-500 mt-1">
-                  Essas informações nos ajudam a calcular quantos plantões você precisa fazer.
+                  {t("financialProfile.description")}
                 </p>
               </div>
 
               <Input
-                label="Meta mensal mínima (R$)"
+                label={t("financialProfile.minimumGoalLabel")}
                 type="number"
-                placeholder="Ex: 8000"
-                hint="O mínimo que você precisa ganhar por mês"
+                placeholder={t("financialProfile.minimumGoalPlaceholder")}
+                hint={t("financialProfile.minimumGoalHint")}
                 {...register("minimumMonthlyGoal")}
                 error={errors.minimumMonthlyGoal?.message}
               />
 
               <Input
-                label="Meta mensal ideal (R$)"
+                label={t("financialProfile.idealGoalLabel")}
                 type="number"
-                placeholder="Ex: 15000"
-                hint="Quanto você gostaria de ganhar por mês"
+                placeholder={t("financialProfile.idealGoalPlaceholder")}
+                hint={t("financialProfile.idealGoalHint")}
                 {...register("idealMonthlyGoal")}
                 error={errors.idealMonthlyGoal?.message}
               />
 
               <Input
-                label="Meta de reserva/poupança mensal (R$)"
+                label={t("financialProfile.savingsGoalLabel")}
                 type="number"
-                placeholder="Ex: 2000"
+                placeholder={t("financialProfile.savingsGoalPlaceholder")}
                 {...register("savingsGoal")}
                 error={errors.savingsGoal?.message}
               />
 
               <Input
-                label="Valor médio por plantão (R$)"
+                label={t("financialProfile.averageShiftValueLabel")}
                 type="number"
-                placeholder="Ex: 1500"
+                placeholder={t("financialProfile.averageShiftValuePlaceholder")}
                 {...register("averageShiftValue")}
                 error={errors.averageShiftValue?.message}
               />
@@ -168,7 +177,7 @@ export default function OnboardingPage() {
                   if (valid) setStep(2);
                 }}
                 icon={<ChevronRight className="w-4 h-4" />}>
-                Próximo
+                {t("next")}
               </Button>
             </div>
           )}
@@ -177,17 +186,17 @@ export default function OnboardingPage() {
           {step === 2 && (
             <div className="bg-cream-50 rounded-3xl shadow-card border border-cream-200 p-8 space-y-6">
               <div>
-                <h2 className="text-lg font-semibold text-gray-800">Perfil de trabalho</h2>
-                <p className="text-sm text-gray-500 mt-1">Como você costuma trabalhar?</p>
+                <h2 className="text-lg font-semibold text-gray-800">{t("workProfile.title")}</h2>
+                <p className="text-sm text-gray-500 mt-1">{t("workProfile.description")}</p>
               </div>
 
               {/* Shift types */}
               <div>
                 <label className="text-sm font-medium text-gray-700 mb-3 block">
-                  Tipos de plantão que você faz
+                  {t("workProfile.shiftTypesLabel")}
                 </label>
                 <div className="grid grid-cols-3 gap-2">
-                  {SHIFT_TYPES.map(({ value, label, desc }) => (
+                  {SHIFT_TYPE_KEYS.map(({ value, labelKey, descKey }) => (
                     <button
                       key={value}
                       type="button"
@@ -199,8 +208,8 @@ export default function OnboardingPage() {
                           : "bg-white border-cream-300 text-gray-600 hover:border-moss-300"
                       )}
                     >
-                      <div className="font-semibold">{label}</div>
-                      <div className={clsx("text-xs mt-0.5", shiftTypes?.includes(value) ? "text-moss-100" : "text-gray-400")}>{desc}</div>
+                      <div className="font-semibold">{tShiftTypes(labelKey)}</div>
+                      <div className={clsx("text-xs mt-0.5", shiftTypes?.includes(value) ? "text-moss-100" : "text-gray-400")}>{tShiftTypeDesc(descKey)}</div>
                     </button>
                   ))}
                 </div>
@@ -209,10 +218,10 @@ export default function OnboardingPage() {
 
               {/* Weekly limit */}
               <Input
-                label="Limite máximo de horas semanais (opcional)"
+                label={t("workProfile.maxWeeklyHoursLabel")}
                 type="number"
-                placeholder="Ex: 60"
-                hint="Máximo 120 horas"
+                placeholder={t("workProfile.maxWeeklyHoursPlaceholder")}
+                hint={t("workProfile.maxWeeklyHoursHint")}
                 {...register("maxWeeklyHours")}
                 error={errors.maxWeeklyHours?.message}
               />
@@ -220,10 +229,10 @@ export default function OnboardingPage() {
               {/* Rest days */}
               <div>
                 <label className="text-sm font-medium text-gray-700 mb-3 block">
-                  Dias preferenciais de descanso
+                  {t("workProfile.restDaysLabel")}
                 </label>
                 <div className="flex flex-wrap gap-2">
-                  {DAYS.map((day, i) => (
+                  {DAY_KEYS.map((dayKey, i) => (
                     <button
                       key={i}
                       type="button"
@@ -235,7 +244,7 @@ export default function OnboardingPage() {
                           : "bg-white border-cream-300 text-gray-600 hover:border-moss-300"
                       )}
                     >
-                      {day}
+                      {t(`days.${dayKey}`)}
                     </button>
                   ))}
                 </div>
@@ -250,7 +259,7 @@ export default function OnboardingPage() {
               <div className="flex gap-3">
                 <Button type="button" variant="secondary" onClick={() => setStep(1)}
                   icon={<ChevronLeft className="w-4 h-4" />}>
-                  Voltar
+                  {t("back")}
                 </Button>
                 <Button type="submit" className="flex-1" loading={isSubmitting}
                   onClick={async () => {
@@ -259,7 +268,7 @@ export default function OnboardingPage() {
                       setStep(1);
                     }
                   }}>
-                  Começar a usar
+                  {t("submit")}
                 </Button>
               </div>
             </div>

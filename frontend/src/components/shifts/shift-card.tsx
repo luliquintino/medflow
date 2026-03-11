@@ -1,6 +1,7 @@
 "use client";
 import { Pencil, Trash2, MapPin, Clock, Building2, CheckCircle2, XCircle } from "lucide-react";
 import { clsx } from "clsx";
+import { useTranslations } from "next-intl";
 import { formatCurrency } from "@/lib/format";
 import { Card } from "@/components/ui/card";
 import type { Shift, ShiftType } from "@/types";
@@ -21,6 +22,7 @@ interface ShiftCardProps {
 }
 
 export function ShiftCard({ shift, onEdit, onDelete, onRealize, compact }: ShiftCardProps) {
+  const t = useTranslations("shiftCard");
   const isPast = new Date(shift.date) < new Date(new Date().toDateString());
   const needsRealization =
     shift.status === "CONFIRMED" &&
@@ -46,19 +48,19 @@ export function ShiftCard({ shift, onEdit, onDelete, onRealize, compact }: Shift
             </span>
             {shift.status === "SIMULATED" && (
               <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 border border-gray-200">
-                Simulado
+                {t("simulated")}
               </span>
             )}
             {shift.realized === true && (
               <span className="text-xs px-2 py-0.5 rounded-full bg-green-50 text-green-700 border border-green-200 flex items-center gap-1">
                 <CheckCircle2 className="w-3 h-3" />
-                Realizado
+                {t("realized")}
               </span>
             )}
             {shift.realized === false && (
               <span className="text-xs px-2 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-200 flex items-center gap-1">
                 <XCircle className="w-3 h-3" />
-                Não realizado
+                {t("unrealized")}
               </span>
             )}
           </div>
@@ -97,19 +99,19 @@ export function ShiftCard({ shift, onEdit, onDelete, onRealize, compact }: Shift
 
       {needsRealization && onRealize && (
         <div className="mt-3 pt-3 border-t border-cream-200 flex items-center justify-between">
-          <span className="text-xs text-gray-500">Este plantão aconteceu?</span>
+          <span className="text-xs text-gray-500">{t("realizationQuestion")}</span>
           <div className="flex items-center gap-2">
             <button
               onClick={() => onRealize(shift.id, true)}
               className="text-xs px-3 py-1 rounded-lg bg-moss-50 text-moss-700 hover:bg-moss-100 font-medium transition-colors"
             >
-              Sim
+              {t("realizationYes")}
             </button>
             <button
               onClick={() => onRealize(shift.id, false)}
               className="text-xs px-3 py-1 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 font-medium transition-colors"
             >
-              Não
+              {t("realizationNo")}
             </button>
           </div>
         </div>

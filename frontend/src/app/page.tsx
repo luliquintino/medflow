@@ -23,63 +23,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageSpinner } from "@/components/ui/spinner";
-
-/* ------------------------------------------------------------------ */
-/*  Data                                                               */
-/* ------------------------------------------------------------------ */
-
-const FEATURES = [
-  {
-    icon: TrendingUp,
-    title: "Controle financeiro inteligente",
-    description:
-      "Saiba exatamente quantos plantões faltam para bater sua meta. Acompanhe receitas, simule cenários e tome decisões com dados reais.",
-    accent: "from-emerald-500 to-emerald-600",
-    bg: "bg-emerald-50",
-  },
-  {
-    icon: Shield,
-    title: "Proteção contra burnout",
-    description:
-      "Monitoramento contínuo da sua carga horária. Receba alertas antes de ultrapassar limites seguros e preserve sua saúde.",
-    accent: "from-amber-500 to-amber-600",
-    bg: "bg-amber-50",
-  },
-  {
-    icon: Brain,
-    title: "Planejamento otimizado",
-    description:
-      "Simulações inteligentes que encontram o equilíbrio ideal entre rendimento financeiro e qualidade de vida.",
-    accent: "from-sky-500 to-sky-600",
-    bg: "bg-sky-50",
-  },
-  {
-    icon: Heart,
-    title: "Sustentabilidade profissional",
-    description:
-      "Custo energético personalizado por tipo de plantão e índice de sustentabilidade para manter sua carreira saudável.",
-    accent: "from-rose-500 to-rose-600",
-    bg: "bg-rose-50",
-  },
-];
-
-const STEPS = [
-  {
-    icon: UserPlus,
-    title: "Crie sua conta",
-    description: "Cadastro rápido com e-mail e senha. Sem burocracia, sem cartão.",
-  },
-  {
-    icon: Sliders,
-    title: "Configure seu perfil",
-    description: "Defina suas metas financeiras, limites de carga e tipo de plantão.",
-  },
-  {
-    icon: CalendarDays,
-    title: "Gerencie tudo",
-    description: "Registre plantões, acompanhe métricas e receba insights em tempo real.",
-  },
-];
+import { useTranslations } from "next-intl";
+import { LanguageSwitcher } from "@/components/layout/language-switcher";
 
 /* ------------------------------------------------------------------ */
 /*  Scroll animation                                                   */
@@ -118,57 +63,33 @@ function scrollTo(id: string) {
 /*  Hero Mockup — animated value flow                                  */
 /* ------------------------------------------------------------------ */
 
-const FLOW_STEPS = [
-  {
-    icon: CalendarDays,
-    title: "Registre seu plantão",
-    detail: "UPA Centro — Noturno 12h — R$ 1.400",
-    gradient: "from-moss-500 to-moss-600",
-    delay: 400,
-  },
-  {
-    icon: TrendingUp,
-    title: "Cálculo automático",
-    detail: "R$ 10.950 de R$ 15.000 — faltam 3 plantões",
-    gradient: "from-emerald-500 to-emerald-600",
-    delay: 1200,
-  },
-  {
-    icon: Shield,
-    title: "Alerta de proteção",
-    detail: "Carga semanal: 52h — Risco moderado de burnout",
-    gradient: "from-amber-500 to-amber-600",
-    delay: 2000,
-  },
-  {
-    icon: CircleCheck,
-    title: "Meta batida!",
-    detail: "Parabéns! Você atingiu sua meta com equilíbrio.",
-    gradient: "from-sky-500 to-sky-600",
-    delay: 2800,
-  },
-];
-
 function HeroMockup() {
+  const t = useTranslations("landing.heroMockup");
   const [visibleSteps, setVisibleSteps] = useState(0);
+
+  const FLOW_STEPS = [
+    { icon: CalendarDays, titleKey: "step1Title" as const, detailKey: "step1Detail" as const, gradient: "from-moss-500 to-moss-600", delay: 400 },
+    { icon: TrendingUp, titleKey: "step2Title" as const, detailKey: "step2Detail" as const, gradient: "from-emerald-500 to-emerald-600", delay: 1200 },
+    { icon: Shield, titleKey: "step3Title" as const, detailKey: "step3Detail" as const, gradient: "from-amber-500 to-amber-600", delay: 2000 },
+    { icon: CircleCheck, titleKey: "step4Title" as const, detailKey: "step4Detail" as const, gradient: "from-sky-500 to-sky-600", delay: 2800 },
+  ];
 
   useEffect(() => {
     const timers = FLOW_STEPS.map((step, i) =>
       setTimeout(() => setVisibleSteps(i + 1), step.delay)
     );
     return () => timers.forEach(clearTimeout);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <div className="relative w-full">
       <div className="space-y-3">
-        {FLOW_STEPS.map(({ icon: Icon, title, detail, gradient }, idx) => (
-          <div key={title} className="relative">
-            {/* Connector line */}
+        {FLOW_STEPS.map(({ icon: Icon, titleKey, detailKey, gradient }, idx) => (
+          <div key={titleKey} className="relative">
             {idx > 0 && (
               <div className={`absolute -top-3 left-5 w-px h-3 transition-all duration-500 ${idx < visibleSteps ? "bg-gray-200" : "bg-transparent"}`} />
             )}
-
             <div
               className={`flex items-start gap-4 bg-white rounded-2xl border p-5 transition-all duration-500 ${
                 idx < visibleSteps
@@ -180,8 +101,8 @@ function HeroMockup() {
                 <Icon className="w-5 h-5 text-white" />
               </div>
               <div className="min-w-0">
-                <p className="text-[13px] font-semibold text-gray-900 mb-0.5">{title}</p>
-                <p className="text-[12px] text-gray-500 leading-relaxed">{detail}</p>
+                <p className="text-[13px] font-semibold text-gray-900 mb-0.5">{t(titleKey)}</p>
+                <p className="text-[12px] text-gray-500 leading-relaxed">{t(detailKey)}</p>
               </div>
               {idx < visibleSteps && (
                 <div className={`ml-auto shrink-0 w-5 h-5 rounded-full flex items-center justify-center transition-all duration-300 ${
@@ -207,6 +128,8 @@ export default function RootPage() {
   const [checking, setChecking] = useState(true);
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenu, setMobileMenu] = useState(false);
+  const t = useTranslations("landing");
+  const tCommon = useTranslations("common");
 
   useEffect(() => {
     const raw = localStorage.getItem("medflow-auth");
@@ -222,6 +145,30 @@ export default function RootPage() {
 
   if (checking) return <PageSpinner />;
 
+  const FEATURES = [
+    { icon: TrendingUp, titleKey: "financeTitle", descKey: "financeDesc", accent: "from-emerald-500 to-emerald-600" },
+    { icon: Shield, titleKey: "burnoutTitle", descKey: "burnoutDesc", accent: "from-amber-500 to-amber-600" },
+    { icon: Brain, titleKey: "planningTitle", descKey: "planningDesc", accent: "from-sky-500 to-sky-600" },
+    { icon: Heart, titleKey: "sustainabilityTitle", descKey: "sustainabilityDesc", accent: "from-rose-500 to-rose-600" },
+  ] as const;
+
+  const STEPS = [
+    { icon: UserPlus, titleKey: "step1Title", descKey: "step1Desc" },
+    { icon: Sliders, titleKey: "step2Title", descKey: "step2Desc" },
+    { icon: CalendarDays, titleKey: "step3Title", descKey: "step3Desc" },
+  ] as const;
+
+  const PROBLEMS = [
+    { icon: Clock, titleKey: "noTimeTitle", descKey: "noTimeDesc", gradient: "from-orange-500 to-amber-500" },
+    { icon: Target, titleKey: "darkGoalsTitle", descKey: "darkGoalsDesc", gradient: "from-red-500 to-rose-500" },
+    { icon: Activity, titleKey: "burnoutTitle", descKey: "burnoutDesc", gradient: "from-violet-500 to-purple-500" },
+  ] as const;
+
+  const BENEFITS_KEYS = [
+    "clearIncome", "burnoutAlerts", "financeSim",
+    "customGoals", "fullHistory", "intuitiveUI",
+  ] as const;
+
   return (
     <div className="min-h-dvh bg-[#fafaf7] overflow-x-hidden">
 
@@ -236,26 +183,30 @@ export default function RootPage() {
           </Link>
 
           <div className="hidden md:flex items-center gap-8">
-            <button onClick={() => scrollTo("recursos")} className="text-[13px] font-medium text-gray-500 hover:text-gray-900 transition-colors tracking-wide uppercase">Recursos</button>
-            <button onClick={() => scrollTo("como-funciona")} className="text-[13px] font-medium text-gray-500 hover:text-gray-900 transition-colors tracking-wide uppercase">Como funciona</button>
+            <button onClick={() => scrollTo("recursos")} className="text-[13px] font-medium text-gray-500 hover:text-gray-900 transition-colors tracking-wide uppercase">{t("nav.features")}</button>
+            <button onClick={() => scrollTo("como-funciona")} className="text-[13px] font-medium text-gray-500 hover:text-gray-900 transition-colors tracking-wide uppercase">{t("nav.howItWorks")}</button>
             <div className="flex items-center gap-3 ml-4">
-              <button onClick={() => router.push("/auth/login")} className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors px-4 py-2">Entrar</button>
-              <Button size="sm" className="rounded-full px-6 shadow-none" onClick={() => router.push("/auth/register")}>Começar grátis</Button>
+              <LanguageSwitcher />
+              <button onClick={() => router.push("/auth/login")} className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors px-4 py-2">{t("nav.login")}</button>
+              <Button size="sm" className="rounded-full px-6 shadow-none" onClick={() => router.push("/auth/register")}>{t("nav.startFree")}</Button>
             </div>
           </div>
 
-          <button className="md:hidden p-2 -mr-2 text-gray-600" onClick={() => setMobileMenu(!mobileMenu)} aria-label="Menu">
+          <button className="md:hidden p-2 -mr-2 text-gray-600" onClick={() => setMobileMenu(!mobileMenu)} aria-label={t("nav.menu")}>
             {mobileMenu ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
 
         {mobileMenu && (
           <div className="md:hidden bg-white/95 backdrop-blur-2xl border-b border-gray-200 px-6 pb-5 space-y-1">
-            <button onClick={() => { scrollTo("recursos"); setMobileMenu(false); }} className="block w-full text-left text-sm font-medium text-gray-600 py-3">Recursos</button>
-            <button onClick={() => { scrollTo("como-funciona"); setMobileMenu(false); }} className="block w-full text-left text-sm font-medium text-gray-600 py-3">Como funciona</button>
+            <button onClick={() => { scrollTo("recursos"); setMobileMenu(false); }} className="block w-full text-left text-sm font-medium text-gray-600 py-3">{t("nav.features")}</button>
+            <button onClick={() => { scrollTo("como-funciona"); setMobileMenu(false); }} className="block w-full text-left text-sm font-medium text-gray-600 py-3">{t("nav.howItWorks")}</button>
+            <div className="flex items-center gap-3 py-3">
+              <LanguageSwitcher />
+            </div>
             <div className="flex gap-3 pt-3">
-              <Button variant="secondary" size="sm" className="flex-1 rounded-full" onClick={() => router.push("/auth/login")}>Entrar</Button>
-              <Button size="sm" className="flex-1 rounded-full" onClick={() => router.push("/auth/register")}>Começar grátis</Button>
+              <Button variant="secondary" size="sm" className="flex-1 rounded-full" onClick={() => router.push("/auth/login")}>{t("nav.login")}</Button>
+              <Button size="sm" className="flex-1 rounded-full" onClick={() => router.push("/auth/register")}>{t("nav.startFree")}</Button>
             </div>
           </div>
         )}
@@ -265,23 +216,14 @@ export default function RootPage() {
       {/*  HERO                                                       */}
       {/* ═══════════════════════════════════════════════════════════ */}
       <header className="relative pt-28 pb-20 sm:pt-36 sm:pb-28 lg:pt-40 lg:pb-32 px-6 lg:px-10">
-        {/* Background decoration */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-moss-100/40 blur-3xl" />
           <div className="absolute -bottom-20 -left-40 w-[400px] h-[400px] rounded-full bg-emerald-50/50 blur-3xl" />
         </div>
 
         <div className="relative max-w-7xl mx-auto flex flex-col lg:flex-row lg:items-center lg:gap-16 xl:gap-24">
-          {/* ── Left: text content ── */}
           <div className="max-w-3xl mx-auto lg:mx-0 lg:max-w-none lg:flex-1 flex flex-col items-center lg:items-start text-center lg:text-left">
-            <Image
-              src="/logo.png"
-              alt="Med Flow"
-              width={100}
-              height={100}
-              className="mb-6 drop-shadow-xl"
-              priority
-            />
+            <Image src="/logo.png" alt="Med Flow" width={100} height={100} className="mb-6 drop-shadow-xl" priority />
 
             <h1 className="text-5xl sm:text-6xl lg:text-[4.25rem] font-bold tracking-tight leading-[1.05] mb-4">
               <span className="text-gray-900">Med</span>{" "}
@@ -289,12 +231,11 @@ export default function RootPage() {
             </h1>
 
             <p className="text-xl sm:text-2xl font-medium text-gray-800 mb-3">
-              Seu copiloto de plantões.
+              {t("hero.tagline")}
             </p>
 
             <p className="text-base sm:text-lg text-gray-500 max-w-xl mb-8 leading-relaxed">
-              Organize suas metas, proteja sua saúde e trabalhe de forma
-              sustentável — tudo em um só lugar.
+              {t("hero.subtitle")}
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto mb-8">
@@ -304,7 +245,7 @@ export default function RootPage() {
                 icon={<ArrowRight className="w-4 h-4" />}
                 onClick={() => router.push("/auth/register")}
               >
-                Começar agora
+                {t("hero.startNow")}
               </Button>
               <Button
                 variant="secondary"
@@ -312,21 +253,19 @@ export default function RootPage() {
                 className="rounded-full text-[15px] h-[54px] px-8 bg-white border-gray-200 hover:bg-gray-50"
                 onClick={() => router.push("/auth/login")}
               >
-                Já tenho conta
+                {t("hero.haveAccount")}
               </Button>
             </div>
 
-            {/* Social proof */}
             <div className="flex items-center justify-center lg:justify-start">
               <div className="flex items-center gap-2 text-sm">
                 <Sparkles className="w-4 h-4 text-moss-500" />
-                <span className="font-semibold text-gray-800">100%</span>
-                <span className="text-gray-400">gratuito</span>
+                <span className="font-semibold text-gray-800">{t("hero.freePercent")}</span>
+                <span className="text-gray-400">{t("hero.free")}</span>
               </div>
             </div>
           </div>
 
-          {/* ── Right: animated mockup (desktop only) ── */}
           <div className="hidden lg:block lg:w-[420px] xl:w-[460px] shrink-0 mt-12 lg:mt-0">
             <HeroMockup />
           </div>
@@ -334,44 +273,25 @@ export default function RootPage() {
       </header>
 
       {/* ═══════════════════════════════════════════════════════════ */}
-      {/*  PROBLEM — "Você conhece essa realidade?"                   */}
+      {/*  PROBLEM                                                    */}
       {/* ═══════════════════════════════════════════════════════════ */}
       <Reveal className="py-16 sm:py-24 px-6 lg:px-10">
         <div className="max-w-7xl mx-auto">
           <div className="max-w-2xl mx-auto lg:mx-0 text-center lg:text-left mb-12">
-            <p className="text-xs font-semibold text-gray-400 tracking-[0.15em] uppercase mb-3">O desafio</p>
+            <p className="text-xs font-semibold text-gray-400 tracking-[0.15em] uppercase mb-3">{t("problems.sectionLabel")}</p>
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 tracking-tight">
-              Você conhece essa realidade?
+              {t("problems.title")}
             </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {[
-              {
-                icon: Clock,
-                title: "Sem tempo para se organizar",
-                description: "Entre um plantão e outro, sobra pouco tempo para planejar finanças e cuidar da própria saúde.",
-                gradient: "from-orange-500 to-amber-500",
-              },
-              {
-                icon: Target,
-                title: "Metas financeiras no escuro",
-                description: "Sem saber quantos plantões precisa, você trabalha mais do que deveria — ou menos do que poderia.",
-                gradient: "from-red-500 to-rose-500",
-              },
-              {
-                icon: Activity,
-                title: "Risco invisível de burnout",
-                description: "A sobrecarga se acumula silenciosamente. Quando os sinais aparecem, já é tarde demais.",
-                gradient: "from-violet-500 to-purple-500",
-              },
-            ].map(({ icon: Icon, title, description, gradient }) => (
-              <div key={title} className="relative bg-white rounded-2xl border border-gray-100 p-8 group hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] transition-all duration-300">
+            {PROBLEMS.map(({ icon: Icon, titleKey, descKey, gradient }) => (
+              <div key={titleKey} className="relative bg-white rounded-2xl border border-gray-100 p-8 group hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] transition-all duration-300">
                 <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${gradient} flex items-center justify-center mb-5 shadow-sm`}>
                   <Icon className="w-6 h-6 text-white" />
                 </div>
-                <h3 className="font-semibold text-gray-900 text-lg mb-2">{title}</h3>
-                <p className="text-[15px] text-gray-500 leading-relaxed">{description}</p>
+                <h3 className="font-semibold text-gray-900 text-lg mb-2">{t(`problems.${titleKey}`)}</h3>
+                <p className="text-[15px] text-gray-500 leading-relaxed">{t(`problems.${descKey}`)}</p>
               </div>
             ))}
           </div>
@@ -384,26 +304,26 @@ export default function RootPage() {
       <Reveal id="recursos" className="py-16 sm:py-24 px-6 lg:px-10 bg-white scroll-mt-20">
         <div className="max-w-7xl mx-auto">
           <div className="max-w-2xl mx-auto lg:mx-0 text-center lg:text-left mb-14">
-            <p className="text-xs font-semibold text-moss-600 tracking-[0.15em] uppercase mb-3">Recursos</p>
+            <p className="text-xs font-semibold text-moss-600 tracking-[0.15em] uppercase mb-3">{t("features.sectionLabel")}</p>
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 tracking-tight mb-3">
-              Tudo que você precisa em um só lugar
+              {t("features.title")}
             </h2>
             <p className="text-gray-500 max-w-lg text-[15px]">
-              Ferramentas pensadas para médicos que dão plantão no Brasil — do recém-formado ao veterano.
+              {t("features.subtitle")}
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {FEATURES.map(({ icon: Icon, title, description, accent }) => (
+            {FEATURES.map(({ icon: Icon, titleKey, descKey, accent }) => (
               <div
-                key={title}
+                key={titleKey}
                 className="group bg-[#fafaf7] rounded-2xl border border-gray-100 p-8 hover:shadow-[0_12px_40px_rgba(0,0,0,0.06)] hover:-translate-y-0.5 transition-all duration-300"
               >
                 <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${accent} flex items-center justify-center mb-6 shadow-sm`}>
                   <Icon className="w-6 h-6 text-white" />
                 </div>
-                <h3 className="font-semibold text-gray-900 text-lg mb-2">{title}</h3>
-                <p className="text-[15px] text-gray-500 leading-relaxed">{description}</p>
+                <h3 className="font-semibold text-gray-900 text-lg mb-2">{t(`features.${titleKey}`)}</h3>
+                <p className="text-[15px] text-gray-500 leading-relaxed">{t(`features.${descKey}`)}</p>
               </div>
             ))}
           </div>
@@ -416,23 +336,21 @@ export default function RootPage() {
       <Reveal id="como-funciona" className="py-16 sm:py-24 px-6 lg:px-10 scroll-mt-20">
         <div className="max-w-7xl mx-auto">
           <div className="max-w-2xl mx-auto lg:mx-0 text-center lg:text-left mb-14">
-            <p className="text-xs font-semibold text-moss-600 tracking-[0.15em] uppercase mb-3">Como funciona</p>
+            <p className="text-xs font-semibold text-moss-600 tracking-[0.15em] uppercase mb-3">{t("steps.sectionLabel")}</p>
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 tracking-tight mb-3">
-              Comece em 3 passos simples
+              {t("steps.title")}
             </h2>
             <p className="text-gray-500 max-w-lg text-[15px]">
-              Em menos de 5 minutos você está com tudo configurado e pronto para usar.
+              {t("steps.subtitle")}
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {STEPS.map(({ icon: Icon, title, description }, idx) => (
-              <div key={title} className="relative">
-                {/* Connector */}
+            {STEPS.map(({ icon: Icon, titleKey, descKey }, idx) => (
+              <div key={titleKey} className="relative">
                 {idx < STEPS.length - 1 && (
                   <div className="hidden md:block absolute top-10 left-[calc(100%-0.5rem)] w-[calc(100%-2rem)] h-px bg-gray-200 -translate-x-1/2 z-0" />
                 )}
-
                 <div className="relative bg-white rounded-2xl border border-gray-100 p-8 text-center z-10">
                   <div className="w-14 h-14 rounded-2xl bg-moss-600 text-white flex items-center justify-center text-lg font-bold mx-auto mb-5 shadow-[0_4px_12px_rgba(77,114,53,0.25)]">
                     {String(idx + 1).padStart(2, "0")}
@@ -440,8 +358,8 @@ export default function RootPage() {
                   <div className="w-10 h-10 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center mx-auto mb-4">
                     <Icon className="w-5 h-5 text-gray-600" />
                   </div>
-                  <h3 className="font-semibold text-gray-900 text-[15px] mb-2">{title}</h3>
-                  <p className="text-sm text-gray-500 leading-relaxed">{description}</p>
+                  <h3 className="font-semibold text-gray-900 text-[15px] mb-2">{t(`steps.${titleKey}`)}</h3>
+                  <p className="text-sm text-gray-500 leading-relaxed">{t(`steps.${descKey}`)}</p>
                 </div>
               </div>
             ))}
@@ -457,27 +375,20 @@ export default function RootPage() {
           <div className="bg-gradient-to-br from-[#fafaf7] to-white rounded-3xl border border-gray-100 p-8 sm:p-12 lg:p-16">
             <div className="max-w-2xl mx-auto lg:mx-0 text-center lg:text-left mb-10">
               <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight mb-3">
-                O que você ganha com o Med Flow
+                {t("benefits.title")}
               </h2>
               <p className="text-gray-500 text-[15px]">
-                Tudo que um médico plantonista precisa para ter controle sobre sua carreira.
+                {t("benefits.subtitle")}
               </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {[
-                "Visão clara de quanto ganha por mês",
-                "Alertas inteligentes de risco de burnout",
-                "Simulação de cenários financeiros",
-                "Metas financeiras personalizadas",
-                "Histórico completo de evolução",
-                "Dashboard intuitivo e bonito",
-              ].map((benefit) => (
-                <div key={benefit} className="flex items-center gap-3 bg-white rounded-xl border border-gray-100 px-4 py-3.5">
+              {BENEFITS_KEYS.map((key) => (
+                <div key={key} className="flex items-center gap-3 bg-white rounded-xl border border-gray-100 px-4 py-3.5">
                   <div className="w-6 h-6 rounded-full bg-moss-600 flex items-center justify-center shrink-0">
                     <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
                   </div>
-                  <span className="text-sm text-gray-700 font-medium">{benefit}</span>
+                  <span className="text-sm text-gray-700 font-medium">{t(`benefits.${key}`)}</span>
                 </div>
               ))}
             </div>
@@ -497,10 +408,10 @@ export default function RootPage() {
 
             <div className="relative z-10">
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-5 tracking-tight leading-tight">
-                Pronto para trabalhar<br className="hidden sm:block" /> de forma mais inteligente?
+                {t("cta.title")}
               </h2>
               <p className="text-moss-100/70 mb-10 max-w-lg mx-auto text-base sm:text-lg leading-relaxed">
-                Junte-se a centenas de médicos que já organizam seus plantões, cuidam da saúde e batem suas metas com o Med Flow.
+                {t("cta.subtitle")}
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Button
@@ -510,7 +421,7 @@ export default function RootPage() {
                   icon={<ArrowRight className="w-4 h-4" />}
                   onClick={() => router.push("/auth/register")}
                 >
-                  Criar conta gratuita
+                  {t("cta.createFreeAccount")}
                 </Button>
               </div>
             </div>
@@ -528,10 +439,10 @@ export default function RootPage() {
             <span className="font-semibold text-gray-800 text-sm tracking-tight">Med Flow</span>
           </div>
           <div className="flex items-center gap-8 text-[13px] text-gray-400">
-            <Link href="#" className="hover:text-gray-600 transition-colors">Termos de uso</Link>
-            <Link href="#" className="hover:text-gray-600 transition-colors">Privacidade</Link>
+            <Link href="#" className="hover:text-gray-600 transition-colors">{t("footer.terms")}</Link>
+            <Link href="#" className="hover:text-gray-600 transition-colors">{t("footer.privacy")}</Link>
           </div>
-          <p className="text-xs text-gray-400">&copy; {new Date().getFullYear()} Med Flow</p>
+          <p className="text-xs text-gray-400">{t("footer.copyright", { year: new Date().getFullYear() })}</p>
         </div>
       </footer>
     </div>

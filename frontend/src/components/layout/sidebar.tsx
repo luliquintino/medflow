@@ -9,17 +9,18 @@ import {
 } from "lucide-react";
 import { useAuthStore } from "@/store/auth.store";
 import { api } from "@/lib/api";
+import { useTranslations } from "next-intl";
 
-const NAV = [
-  { href: "/dashboard",      icon: LayoutDashboard, label: "Meu Painel" },
-  { href: "/hospitals",      icon: Building2,       label: "Hospitais" },
-  { href: "/shifts",         icon: Calendar,        label: "Plantões" },
-  { href: "/analytics",      icon: BarChart3,       label: "Analytics" },
-  { href: "/smart-planner",  icon: Brain,           label: "Planejamento" },
-  { href: "/simulate",       icon: Zap,             label: "Aceito ou Não?" },
-  { href: "/risk-history",   icon: AlertTriangle,   label: "Histórico de Risco" },
-  { href: "/settings",       icon: Settings,        label: "Configurações" },
-];
+const NAV_KEYS = [
+  { href: "/dashboard",      icon: LayoutDashboard, key: "dashboard" },
+  { href: "/hospitals",      icon: Building2,       key: "hospitals" },
+  { href: "/shifts",         icon: Calendar,        key: "shifts" },
+  { href: "/analytics",      icon: BarChart3,       key: "analytics" },
+  { href: "/smart-planner",  icon: Brain,           key: "smartPlanner" },
+  { href: "/simulate",       icon: Zap,             key: "simulate" },
+  { href: "/risk-history",   icon: AlertTriangle,   key: "riskHistory" },
+  { href: "/settings",       icon: Settings,        key: "settings" },
+] as const;
 
 interface SidebarProps {
   isOpen: boolean;
@@ -30,6 +31,8 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout, refreshToken } = useAuthStore();
+  const tNav = useTranslations("nav");
+  const tSidebar = useTranslations("sidebar");
 
   async function handleLogout() {
     try {
@@ -40,6 +43,12 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
     logout();
     router.replace("/auth/login");
   }
+
+  const displayName = user?.gender === "MALE"
+    ? `Dr. ${user?.name}`
+    : user?.gender === "FEMALE"
+      ? `Dra. ${user?.name}`
+      : user?.name;
 
   return (
     <>
@@ -72,7 +81,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
         {/* Nav */}
         <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-          {NAV.map(({ href, icon: Icon, label }) => {
+          {NAV_KEYS.map(({ href, icon: Icon, key }) => {
             const active = pathname.startsWith(href);
             return (
               <Link
@@ -87,7 +96,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 )}
               >
                 <Icon className="w-4 h-4 flex-shrink-0" />
-                {label}
+                {tNav(key)}
               </Link>
             );
           })}
@@ -103,14 +112,14 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-sm font-medium text-gray-800 truncate">
-                {user?.gender === "MALE" ? "Dr. " : user?.gender === "FEMALE" ? "Dra. " : ""}{user?.name}
+                {displayName}
               </p>
               <p className="text-xs text-gray-500 truncate">{user?.email}</p>
             </div>
             <button
               onClick={handleLogout}
               className="w-8 h-8 rounded-lg hover:bg-red-50 flex items-center justify-center transition-colors flex-shrink-0"
-              title="Sair"
+              title={tSidebar("logout")}
             >
               <LogOut className="w-4 h-4 text-gray-400 hover:text-red-500" />
             </button>

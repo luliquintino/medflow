@@ -1,0 +1,588 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "add": "Add",
+    "edit": "Edit",
+    "delete": "Remove",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "confirm": "Confirm",
+    "loading": "Loading...",
+    "yes": "Yes",
+    "no": "No",
+    "configure": "Configure",
+    "comingSoon": "Coming soon",
+    "perMonth": "per month",
+    "appName": "Med Flow"
+  },
+
+  "metadata": {
+    "title": "Med Flow — Your shift copilot",
+    "description": "Plan shifts, monitor your workload, and make more informed decisions about work and rest."
+  },
+
+  "errorBoundary": {
+    "title": "Something went wrong",
+    "description": "An unexpected error occurred. Try reloading the page.",
+    "reload": "Reload page"
+  },
+
+  "nav": {
+    "dashboard": "My Dashboard",
+    "hospitals": "Hospitals",
+    "shifts": "Shifts",
+    "analytics": "Analytics",
+    "smartPlanner": "Planning",
+    "simulate": "Accept or Decline?",
+    "riskHistory": "Risk History",
+    "settings": "Settings",
+    "finance": "Financial Dashboard"
+  },
+
+  "topbar": {
+    "openMenu": "Open menu",
+    "notifications": "Notifications",
+    "notificationsComingSoon": "Coming soon",
+    "myDashboard": "My Dashboard"
+  },
+
+  "sidebar": {
+    "logout": "Log out",
+    "userPrefix": "{gender, select, MALE {Dr. {name}} FEMALE {Dr. {name}} other {{name}}}"
+  },
+
+  "landing": {
+    "nav": {
+      "features": "Features",
+      "howItWorks": "How it works",
+      "login": "Log in",
+      "startFree": "Start free",
+      "menu": "Menu"
+    },
+    "hero": {
+      "tagline": "Your shift copilot.",
+      "subtitle": "Organize your goals, protect your health, and work sustainably — all in one place.",
+      "startNow": "Get started",
+      "haveAccount": "I already have an account",
+      "free": "free",
+      "freePercent": "100%"
+    },
+    "heroMockup": {
+      "step1Title": "Log your shift",
+      "step1Detail": "UPA Centro — Night 12h — R$ 1,400",
+      "step2Title": "Automatic calculation",
+      "step2Detail": "R$ 10,950 of R$ 15,000 — 3 shifts remaining",
+      "step3Title": "Protection alert",
+      "step3Detail": "Weekly workload: 52h — Moderate burnout risk",
+      "step4Title": "Goal reached!",
+      "step4Detail": "Congratulations! You reached your goal with balance."
+    },
+    "problems": {
+      "sectionLabel": "The challenge",
+      "title": "Does this sound familiar?",
+      "noTimeTitle": "No time to get organized",
+      "noTimeDesc": "Between shifts, there's little time left to plan finances and take care of your own health.",
+      "darkGoalsTitle": "Financial goals in the dark",
+      "darkGoalsDesc": "Without knowing how many shifts you need, you end up working more than you should — or less than you could.",
+      "burnoutTitle": "Invisible burnout risk",
+      "burnoutDesc": "Overwork builds up silently. By the time the signs appear, it's already too late."
+    },
+    "features": {
+      "sectionLabel": "Features",
+      "title": "Everything you need in one place",
+      "subtitle": "Tools designed for doctors who work shifts in Brazil — from recent graduates to seasoned veterans.",
+      "financeTitle": "Smart financial tracking",
+      "financeDesc": "Know exactly how many shifts you need to reach your goal. Track income, simulate scenarios, and make decisions with real data.",
+      "burnoutTitle": "Burnout protection",
+      "burnoutDesc": "Continuous monitoring of your workload. Get alerts before you exceed safe limits and preserve your health.",
+      "planningTitle": "Optimized planning",
+      "planningDesc": "Smart simulations that find the ideal balance between financial performance and quality of life.",
+      "sustainabilityTitle": "Professional sustainability",
+      "sustainabilityDesc": "Personalized energy cost by shift type and a sustainability index to keep your career healthy."
+    },
+    "steps": {
+      "sectionLabel": "How it works",
+      "title": "Get started in 3 simple steps",
+      "subtitle": "In less than 5 minutes you'll be all set up and ready to go.",
+      "step1Title": "Create your account",
+      "step1Desc": "Quick sign-up with email and password. No paperwork, no credit card.",
+      "step2Title": "Set up your profile",
+      "step2Desc": "Define your financial goals, workload limits, and shift types.",
+      "step3Title": "Manage everything",
+      "step3Desc": "Log shifts, track metrics, and receive real-time insights."
+    },
+    "benefits": {
+      "title": "What you get with Med Flow",
+      "subtitle": "Everything a shift doctor needs to take control of their career.",
+      "clearIncome": "Clear view of your monthly earnings",
+      "burnoutAlerts": "Smart burnout risk alerts",
+      "financeSim": "Financial scenario simulation",
+      "customGoals": "Personalized financial goals",
+      "fullHistory": "Complete progress history",
+      "intuitiveUI": "Intuitive and beautiful dashboard"
+    },
+    "cta": {
+      "title": "Ready to work smarter?",
+      "subtitle": "Join hundreds of doctors who already organize their shifts, take care of their health, and reach their goals with Med Flow.",
+      "createFreeAccount": "Create free account"
+    },
+    "footer": {
+      "terms": "Terms of use",
+      "privacy": "Privacy",
+      "copyright": "© {year} Med Flow"
+    }
+  },
+
+  "auth": {
+    "login": {
+      "title": "Med Flow",
+      "subtitle": "Log in to your account",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@email.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Your password",
+      "submit": "Log in",
+      "forgotPassword": "Forgot your password?",
+      "noAccount": "Don't have an account?",
+      "createAccount": "Create account"
+    },
+    "register": {
+      "title": "Med Flow",
+      "subtitle": "Create your account",
+      "nameLabel": "Full name",
+      "namePlaceholder": "Maria Silva",
+      "crmLabel": "CRM",
+      "crmPlaceholder": "123456/SP",
+      "crmHint": "Format: number/state (e.g., 123456/SP)",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@email.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Minimum 8 characters",
+      "confirmPasswordLabel": "Confirm password",
+      "confirmPasswordPlaceholder": "Repeat your password",
+      "submit": "Create account",
+      "hasAccount": "Already have an account?",
+      "login": "Log in"
+    },
+    "forgotPassword": {
+      "title": "Med Flow",
+      "subtitle": "Recover password",
+      "heading": "Forgot your password?",
+      "description": "Enter your email and we'll send you a link to reset your password.",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@email.com",
+      "submit": "Send recovery link",
+      "backToLogin": "Back to login",
+      "successTitle": "Link generated successfully",
+      "successDescription": "Click the button below to reset your password.",
+      "resetMyPassword": "Reset my password",
+      "emailNotFound": "Email not found. Please check and try again."
+    },
+    "resetPassword": {
+      "title": "Med Flow",
+      "subtitle": "Your shift copilot",
+      "heading": "New password",
+      "description": "Choose a new secure password for your account.",
+      "newPasswordLabel": "New password",
+      "newPasswordPlaceholder": "Minimum 8 characters",
+      "confirmPasswordLabel": "Confirm new password",
+      "confirmPasswordPlaceholder": "Repeat the new password",
+      "submit": "Save new password",
+      "successTitle": "Password changed!",
+      "successDescription": "Your password has been updated successfully. Log in to continue.",
+      "successButton": "Log in to my account",
+      "invalidLinkTitle": "Invalid link",
+      "invalidLinkDescription": "This recovery link is invalid or has already been used.",
+      "requestNewLink": "Request new link",
+      "invalidToken": "Invalid or missing token."
+    }
+  },
+
+  "validation": {
+    "emailInvalid": "Invalid email",
+    "emailInvalidAccented": "Invalid email",
+    "passwordRequired": "Password is required",
+    "nameRequired": "Name is required",
+    "crmInvalid": "Invalid CRM. Use the format: 123456/UF",
+    "minChars": "Minimum 8 characters",
+    "passwordComplexity": "Must contain uppercase, lowercase, and a number",
+    "confirmPassword": "Confirm your password",
+    "passwordsMismatch": "Passwords do not match",
+    "passwordsMismatchAccented": "Passwords do not match",
+    "dateRequired": "Date is required",
+    "valueRequired": "Enter the value",
+    "locationRequired": "Location is required",
+    "selectAtLeastOneType": "Select at least one type",
+    "nameMinChars": "Name is required (minimum 2 characters)",
+    "mustBeZeroOrMore": "Must be 0 or more"
+  },
+
+  "onboarding": {
+    "title": "Let's get started",
+    "step": "Step {step} of 2",
+    "financialProfile": {
+      "title": "Financial profile",
+      "description": "This information helps us calculate how many shifts you need to work.",
+      "minimumGoalLabel": "Minimum monthly goal (R$)",
+      "minimumGoalPlaceholder": "E.g., 8000",
+      "minimumGoalHint": "The minimum you need to earn per month",
+      "idealGoalLabel": "Ideal monthly goal (R$)",
+      "idealGoalPlaceholder": "E.g., 15000",
+      "idealGoalHint": "How much you would like to earn per month",
+      "savingsGoalLabel": "Monthly savings goal (R$)",
+      "savingsGoalPlaceholder": "E.g., 2000",
+      "averageShiftValueLabel": "Average value per shift (R$)",
+      "averageShiftValuePlaceholder": "E.g., 1500"
+    },
+    "workProfile": {
+      "title": "Work profile",
+      "description": "How do you usually work?",
+      "shiftTypesLabel": "Types of shifts you work",
+      "maxWeeklyHoursLabel": "Maximum weekly hours limit (optional)",
+      "maxWeeklyHoursPlaceholder": "E.g., 60",
+      "maxWeeklyHoursHint": "Maximum 120 hours",
+      "restDaysLabel": "Preferred rest days"
+    },
+    "next": "Next",
+    "back": "Back",
+    "submit": "Start using",
+    "days": {
+      "sun": "Sun",
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat"
+    }
+  },
+
+  "dashboard": {
+    "greeting": "{gender, select, FEMALE {Hello, Dr. {name}} MALE {Hello, Dr. {name}} other {Hello, {name}}}",
+    "monthMessages": {
+      "safe": "Your month is balanced. You have room for more shifts if you'd like.",
+      "moderate": "Heads up: your workload is moderate. Take care of yourself.",
+      "high": "Alert: your workload is high. Consider checking on your well-being.",
+      "default": "Track your month here.",
+      "noData": "Set up your profile to track your month."
+    },
+    "kpi": {
+      "monthRevenue": "Monthly revenue",
+      "goalPrefix": "Goal: {value}",
+      "confirmedShifts": "Confirmed shifts",
+      "hoursThisMonth": "{hours}h this month",
+      "weeklyHours": "Weekly hours",
+      "restRecommended": "Rest recommended",
+      "calmLoad": "Light workload",
+      "riskLevel": "Risk level",
+      "riskScore": "Score: {score}/100"
+    },
+    "financialGoal": "Financial goal",
+    "minimumGoal": "Minimum goal",
+    "idealGoal": "Ideal goal",
+    "remainingToMinimum": "Remaining to minimum",
+    "minimumShifts": "Minimum shifts",
+    "shiftsLabel": "{count} shifts",
+    "avgPerShift": "Avg. value/shift",
+    "workload": "Workload",
+    "hoursIn5Days": "Hours in 5 days",
+    "weekHours": "Weekly hours",
+    "consecutiveNight": "Consecutive nights",
+    "consecutiveShifts": "Consecutive shifts",
+    "exhaustion": "Exhaustion",
+    "sustainability": "Sustainability",
+    "perExhaustion": "/ exhaustion",
+    "projectionTitle": "Projection for the next 3 months",
+    "simulateCta": "Simulate a shift",
+    "simulateCtaSub": "See the financial and workload impact before accepting",
+    "configureProfile": "Set up your profile to view the goal",
+    "addShiftsForLoad": "Add shifts to see your workload"
+  },
+
+  "hospitals": {
+    "title": "My Hospitals",
+    "count": "{count, plural, one {# hospital registered} other {# hospitals registered}}",
+    "newHospital": "New hospital",
+    "editHospital": "Edit hospital",
+    "addFirstHospital": "Add first hospital",
+    "emptyState": "You don't have any hospitals registered yet.",
+    "nameLabel": "Name",
+    "namePlaceholder": "E.g., Hospital Santa Casa",
+    "stateLabel": "State",
+    "statePlaceholder": "Select state",
+    "cityLabel": "City",
+    "cityPlaceholder": "Select city",
+    "cityLoadingPlaceholder": "Loading cities...",
+    "cityNoStatePlaceholder": "Select state first",
+    "paymentDayLabel": "Payment day",
+    "paymentDayPlaceholder": "Select day",
+    "paymentDayOption": "Every {day}th",
+    "notesLabel": "Notes (optional)",
+    "notesPlaceholder": "ER, ICU, etc.",
+    "modelsCount": "{count} templates",
+    "shiftTemplates": "Shift templates",
+    "dayLabel": "Day {day}",
+    "toastAdded": "Hospital added",
+    "toastUpdated": "Hospital updated",
+    "toastDeleted": "Hospital removed",
+    "confirmDeleteTitle": "Remove hospital",
+    "confirmDeleteMessage": "Remove this hospital and all associated shift templates? This action cannot be undone.",
+    "confirmDeleteLabel": "Remove"
+  },
+
+  "shifts": {
+    "title": "My Shifts",
+    "summary": "{confirmed} confirmed · {simulated} simulated",
+    "unrealized": "{count, plural, one {# not completed} other {# not completed}}",
+    "newShift": "New shift",
+    "addFirstShift": "Add first shift",
+    "emptyState": "You don't have any shifts registered yet.",
+    "toastDeleted": "Shift removed",
+    "toastRealized": "Shift marked as completed",
+    "toastUnrealized": "Shift marked as not completed",
+    "confirmDeleteTitle": "Remove shift",
+    "confirmDeleteMessage": "Are you sure you want to remove this shift? This action cannot be undone.",
+    "confirmDeleteLabel": "Remove"
+  },
+
+  "shiftForm": {
+    "titleNew": "New shift",
+    "titleEdit": "Edit shift",
+    "hospitalLabel": "Hospital (optional)",
+    "hospitalPlaceholder": "Select hospital...",
+    "templateLabel": "Shift template",
+    "typeLabel": "Type",
+    "dateLabel": "Date and time",
+    "valueLabel": "Value (R$)",
+    "valuePlaceholder": "E.g., 1500",
+    "locationLabel": "Location",
+    "locationPlaceholder": "Hospital / UPA / ER",
+    "notesLabel": "Notes (optional)",
+    "notesPlaceholder": "Any notes...",
+    "statusLabel": "Status",
+    "statusConfirmed": "Confirmed",
+    "statusSimulated": "Simulated",
+    "cancel": "Cancel",
+    "save": "Save",
+    "add": "Add"
+  },
+
+  "shiftCard": {
+    "simulated": "Simulated",
+    "realized": "Completed",
+    "unrealized": "Not completed",
+    "realizationQuestion": "Did this shift happen?",
+    "realizationYes": "Yes",
+    "realizationNo": "No"
+  },
+
+  "finance": {
+    "title": "Financial Dashboard",
+    "editGoals": "Edit Goals",
+    "pastMonthBadge": "Month closed — historical data",
+    "idealReached": "Ideal goal reached! You can rest easy.",
+    "minimumReached": "Minimum goal secured. More shifts will bring you closer to the ideal goal.",
+    "remainingToMinimum": "You need {value} more to reach the minimum goal.",
+    "shiftsForMinimum": "Shifts for minimum goal",
+    "shiftsForIdeal": "Shifts for ideal goal",
+    "perMonth": "per month",
+    "confirmDeleteTitle": "Remove shift",
+    "confirmDeleteMessage": "Are you sure you want to remove this shift? This action cannot be undone.",
+    "confirmDeleteLabel": "Remove"
+  },
+
+  "financeKpis": {
+    "confirmed": "Confirmed",
+    "simulated": "Simulated",
+    "minimumGoal": "Minimum goal",
+    "idealGoal": "Ideal goal",
+    "remainingToIdeal": "Remaining to ideal",
+    "currentRevenue": "Current revenue"
+  },
+
+  "budgetModal": {
+    "title": "My Budget",
+    "financialGoals": "Financial goals",
+    "minimumGoalLabel": "Minimum monthly goal (R$)",
+    "idealGoalLabel": "Ideal monthly goal (R$)",
+    "savingsGoalLabel": "Monthly savings goal (R$)",
+    "saveGoals": "Save goals",
+    "toastSuccess": "Goals saved successfully"
+  },
+
+  "financeProgress": {
+    "title": "Monthly progress",
+    "shiftsCount": "{confirmed} shift(s)",
+    "simulatedCount": "+ {simulated} simulated",
+    "unrealizedCount": "· {unrealized} not completed",
+    "minimumGoal": "Minimum goal",
+    "idealGoal": "Ideal goal"
+  },
+
+  "monthShiftsList": {
+    "title": "Shifts this month",
+    "confirmed": "{count, plural, one {# confirmed} other {# confirmed}}",
+    "simulated": "{count, plural, one {# simulated} other {# simulated}}",
+    "unrealized": "{count, plural, one {# not completed} other {# not completed}}",
+    "emptyState": "No shifts this month.",
+    "addShift": "Add shift"
+  },
+
+  "analyticsPreview": {
+    "title": "Analytics (6 months)",
+    "viewFull": "View full",
+    "totalRevenue": "Total Revenue",
+    "trend": "Trend",
+    "bestHospital": "Best Hospital"
+  },
+
+  "financeInsights": {
+    "title": "Financial Assistant"
+  },
+
+  "analytics": {
+    "title": "Analytics",
+    "period6months": "6 months",
+    "period12months": "12 months"
+  },
+
+  "smartPlanner": {
+    "title": "Smart Planning",
+    "subtitle": "Optimized suggestions to reach your financial goal",
+    "idealMonthlyGoal": "Ideal monthly goal",
+    "currentRevenue": "Current revenue",
+    "progress": "Progress",
+    "goalMet": "Congratulations! You've already reached your ideal goal this month.",
+    "financialGap": "{value} remaining to reach your ideal goal.",
+    "suggestedScenarios": "Suggested scenarios",
+    "shiftsLabel": "{count} shifts",
+    "nightShift": "Night",
+    "dayShift": "Day",
+    "totalExhaustion": "Total exhaustion",
+    "sustainability": "Sustainability",
+    "perExhaustion": "/ exhaustion",
+    "scenarioApplied": "Scenario applied successfully! Shifts have been added as simulated.",
+    "applyScenario": "Apply scenario (create as simulated)",
+    "noSuggestionsTitle": "Unable to generate suggestions.",
+    "noSuggestionsDesc": "Complete your financial profile and register hospitals with shift templates to use smart planning.",
+    "noScenariosTitle": "No scenarios available.",
+    "noScenariosDesc": "Register hospitals and shift templates to receive optimized suggestions."
+  },
+
+  "simulate": {
+    "title": "Accept or Decline?",
+    "subtitle": "Simulate a shift and see the impact before deciding.",
+    "formTitle": "Shift details",
+    "typeLabel": "Shift type",
+    "dateLabel": "Shift date and time",
+    "valueLabel": "Shift value (R$)",
+    "valuePlaceholder": "E.g., 1500",
+    "submit": "Simulate now",
+    "verdictSafe": "All clear! You can accept this shift.",
+    "verdictModerate": "You can accept, but keep an eye on your workload.",
+    "verdictHigh": "We don't recommend accepting this shift right now.",
+    "financeImpact": "Financial impact",
+    "revenueGain": "Earnings from this shift",
+    "idealImpact": "Impact on ideal goal",
+    "minimumGoal": "Minimum goal",
+    "idealGoal": "Ideal goal",
+    "workloadImpact": "Workload impact",
+    "hoursIn5Days": "Hours in 5 days",
+    "weekHours": "Weekly hours",
+    "consecutiveNight": "Consecutive nights",
+    "consecutiveShifts": "Consecutive shifts",
+    "triggeredRules": "Triggered rules:",
+    "noTriggeredRules": "None",
+    "energyCost": "Energy cost",
+    "totalExhaustion": "Total exhaustion",
+    "sustainability": "Sustainability",
+    "perExhaustion": "/ exhaustion",
+    "reducesSustainability": "This shift reduces your sustainability (current average: {value}/exhaustion)",
+    "improvesSustainability": "This shift improves your sustainability (current average: {value}/exhaustion)"
+  },
+
+  "riskHistory": {
+    "title": "Risk History",
+    "subtitle": "Track how your workload has evolved over time.",
+    "emptyState": "No records yet. History is generated automatically.",
+    "scoreLabel": "Score: {score}/100",
+    "hoursIn5Days": "{hours}h / 5 days",
+    "hoursInWeek": "{hours}h / week",
+    "consecutiveNights": "{count} consecutive night(s)"
+  },
+
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Manage your account and preferences",
+    "profile": {
+      "title": "Profile",
+      "edit": "Edit",
+      "nameLabel": "Name",
+      "namePlaceholder": "Your name",
+      "genderLabel": "Gender",
+      "genderPlaceholder": "Select...",
+      "emailLabel": "Email",
+      "save": "Save",
+      "cancel": "Cancel",
+      "toastSuccess": "Profile updated"
+    },
+    "gender": {
+      "male": "Male",
+      "female": "Female",
+      "nonBinary": "Non-binary",
+      "preferNotToSay": "Prefer not to say"
+    },
+    "energy": {
+      "title": "Personal Energy Costs",
+      "description": "Adjust if you feel more or less impact than average for each shift type.",
+      "diurno12h": "12h Day",
+      "noturno12h": "12h Night",
+      "plantao24h": "24h",
+      "save": "Save",
+      "restoreDefaults": "Restore defaults",
+      "defaultLabel": "(default: {value})",
+      "toastSuccess": "Energy costs saved",
+      "onboardingRequired": "Complete onboarding first to configure your energy costs."
+    },
+    "wearables": {
+      "title": "Connected wearables",
+      "comingSoon": "Coming soon",
+      "description": "Direct integration with wearables is in development. Demo data is available.",
+      "appleHealth": "Apple Health",
+      "appleHealthDesc": "Health data from iPhone and Apple Watch",
+      "garmin": "Garmin",
+      "garminDesc": "Garmin watches and devices",
+      "ouraRing": "Oura Ring",
+      "ouraRingDesc": "Smart monitoring ring",
+      "whoop": "Whoop",
+      "whoopDesc": "Recovery and performance band"
+    }
+  },
+
+  "risk": {
+    "safe": "Safe",
+    "moderate": "Moderate",
+    "high": "High"
+  },
+
+  "shiftTypes": {
+    "twelveHours": "12 hours",
+    "twentyFourHours": "24 hours",
+    "night": "Night"
+  },
+
+  "shiftTypeDesc": {
+    "twelveHours": "Day shift",
+    "twentyFourHours": "Full shift",
+    "night": "Night shift"
+  },
+
+  "templateTypes": {
+    "diurno12h": "Day 12h",
+    "noturno12h": "Night 12h",
+    "plantao24h": "Shift 24h",
+    "personalizado": "Custom"
+  }
+}

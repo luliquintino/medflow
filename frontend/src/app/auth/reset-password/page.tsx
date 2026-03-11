@@ -1,38 +1,45 @@
 "use client";
-import { useState, Suspense } from "react";
+import { useState, useMemo, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Image from "next/image";
 import { CheckCircle2, AlertCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { PasswordInput } from "@/components/ui/password-input";
 import { api, getErrorMessage } from "@/lib/api";
 
-const schema = z
-  .object({
-    password: z
-      .string()
-      .min(8, "Mínimo 8 caracteres")
-      .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, "Deve conter maiúscula, minúscula e número"),
-    confirmPassword: z.string(),
-  })
-  .refine((d) => d.password === d.confirmPassword, {
-    message: "As senhas não coincidem",
-    path: ["confirmPassword"],
-  });
+function createSchema(tv: (key: string) => string) {
+  return z
+    .object({
+      password: z
+        .string()
+        .min(8, tv("minChars"))
+        .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, tv("passwordComplexity")),
+      confirmPassword: z.string(),
+    })
+    .refine((d) => d.password === d.confirmPassword, {
+      message: tv("passwordsMismatchAccented"),
+      path: ["confirmPassword"],
+    });
+}
 
-type FormData = z.infer<typeof schema>;
+type FormData = z.infer<ReturnType<typeof createSchema>>;
 
 // ─── Inner component ──────────────────────────────────────────────
 function ResetPasswordInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
+  const t = useTranslations("auth.resetPassword");
+  const tv = useTranslations("validation");
 
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
+
+  const schema = useMemo(() => createSchema(tv), [tv]);
 
   const {
     register,
@@ -42,7 +49,7 @@ function ResetPasswordInner() {
 
   async function onSubmit(data: FormData) {
     if (!token) {
-      setError("Token inválido ou ausente.");
+      setError(t("invalidToken"));
       return;
     }
     try {
@@ -63,8 +70,8 @@ function ResetPasswordInner() {
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
           <Image src="/logo.png" alt="Med Flow" width={112} height={112} className="mb-3" />
-          <h1 className="text-xl font-bold text-moss-800">Med Flow</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Seu copiloto de plantões</p>
+          <h1 className="text-xl font-bold text-moss-800">{t("title")}</h1>
+          <p className="text-sm text-gray-500 mt-0.5">{t("subtitle")}</p>
         </div>
 
         <div className="bg-white rounded-3xl shadow-card border border-cream-200 p-8">
@@ -74,15 +81,15 @@ function ResetPasswordInner() {
               <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4">
                 <AlertCircle className="w-7 h-7 text-red-500" />
               </div>
-              <h2 className="text-lg font-semibold text-gray-800 mb-2">Link inválido</h2>
+              <h2 className="text-lg font-semibold text-gray-800 mb-2">{t("invalidLinkTitle")}</h2>
               <p className="text-sm text-gray-500 mb-6">
-                Este link de recuperação é inválido ou já foi utilizado.
+                {t("invalidLinkDescription")}
               </p>
               <button
                 onClick={() => router.push("/auth/forgot-password")}
                 className="text-sm text-moss-600 font-medium hover:underline"
               >
-                Solicitar novo link
+                {t("requestNewLink")}
               </button>
             </div>
           ) : success ? (
@@ -91,37 +98,37 @@ function ResetPasswordInner() {
               <div className="w-14 h-14 rounded-full bg-moss-50 flex items-center justify-center mx-auto mb-4">
                 <CheckCircle2 className="w-7 h-7 text-moss-500" />
               </div>
-              <h2 className="text-lg font-semibold text-gray-800 mb-2">Senha alterada!</h2>
+              <h2 className="text-lg font-semibold text-gray-800 mb-2">{t("successTitle")}</h2>
               <p className="text-sm text-gray-500 mb-6">
-                Sua senha foi atualizada com sucesso. Faça login para continuar.
+                {t("successDescription")}
               </p>
               <Button
                 className="w-full"
                 onClick={() => router.push("/auth/login")}
               >
-                Entrar na minha conta
+                {t("successButton")}
               </Button>
             </div>
           ) : (
             /* Form */
             <>
               <h2 className="text-lg font-semibold text-gray-800 mb-1">
-                Nova senha
+                {t("heading")}
               </h2>
               <p className="text-sm text-gray-500 mb-6">
-                Escolha uma nova senha segura para sua conta.
+                {t("description")}
               </p>
 
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 <PasswordInput
-                  label="Nova senha"
-                  placeholder="Mínimo 8 caracteres"
+                  label={t("newPasswordLabel")}
+                  placeholder={t("newPasswordPlaceholder")}
                   error={errors.password?.message}
                   {...register("password")}
                 />
                 <PasswordInput
-                  label="Confirmar nova senha"
-                  placeholder="Repita a nova senha"
+                  label={t("confirmPasswordLabel")}
+                  placeholder={t("confirmPasswordPlaceholder")}
                   error={errors.confirmPassword?.message}
                   {...register("confirmPassword")}
                 />
@@ -133,7 +140,7 @@ function ResetPasswordInner() {
                 )}
 
                 <Button type="submit" className="w-full" loading={isSubmitting}>
-                  Salvar nova senha
+                  {t("submit")}
                 </Button>
               </form>
             </>

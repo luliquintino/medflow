@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { User, Watch, Activity, Battery, RotateCcw, Save, Pencil } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { api, unwrap, getErrorMessage } from "@/lib/api";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -20,41 +21,44 @@ const ENERGY_DEFAULTS = {
   energyCost24h: 2.5,
 };
 
-const GENDER_OPTIONS: { value: Gender; label: string }[] = [
-  { value: "MALE", label: "Masculino" },
-  { value: "FEMALE", label: "Feminino" },
-  { value: "NON_BINARY", label: "Não-binário" },
-  { value: "PREFER_NOT_TO_SAY", label: "Prefiro não informar" },
-];
-
-const WEARABLE_PROVIDERS = [
-  {
-    id: "apple_health",
-    name: "Apple Health",
-    description: "Dados de saude do iPhone e Apple Watch",
-    color: "bg-red-500",
-  },
-  {
-    id: "garmin",
-    name: "Garmin",
-    description: "Relogios e dispositivos Garmin",
-    color: "bg-blue-600",
-  },
-  {
-    id: "oura",
-    name: "Oura Ring",
-    description: "Anel inteligente de monitoramento",
-    color: "bg-purple-600",
-  },
-  {
-    id: "whoop",
-    name: "Whoop",
-    description: "Pulseira de recuperacao e performance",
-    color: "bg-green-600",
-  },
-];
-
 export default function SettingsPage() {
+  const t = useTranslations("settings");
+  const tCommon = useTranslations("common");
+
+  const GENDER_OPTIONS: { value: Gender; label: string }[] = [
+    { value: "MALE", label: t("gender.male") },
+    { value: "FEMALE", label: t("gender.female") },
+    { value: "NON_BINARY", label: t("gender.nonBinary") },
+    { value: "PREFER_NOT_TO_SAY", label: t("gender.preferNotToSay") },
+  ];
+
+  const WEARABLE_PROVIDERS = [
+    {
+      id: "apple_health",
+      name: t("wearables.appleHealth"),
+      description: t("wearables.appleHealthDesc"),
+      color: "bg-red-500",
+    },
+    {
+      id: "garmin",
+      name: t("wearables.garmin"),
+      description: t("wearables.garminDesc"),
+      color: "bg-blue-600",
+    },
+    {
+      id: "oura",
+      name: t("wearables.ouraRing"),
+      description: t("wearables.ouraRingDesc"),
+      color: "bg-purple-600",
+    },
+    {
+      id: "whoop",
+      name: t("wearables.whoop"),
+      description: t("wearables.whoopDesc"),
+      color: "bg-green-600",
+    },
+  ];
+
   const { user, setUser } = useAuthStore();
   const queryClient = useQueryClient();
 
@@ -98,7 +102,7 @@ export default function SettingsPage() {
         setUser({ ...user, ...updated });
       }
       setIsEditingProfile(false);
-      toast.success("Perfil atualizado");
+      toast.success(t("profile.toastSuccess"));
     },
   });
 
@@ -109,7 +113,7 @@ export default function SettingsPage() {
       queryClient.invalidateQueries({ queryKey: ["me"] });
       queryClient.invalidateQueries({ queryKey: ["dashboard"] });
       queryClient.invalidateQueries({ queryKey: ["optimization"] });
-      toast.success("Custos energéticos salvos");
+      toast.success(t("energy.toastSuccess"));
     },
   });
 
@@ -125,8 +129,8 @@ export default function SettingsPage() {
   return (
     <div className="max-w-3xl space-y-8">
       <div>
-        <h2 className="text-xl font-bold text-gray-800">Configurações</h2>
-        <p className="text-sm text-gray-500 mt-0.5">Gerencie sua conta e preferências</p>
+        <h2 className="text-xl font-bold text-gray-800">{t("title")}</h2>
+        <p className="text-sm text-gray-500 mt-0.5">{t("subtitle")}</p>
       </div>
 
       {/* Profile */}
@@ -134,7 +138,7 @@ export default function SettingsPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <User className="w-4 h-4 text-moss-600" />
-            Perfil
+            {t("profile.title")}
           </CardTitle>
           {!isEditingProfile && (
             <button
@@ -142,7 +146,7 @@ export default function SettingsPage() {
               className="text-xs text-moss-600 hover:text-moss-700 font-medium flex items-center gap-1 transition-colors"
             >
               <Pencil className="w-3 h-3" />
-              Editar
+              {t("profile.edit")}
             </button>
           )}
         </CardHeader>
@@ -150,20 +154,20 @@ export default function SettingsPage() {
         {isEditingProfile ? (
           <form onSubmit={handleProfileSave} className="space-y-4">
             <Input
-              label="Nome"
+              label={t("profile.nameLabel")}
               value={profileName}
               onChange={(e) => setProfileName(e.target.value)}
-              placeholder="Seu nome"
+              placeholder={t("profile.namePlaceholder")}
             />
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-gray-700">Gênero</label>
+              <label className="text-sm font-medium text-gray-700">{t("profile.genderLabel")}</label>
               <select
                 value={profileGender}
                 onChange={(e) => setProfileGender(e.target.value)}
                 className={selectClass}
               >
-                <option value="">Selecionar...</option>
+                <option value="">{t("profile.genderPlaceholder")}</option>
                 {GENDER_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>
                 ))}
@@ -171,7 +175,7 @@ export default function SettingsPage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-gray-700">E-mail</label>
+              <label className="text-sm font-medium text-gray-700">{t("profile.emailLabel")}</label>
               <p className="text-sm text-gray-500 bg-cream-100 rounded-xl px-4 py-3 border border-cream-200">
                 {user?.email}
               </p>
@@ -190,7 +194,7 @@ export default function SettingsPage() {
                 icon={<Save className="w-4 h-4" />}
                 className="flex-1"
               >
-                Salvar
+                {t("profile.save")}
               </Button>
               <Button
                 type="button"
@@ -201,7 +205,7 @@ export default function SettingsPage() {
                   setProfileGender(profile?.gender ?? user?.gender ?? "");
                 }}
               >
-                Cancelar
+                {t("profile.cancel")}
               </Button>
             </div>
           </form>
@@ -230,33 +234,36 @@ export default function SettingsPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Battery className="w-4 h-4 text-purple-500" />
-            Custos Energéticos Pessoais
+            {t("energy.title")}
           </CardTitle>
         </CardHeader>
 
         {profile?.workProfile ? (
           <div className="space-y-5">
             <p className="text-sm text-gray-500">
-              Ajuste se você sente mais ou menos impacto que a média em cada tipo de plantão.
+              {t("energy.description")}
             </p>
 
             <EnergyCostSlider
-              label="12h Diurno"
+              label={t("energy.diurno12h")}
               value={energyCostDiurno}
               defaultValue={ENERGY_DEFAULTS.energyCostDiurno}
               onChange={setEnergyCostDiurno}
+              defaultLabel={t("energy.defaultLabel", { value: ENERGY_DEFAULTS.energyCostDiurno.toFixed(1) })}
             />
             <EnergyCostSlider
-              label="12h Noturno"
+              label={t("energy.noturno12h")}
               value={energyCostNoturno}
               defaultValue={ENERGY_DEFAULTS.energyCostNoturno}
               onChange={setEnergyCostNoturno}
+              defaultLabel={t("energy.defaultLabel", { value: ENERGY_DEFAULTS.energyCostNoturno.toFixed(1) })}
             />
             <EnergyCostSlider
-              label="24h"
+              label={t("energy.plantao24h")}
               value={energyCost24h}
               defaultValue={ENERGY_DEFAULTS.energyCost24h}
               onChange={setEnergyCost24h}
+              defaultLabel={t("energy.defaultLabel", { value: ENERGY_DEFAULTS.energyCost24h.toFixed(1) })}
             />
 
             <div className="flex gap-3 pt-2">
@@ -266,7 +273,7 @@ export default function SettingsPage() {
                 icon={<Save className="w-4 h-4" />}
                 className="flex-1"
               >
-                Salvar
+                {t("energy.save")}
               </Button>
               <Button
                 variant="secondary"
@@ -277,7 +284,7 @@ export default function SettingsPage() {
                 }}
                 icon={<RotateCcw className="w-4 h-4" />}
               >
-                Restaurar padrões
+                {t("energy.restoreDefaults")}
               </Button>
             </div>
 
@@ -290,7 +297,7 @@ export default function SettingsPage() {
         ) : (
           <div className="text-center py-8">
             <p className="text-sm text-gray-500">
-              Complete o onboarding primeiro para configurar seus custos energéticos.
+              {t("energy.onboardingRequired")}
             </p>
           </div>
         )}
@@ -300,7 +307,7 @@ export default function SettingsPage() {
       <div>
         <h3 className="text-base font-semibold text-gray-800 mb-4 flex items-center gap-2">
           <Watch className="w-4 h-4 text-moss-600" />
-          Wearables conectados
+          {t("wearables.title")}
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {WEARABLE_PROVIDERS.map((provider) => (
@@ -314,14 +321,14 @@ export default function SettingsPage() {
                   <p className="text-xs text-gray-500 truncate">{provider.description}</p>
                 </div>
                 <span className="text-xs text-gray-400 bg-cream-100 px-2 py-1 rounded-lg">
-                  Em breve
+                  {tCommon("comingSoon")}
                 </span>
               </div>
             </Card>
           ))}
         </div>
         <p className="text-xs text-gray-400 mt-3">
-          Integracao direta com wearables esta em desenvolvimento. Dados de demonstracao estao disponiveis.
+          {t("wearables.description")}
         </p>
       </div>
     </div>
@@ -333,11 +340,13 @@ function EnergyCostSlider({
   value,
   defaultValue,
   onChange,
+  defaultLabel,
 }: {
   label: string;
   value: number;
   defaultValue: number;
   onChange: (v: number) => void;
+  defaultLabel: string;
 }) {
   return (
     <div>
@@ -346,7 +355,7 @@ function EnergyCostSlider({
         <div className="flex items-center gap-2">
           <span className="text-sm font-bold text-gray-800">{value.toFixed(1)}</span>
           {value !== defaultValue && (
-            <span className="text-xs text-gray-400">(padrão: {defaultValue.toFixed(1)})</span>
+            <span className="text-xs text-gray-400">{defaultLabel}</span>
           )}
         </div>
       </div>

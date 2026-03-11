@@ -1,24 +1,16 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { X } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { api, getErrorMessage } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { FinancialProfile } from "@/types";
-
-// ─── Schema ────────────────────────────────────────────────────────────────
-
-const profileSchema = z.object({
-  minimumMonthlyGoal: z.coerce.number().min(0, "Deve ser 0 ou mais"),
-  idealMonthlyGoal: z.coerce.number().min(0, "Deve ser 0 ou mais"),
-  savingsGoal: z.coerce.number().min(0, "Deve ser 0 ou mais"),
-});
-type ProfileForm = z.infer<typeof profileSchema>;
 
 // ─── Props ─────────────────────────────────────────────────────────────────
 
@@ -29,8 +21,23 @@ interface BudgetModalProps {
 }
 
 export function BudgetModal({ isOpen, onClose, profile }: BudgetModalProps) {
+  const t = useTranslations("budgetModal");
+  const tv = useTranslations("validation");
   const qc = useQueryClient();
   const [profileError, setProfileError] = useState("");
+
+  // ─── Schema ────────────────────────────────────────────────────────────────
+
+  const profileSchema = useMemo(
+    () =>
+      z.object({
+        minimumMonthlyGoal: z.coerce.number().min(0, tv("mustBeZeroOrMore")),
+        idealMonthlyGoal: z.coerce.number().min(0, tv("mustBeZeroOrMore")),
+        savingsGoal: z.coerce.number().min(0, tv("mustBeZeroOrMore")),
+      }),
+    [tv]
+  );
+  type ProfileForm = z.infer<typeof profileSchema>;
 
   // ─── Profile form ──────────────────────────────────────────────────────
 
@@ -65,7 +72,7 @@ export function BudgetModal({ isOpen, onClose, profile }: BudgetModalProps) {
       qc.invalidateQueries({ queryKey: ["dashboard"] });
       qc.invalidateQueries({ queryKey: ["finance-insights"] });
       setProfileError("");
-      toast.success("Metas salvas com sucesso");
+      toast.success(t("toastSuccess"));
     },
     onError: (err) => setProfileError(getErrorMessage(err)),
   });
@@ -81,7 +88,7 @@ export function BudgetModal({ isOpen, onClose, profile }: BudgetModalProps) {
       <div className="relative bg-cream-50 rounded-3xl shadow-float w-full max-w-lg max-h-[90vh] overflow-y-auto mx-4">
         {/* Header */}
         <div className="sticky top-0 bg-cream-50 rounded-t-3xl px-6 pt-6 pb-4 border-b border-cream-200 flex items-center justify-between z-10">
-          <h2 className="text-lg font-bold text-gray-800">Meu Orçamento</h2>
+          <h2 className="text-lg font-bold text-gray-800">{t("title")}</h2>
           <button
             onClick={onClose}
             className="w-8 h-8 rounded-full hover:bg-cream-200 flex items-center justify-center transition-colors"
@@ -98,11 +105,11 @@ export function BudgetModal({ isOpen, onClose, profile }: BudgetModalProps) {
             className="space-y-4"
           >
             <h3 className="text-sm font-semibold text-gray-700">
-              Metas financeiras
+              {t("financialGoals")}
             </h3>
 
             <Input
-              label="Meta mensal mínima (R$)"
+              label={t("minimumGoalLabel")}
               type="number"
               step="0.01"
               {...profileForm.register("minimumMonthlyGoal")}
@@ -110,7 +117,7 @@ export function BudgetModal({ isOpen, onClose, profile }: BudgetModalProps) {
             />
 
             <Input
-              label="Meta mensal ideal (R$)"
+              label={t("idealGoalLabel")}
               type="number"
               step="0.01"
               {...profileForm.register("idealMonthlyGoal")}
@@ -118,7 +125,7 @@ export function BudgetModal({ isOpen, onClose, profile }: BudgetModalProps) {
             />
 
             <Input
-              label="Meta de poupança mensal (R$)"
+              label={t("savingsGoalLabel")}
               type="number"
               step="0.01"
               {...profileForm.register("savingsGoal")}
@@ -135,7 +142,7 @@ export function BudgetModal({ isOpen, onClose, profile }: BudgetModalProps) {
               loading={updateProfileMutation.isPending}
               className="w-full"
             >
-              Salvar metas
+              {t("saveGoals")}
             </Button>
           </form>
         </div>

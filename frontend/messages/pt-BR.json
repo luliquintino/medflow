@@ -1,0 +1,588 @@
+{
+  "common": {
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "add": "Adicionar",
+    "edit": "Editar",
+    "delete": "Remover",
+    "close": "Fechar",
+    "back": "Voltar",
+    "next": "Próximo",
+    "confirm": "Confirmar",
+    "loading": "Carregando...",
+    "yes": "Sim",
+    "no": "Não",
+    "configure": "Configurar",
+    "comingSoon": "Em breve",
+    "perMonth": "por mês",
+    "appName": "Med Flow"
+  },
+
+  "metadata": {
+    "title": "Med Flow — Seu copiloto de plantões",
+    "description": "Planeje plantões, monitore carga horária e tome decisões mais conscientes sobre trabalho e descanso."
+  },
+
+  "errorBoundary": {
+    "title": "Algo deu errado",
+    "description": "Ocorreu um erro inesperado. Tente recarregar a pagina.",
+    "reload": "Recarregar pagina"
+  },
+
+  "nav": {
+    "dashboard": "Meu Painel",
+    "hospitals": "Hospitais",
+    "shifts": "Plantões",
+    "analytics": "Analytics",
+    "smartPlanner": "Planejamento",
+    "simulate": "Aceito ou Não?",
+    "riskHistory": "Histórico de Risco",
+    "settings": "Configurações",
+    "finance": "Painel Financeiro"
+  },
+
+  "topbar": {
+    "openMenu": "Abrir menu",
+    "notifications": "Notificações",
+    "notificationsComingSoon": "Em breve",
+    "myDashboard": "Meu Painel"
+  },
+
+  "sidebar": {
+    "logout": "Sair",
+    "userPrefix": "{gender, select, MALE {Dr. {name}} FEMALE {Dra. {name}} other {{name}}}"
+  },
+
+  "landing": {
+    "nav": {
+      "features": "Recursos",
+      "howItWorks": "Como funciona",
+      "login": "Entrar",
+      "startFree": "Começar grátis",
+      "menu": "Menu"
+    },
+    "hero": {
+      "tagline": "Seu copiloto de plantões.",
+      "subtitle": "Organize suas metas, proteja sua saúde e trabalhe de forma sustentável — tudo em um só lugar.",
+      "startNow": "Começar agora",
+      "haveAccount": "Já tenho conta",
+      "free": "gratuito",
+      "freePercent": "100%"
+    },
+    "heroMockup": {
+      "step1Title": "Registre seu plantão",
+      "step1Detail": "UPA Centro — Noturno 12h — R$ 1.400",
+      "step2Title": "Cálculo automático",
+      "step2Detail": "R$ 10.950 de R$ 15.000 — faltam 3 plantões",
+      "step3Title": "Alerta de proteção",
+      "step3Detail": "Carga semanal: 52h — Risco moderado de burnout",
+      "step4Title": "Meta batida!",
+      "step4Detail": "Parabéns! Você atingiu sua meta com equilíbrio."
+    },
+    "problems": {
+      "sectionLabel": "O desafio",
+      "title": "Você conhece essa realidade?",
+      "noTimeTitle": "Sem tempo para se organizar",
+      "noTimeDesc": "Entre um plantão e outro, sobra pouco tempo para planejar finanças e cuidar da própria saúde.",
+      "darkGoalsTitle": "Metas financeiras no escuro",
+      "darkGoalsDesc": "Sem saber quantos plantões precisa, você trabalha mais do que deveria — ou menos do que poderia.",
+      "burnoutTitle": "Risco invisível de burnout",
+      "burnoutDesc": "A sobrecarga se acumula silenciosamente. Quando os sinais aparecem, já é tarde demais."
+    },
+    "features": {
+      "sectionLabel": "Recursos",
+      "title": "Tudo que você precisa em um só lugar",
+      "subtitle": "Ferramentas pensadas para médicos que dão plantão no Brasil — do recém-formado ao veterano.",
+      "financeTitle": "Controle financeiro inteligente",
+      "financeDesc": "Saiba exatamente quantos plantões faltam para bater sua meta. Acompanhe receitas, simule cenários e tome decisões com dados reais.",
+      "burnoutTitle": "Proteção contra burnout",
+      "burnoutDesc": "Monitoramento contínuo da sua carga horária. Receba alertas antes de ultrapassar limites seguros e preserve sua saúde.",
+      "planningTitle": "Planejamento otimizado",
+      "planningDesc": "Simulações inteligentes que encontram o equilíbrio ideal entre rendimento financeiro e qualidade de vida.",
+      "sustainabilityTitle": "Sustentabilidade profissional",
+      "sustainabilityDesc": "Custo energético personalizado por tipo de plantão e índice de sustentabilidade para manter sua carreira saudável."
+    },
+    "steps": {
+      "sectionLabel": "Como funciona",
+      "title": "Comece em 3 passos simples",
+      "subtitle": "Em menos de 5 minutos você está com tudo configurado e pronto para usar.",
+      "step1Title": "Crie sua conta",
+      "step1Desc": "Cadastro rápido com e-mail e senha. Sem burocracia, sem cartão.",
+      "step2Title": "Configure seu perfil",
+      "step2Desc": "Defina suas metas financeiras, limites de carga e tipo de plantão.",
+      "step3Title": "Gerencie tudo",
+      "step3Desc": "Registre plantões, acompanhe métricas e receba insights em tempo real."
+    },
+    "benefits": {
+      "title": "O que você ganha com o Med Flow",
+      "subtitle": "Tudo que um médico plantonista precisa para ter controle sobre sua carreira.",
+      "clearIncome": "Visão clara de quanto ganha por mês",
+      "burnoutAlerts": "Alertas inteligentes de risco de burnout",
+      "financeSim": "Simulação de cenários financeiros",
+      "customGoals": "Metas financeiras personalizadas",
+      "fullHistory": "Histórico completo de evolução",
+      "intuitiveUI": "Dashboard intuitivo e bonito"
+    },
+    "cta": {
+      "title": "Pronto para trabalhar de forma mais inteligente?",
+      "subtitle": "Junte-se a centenas de médicos que já organizam seus plantões, cuidam da saúde e batem suas metas com o Med Flow.",
+      "createFreeAccount": "Criar conta gratuita"
+    },
+    "footer": {
+      "terms": "Termos de uso",
+      "privacy": "Privacidade",
+      "copyright": "© {year} Med Flow"
+    }
+  },
+
+  "auth": {
+    "login": {
+      "title": "Med Flow",
+      "subtitle": "Entre na sua conta",
+      "emailLabel": "E-mail",
+      "emailPlaceholder": "seu@email.com",
+      "passwordLabel": "Senha",
+      "passwordPlaceholder": "Sua senha",
+      "submit": "Entrar",
+      "forgotPassword": "Esqueceu a senha?",
+      "noAccount": "Nao tem conta?",
+      "createAccount": "Criar conta"
+    },
+    "register": {
+      "title": "Med Flow",
+      "subtitle": "Crie sua conta",
+      "nameLabel": "Nome completo",
+      "namePlaceholder": "Maria Silva",
+      "crmLabel": "CRM",
+      "crmPlaceholder": "123456/SP",
+      "crmHint": "Formato: numero/UF (ex: 123456/SP)",
+      "emailLabel": "E-mail",
+      "emailPlaceholder": "seu@email.com",
+      "passwordLabel": "Senha",
+      "passwordPlaceholder": "Mínimo 8 caracteres",
+      "confirmPasswordLabel": "Confirmar senha",
+      "confirmPasswordPlaceholder": "Repita a senha",
+      "submit": "Criar conta",
+      "hasAccount": "Ja tem conta?",
+      "login": "Entrar"
+    },
+    "forgotPassword": {
+      "title": "Med Flow",
+      "subtitle": "Recuperar senha",
+      "heading": "Esqueceu sua senha?",
+      "description": "Informe seu e-mail e enviaremos um link para redefinir sua senha.",
+      "emailLabel": "E-mail",
+      "emailPlaceholder": "seu@email.com",
+      "submit": "Enviar link de recuperação",
+      "backToLogin": "Voltar ao login",
+      "successTitle": "Link gerado com sucesso",
+      "successDescription": "Clique no botão abaixo para redefinir sua senha.",
+      "resetMyPassword": "Redefinir minha senha",
+      "emailNotFound": "E-mail não encontrado. Verifique e tente novamente."
+    },
+    "resetPassword": {
+      "title": "Med Flow",
+      "subtitle": "Seu copiloto de plantões",
+      "heading": "Nova senha",
+      "description": "Escolha uma nova senha segura para sua conta.",
+      "newPasswordLabel": "Nova senha",
+      "newPasswordPlaceholder": "Mínimo 8 caracteres",
+      "confirmPasswordLabel": "Confirmar nova senha",
+      "confirmPasswordPlaceholder": "Repita a nova senha",
+      "submit": "Salvar nova senha",
+      "successTitle": "Senha alterada!",
+      "successDescription": "Sua senha foi atualizada com sucesso. Faça login para continuar.",
+      "successButton": "Entrar na minha conta",
+      "invalidLinkTitle": "Link inválido",
+      "invalidLinkDescription": "Este link de recuperação é inválido ou já foi utilizado.",
+      "requestNewLink": "Solicitar novo link",
+      "invalidToken": "Token inválido ou ausente."
+    }
+  },
+
+  "validation": {
+    "emailInvalid": "E-mail invalido",
+    "emailInvalidAccented": "E-mail inválido",
+    "passwordRequired": "Senha obrigatoria",
+    "nameRequired": "Nome obrigatorio",
+    "crmInvalid": "CRM inválido. Use o formato: 123456/UF",
+    "minChars": "Mínimo 8 caracteres",
+    "passwordComplexity": "Deve conter maiúscula, minúscula e número",
+    "confirmPassword": "Confirme a senha",
+    "passwordsMismatch": "As senhas nao coincidem",
+    "passwordsMismatchAccented": "As senhas não coincidem",
+    "dateRequired": "Data obrigatória",
+    "valueRequired": "Informe o valor",
+    "locationRequired": "Local obrigatório",
+    "selectAtLeastOneType": "Selecione ao menos um tipo",
+    "nameMinChars": "Nome obrigatório (mínimo 2 caracteres)",
+    "mustBeZeroOrMore": "Deve ser 0 ou mais"
+  },
+
+  "onboarding": {
+    "title": "Vamos começar",
+    "step": "Passo {step} de 2",
+    "financialProfile": {
+      "title": "Perfil financeiro",
+      "description": "Essas informações nos ajudam a calcular quantos plantões você precisa fazer.",
+      "minimumGoalLabel": "Meta mensal mínima (R$)",
+      "minimumGoalPlaceholder": "Ex: 8000",
+      "minimumGoalHint": "O mínimo que você precisa ganhar por mês",
+      "idealGoalLabel": "Meta mensal ideal (R$)",
+      "idealGoalPlaceholder": "Ex: 15000",
+      "idealGoalHint": "Quanto você gostaria de ganhar por mês",
+      "savingsGoalLabel": "Meta de reserva/poupança mensal (R$)",
+      "savingsGoalPlaceholder": "Ex: 2000",
+      "averageShiftValueLabel": "Valor médio por plantão (R$)",
+      "averageShiftValuePlaceholder": "Ex: 1500"
+    },
+    "workProfile": {
+      "title": "Perfil de trabalho",
+      "description": "Como você costuma trabalhar?",
+      "shiftTypesLabel": "Tipos de plantão que você faz",
+      "maxWeeklyHoursLabel": "Limite máximo de horas semanais (opcional)",
+      "maxWeeklyHoursPlaceholder": "Ex: 60",
+      "maxWeeklyHoursHint": "Máximo 120 horas",
+      "restDaysLabel": "Dias preferenciais de descanso"
+    },
+    "next": "Próximo",
+    "back": "Voltar",
+    "submit": "Começar a usar",
+    "days": {
+      "sun": "Dom",
+      "mon": "Seg",
+      "tue": "Ter",
+      "wed": "Qua",
+      "thu": "Qui",
+      "fri": "Sex",
+      "sat": "Sáb"
+    }
+  },
+
+  "dashboard": {
+    "greeting": "{gender, select, FEMALE {Olá, Dra. {name}} MALE {Olá, Dr. {name}} other {Olá, {name}}}",
+    "monthMessages": {
+      "safe": "Seu mês está equilibrado. Você tem margem para mais plantões, se desejar.",
+      "moderate": "Atenção: sua carga de trabalho está moderada. Cuide-se.",
+      "high": "Alerta: sua carga está elevada. Considere avaliar seu bem-estar.",
+      "default": "Acompanhe seu mês aqui.",
+      "noData": "Configure seus dados para acompanhar seu mês."
+    },
+    "kpi": {
+      "monthRevenue": "Receita do mês",
+      "goalPrefix": "Meta: {value}",
+      "confirmedShifts": "Plantões confirmados",
+      "hoursThisMonth": "{hours}h este mês",
+      "weeklyHours": "Horas na semana",
+      "restRecommended": "Descanso recomendado",
+      "calmLoad": "Carga tranquila",
+      "riskLevel": "Nível de risco",
+      "riskScore": "Score: {score}/100"
+    },
+    "financialGoal": "Meta financeira",
+    "minimumGoal": "Meta mínima",
+    "idealGoal": "Meta ideal",
+    "remainingToMinimum": "Falta para mínimo",
+    "minimumShifts": "Plantões mínimos",
+    "shiftsLabel": "{count} plantões",
+    "avgPerShift": "Valor médio/plantão",
+    "workload": "Carga de trabalho",
+    "hoursIn5Days": "Horas nos 5 dias",
+    "weekHours": "Horas na semana",
+    "consecutiveNight": "Noturno consecutivo",
+    "consecutiveShifts": "Plantões seguidos",
+    "exhaustion": "Exaustão",
+    "sustainability": "Sustentabilidade",
+    "perExhaustion": "/ exaustão",
+    "projectionTitle": "Projeção dos próximos 3 meses",
+    "simulateCta": "Simular um plantão",
+    "simulateCtaSub": "Veja o impacto financeiro e de carga antes de aceitar",
+    "configureProfile": "Configure seu perfil para ver a meta",
+    "addShiftsForLoad": "Adicione plantões para ver sua carga"
+  },
+
+  "hospitals": {
+    "title": "Meus Hospitais",
+    "count": "{count, plural, one {# hospital cadastrado} other {# hospitais cadastrados}}",
+    "newHospital": "Novo hospital",
+    "editHospital": "Editar hospital",
+    "addFirstHospital": "Adicionar primeiro hospital",
+    "emptyState": "Você ainda não tem hospitais cadastrados.",
+    "nameLabel": "Nome",
+    "namePlaceholder": "Ex: Hospital Santa Casa",
+    "stateLabel": "Estado",
+    "statePlaceholder": "Selecione o estado",
+    "cityLabel": "Cidade",
+    "cityPlaceholder": "Selecione a cidade",
+    "cityLoadingPlaceholder": "Carregando cidades...",
+    "cityNoStatePlaceholder": "Selecione o estado primeiro",
+    "paymentDayLabel": "Dia de pagamento",
+    "paymentDayPlaceholder": "Selecione o dia",
+    "paymentDayOption": "Todo dia {day}",
+    "notesLabel": "Observações (opcional)",
+    "notesPlaceholder": "Pronto-socorro, UTI, etc.",
+    "modelsCount": "{count} modelos",
+    "shiftTemplates": "Modelos de plantão",
+    "dayLabel": "Dia {day}",
+    "toastAdded": "Hospital adicionado",
+    "toastUpdated": "Hospital atualizado",
+    "toastDeleted": "Hospital removido",
+    "confirmDeleteTitle": "Remover hospital",
+    "confirmDeleteMessage": "Remover este hospital e todos os modelos de plantão associados? Esta ação não pode ser desfeita.",
+    "confirmDeleteLabel": "Remover"
+  },
+
+  "shifts": {
+    "title": "Meus Plantões",
+    "summary": "{confirmed} confirmados · {simulated} simulados",
+    "unrealized": "{count, plural, one {# não realizado} other {# não realizados}}",
+    "newShift": "Novo plantão",
+    "addFirstShift": "Adicionar primeiro plantão",
+    "emptyState": "Você ainda não tem plantões cadastrados.",
+    "toastDeleted": "Plantão removido",
+    "toastRealized": "Plantão marcado como realizado",
+    "toastUnrealized": "Plantão marcado como não realizado",
+    "confirmDeleteTitle": "Remover plantão",
+    "confirmDeleteMessage": "Tem certeza que deseja remover este plantão? Esta ação não pode ser desfeita.",
+    "confirmDeleteLabel": "Remover"
+  },
+
+  "shiftForm": {
+    "titleNew": "Novo plantão",
+    "titleEdit": "Editar plantão",
+    "hospitalLabel": "Hospital (opcional)",
+    "hospitalPlaceholder": "Selecionar hospital...",
+    "templateLabel": "Modelo de plantão",
+    "typeLabel": "Tipo",
+    "dateLabel": "Data e hora",
+    "valueLabel": "Valor (R$)",
+    "valuePlaceholder": "Ex: 1500",
+    "locationLabel": "Local",
+    "locationPlaceholder": "Hospital / UPA / Pronto-Socorro",
+    "notesLabel": "Observações (opcional)",
+    "notesPlaceholder": "Alguma anotação...",
+    "statusLabel": "Status",
+    "statusConfirmed": "Confirmado",
+    "statusSimulated": "Simulado",
+    "cancel": "Cancelar",
+    "save": "Salvar",
+    "add": "Adicionar"
+  },
+
+  "shiftCard": {
+    "simulated": "Simulado",
+    "realized": "Realizado",
+    "unrealized": "Não realizado",
+    "realizationQuestion": "Este plantão aconteceu?",
+    "realizationYes": "Sim",
+    "realizationNo": "Não"
+  },
+
+  "finance": {
+    "title": "Painel Financeiro",
+    "editGoals": "Editar Metas",
+    "pastMonthBadge": "Mês encerrado — dados históricos",
+    "idealReached": "Meta ideal atingida! Você pode descansar com tranquilidade.",
+    "minimumReached": "Meta mínima garantida. Mais plantões vão te aproximar da meta ideal.",
+    "remainingToMinimum": "Você precisa de mais {value} para atingir a meta mínima.",
+    "shiftsForMinimum": "Plantões para meta mínima",
+    "shiftsForIdeal": "Plantões para meta ideal",
+    "perMonth": "por mês",
+    "confirmDeleteTitle": "Remover plantão",
+    "confirmDeleteMessage": "Tem certeza que deseja remover este plantão? Esta ação não pode ser desfeita.",
+    "confirmDeleteLabel": "Remover"
+  },
+
+  "financeKpis": {
+    "confirmed": "Confirmado",
+    "simulated": "Simulado",
+    "minimumGoal": "Meta mínima",
+    "idealGoal": "Meta ideal",
+    "remainingToIdeal": "Falta para ideal",
+    "currentRevenue": "Receita atual"
+  },
+
+  "budgetModal": {
+    "title": "Meu Orçamento",
+    "financialGoals": "Metas financeiras",
+    "minimumGoalLabel": "Meta mensal mínima (R$)",
+    "idealGoalLabel": "Meta mensal ideal (R$)",
+    "savingsGoalLabel": "Meta de poupança mensal (R$)",
+    "saveGoals": "Salvar metas",
+    "toastSuccess": "Metas salvas com sucesso"
+  },
+
+  "financeProgress": {
+    "title": "Progresso do mês",
+    "shiftsCount": "{confirmed} plantão(ões)",
+    "simulatedCount": "+ {simulated} simulado(s)",
+    "unrealizedCount": "· {unrealized} não realizado(s)",
+    "minimumGoal": "Meta mínima",
+    "idealGoal": "Meta ideal"
+  },
+
+  "monthShiftsList": {
+    "title": "Plantões do mês",
+    "confirmed": "{count, plural, one {# confirmado} other {# confirmados}}",
+    "simulated": "{count, plural, one {# simulado} other {# simulados}}",
+    "unrealized": "{count, plural, one {# não realizado} other {# não realizados}}",
+    "emptyState": "Nenhum plantão neste mês.",
+    "addShift": "Adicionar plantão"
+  },
+
+  "analyticsPreview": {
+    "title": "Analytics (6 meses)",
+    "viewFull": "Ver completo",
+    "totalRevenue": "Receita Total",
+    "trend": "Tendência",
+    "bestHospital": "Melhor Hospital"
+  },
+
+  "financeInsights": {
+    "title": "Assistente Financeiro"
+  },
+
+  "analytics": {
+    "title": "Analytics",
+    "period6months": "6 meses",
+    "period12months": "12 meses"
+  },
+
+  "smartPlanner": {
+    "title": "Planejamento Inteligente",
+    "subtitle": "Sugestões otimizadas para atingir sua meta financeira",
+    "idealMonthlyGoal": "Meta ideal mensal",
+    "currentRevenue": "Receita atual",
+    "progress": "Progresso",
+    "goalMet": "Parabéns! Você já atingiu sua meta ideal este mês.",
+    "financialGap": "Faltam {value} para atingir sua meta ideal.",
+    "suggestedScenarios": "Cenários sugeridos",
+    "shiftsLabel": "{count} plantões",
+    "nightShift": "Noturno",
+    "dayShift": "Diurno",
+    "totalExhaustion": "Exaustão total",
+    "sustainability": "Sustentabilidade",
+    "perExhaustion": "/ exaustão",
+    "scenarioApplied": "Cenário aplicado com sucesso! Os plantões foram adicionados como simulados.",
+    "applyScenario": "Aplicar cenário (criar como simulados)",
+    "noSuggestionsTitle": "Não foi possível gerar sugestões.",
+    "noSuggestionsDesc": "Complete seu perfil financeiro e cadastre hospitais com modelos de plantão para usar o planejamento inteligente.",
+    "noScenariosTitle": "Nenhum cenário disponível.",
+    "noScenariosDesc": "Cadastre hospitais e modelos de plantão para receber sugestões otimizadas."
+  },
+
+  "simulate": {
+    "title": "Aceito ou Não?",
+    "subtitle": "Simule um plantão e veja o impacto antes de decidir.",
+    "formTitle": "Dados do plantão",
+    "typeLabel": "Tipo de plantão",
+    "dateLabel": "Data e hora do plantão",
+    "valueLabel": "Valor do plantão (R$)",
+    "valuePlaceholder": "Ex: 1500",
+    "submit": "Simular agora",
+    "verdictSafe": "Tudo certo! Você pode aceitar este plantão.",
+    "verdictModerate": "Você pode aceitar, mas fique atento à sua carga.",
+    "verdictHigh": "Não recomendamos aceitar este plantão agora.",
+    "financeImpact": "Impacto financeiro",
+    "revenueGain": "Ganho com este plantão",
+    "idealImpact": "Impacto na meta ideal",
+    "minimumGoal": "Meta mínima",
+    "idealGoal": "Meta ideal",
+    "workloadImpact": "Impacto na carga horária",
+    "hoursIn5Days": "Horas nos 5 dias",
+    "weekHours": "Horas na semana",
+    "consecutiveNight": "Noturnos seguidos",
+    "consecutiveShifts": "Plantões seguidos",
+    "triggeredRules": "Regras ativadas:",
+    "noTriggeredRules": "Nenhuma",
+    "energyCost": "Custo energético",
+    "totalExhaustion": "Exaustão total",
+    "sustainability": "Sustentabilidade",
+    "perExhaustion": "/ exaustão",
+    "reducesSustainability": "Este plantão reduz sua sustentabilidade (média atual: {value}/exaustão)",
+    "improvesSustainability": "Este plantão melhora sua sustentabilidade (média atual: {value}/exaustão)"
+  },
+
+  "riskHistory": {
+    "title": "Historico de Risco",
+    "subtitle": "Acompanhe como sua carga de trabalho evoluiu ao longo do tempo.",
+    "emptyState": "Nenhum registro ainda. O historico e gerado automaticamente.",
+    "scoreLabel": "Score: {score}/100",
+    "hoursIn5Days": "{hours}h / 5 dias",
+    "hoursInWeek": "{hours}h / semana",
+    "consecutiveNights": "{count} noturno(s) seguido(s)"
+  },
+
+  "settings": {
+    "title": "Configurações",
+    "subtitle": "Gerencie sua conta e preferências",
+    "profile": {
+      "title": "Perfil",
+      "edit": "Editar",
+      "nameLabel": "Nome",
+      "namePlaceholder": "Seu nome",
+      "genderLabel": "Gênero",
+      "genderPlaceholder": "Selecionar...",
+      "emailLabel": "E-mail",
+      "save": "Salvar",
+      "cancel": "Cancelar",
+      "toastSuccess": "Perfil atualizado"
+    },
+    "gender": {
+      "male": "Masculino",
+      "female": "Feminino",
+      "nonBinary": "Não-binário",
+      "preferNotToSay": "Prefiro não informar"
+    },
+    "energy": {
+      "title": "Custos Energéticos Pessoais",
+      "description": "Ajuste se você sente mais ou menos impacto que a média em cada tipo de plantão.",
+      "diurno12h": "12h Diurno",
+      "noturno12h": "12h Noturno",
+      "plantao24h": "24h",
+      "save": "Salvar",
+      "restoreDefaults": "Restaurar padrões",
+      "defaultLabel": "(padrão: {value})",
+      "toastSuccess": "Custos energéticos salvos",
+      "onboardingRequired": "Complete o onboarding primeiro para configurar seus custos energéticos."
+    },
+    "wearables": {
+      "title": "Wearables conectados",
+      "comingSoon": "Em breve",
+      "description": "Integracao direta com wearables esta em desenvolvimento. Dados de demonstracao estao disponiveis.",
+      "appleHealth": "Apple Health",
+      "appleHealthDesc": "Dados de saude do iPhone e Apple Watch",
+      "garmin": "Garmin",
+      "garminDesc": "Relogios e dispositivos Garmin",
+      "ouraRing": "Oura Ring",
+      "ouraRingDesc": "Anel inteligente de monitoramento",
+      "whoop": "Whoop",
+      "whoopDesc": "Pulseira de recuperacao e performance"
+    }
+  },
+
+  "risk": {
+    "safe": "Seguro",
+    "moderate": "Moderado",
+    "high": "Alto"
+  },
+
+  "shiftTypes": {
+    "twelveHours": "12 horas",
+    "twentyFourHours": "24 horas",
+    "night": "Noturno"
+  },
+
+  "shiftTypeDesc": {
+    "twelveHours": "Plantão diurno",
+    "twentyFourHours": "Plantão completo",
+    "night": "Plantão noturno"
+  },
+
+  "templateTypes": {
+    "diurno12h": "Diurno 12h",
+    "noturno12h": "Noturno 12h",
+    "plantao24h": "Plantão 24h",
+    "personalizado": "Personalizado"
+  }
+}

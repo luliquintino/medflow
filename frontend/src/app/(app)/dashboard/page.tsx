@@ -2,6 +2,7 @@
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { TrendingUp, Clock, Calendar, Zap, ArrowRight, AlertTriangle, Battery } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { api, unwrap } from "@/lib/api";
 import { formatCurrency } from "@/lib/format";
 import { useAuthStore } from "@/store/auth.store";
@@ -16,6 +17,8 @@ import {
 
 export default function DashboardPage() {
   const { user } = useAuthStore();
+  const t = useTranslations("dashboard");
+  const tCommon = useTranslations("common");
 
   const { data, isLoading } = useQuery({
     queryKey: ["dashboard"],
@@ -31,22 +34,20 @@ export default function DashboardPage() {
 
   const greeting = () => {
     const firstName = user?.name?.split(" ")[0] ?? "";
-    if (user?.gender === "FEMALE") return `Olá, Dra. ${firstName}`;
-    if (user?.gender === "MALE") return `Olá, Dr. ${firstName}`;
-    return `Olá, ${firstName}`;
+    return t("greeting", { gender: user?.gender ?? "OTHER", name: firstName });
   };
 
   const monthMessage = () => {
-    if (!risk) return "Configure seus dados para acompanhar seu mês.";
+    if (!risk) return t("monthMessages.noData");
     switch (risk.level) {
       case "SAFE":
-        return "Seu mês está equilibrado. Você tem margem para mais plantões, se desejar.";
+        return t("monthMessages.safe");
       case "MODERATE":
-        return "Atenção: sua carga de trabalho está moderada. Cuide-se.";
+        return t("monthMessages.moderate");
       case "HIGH":
-        return "Alerta: sua carga está elevada. Considere avaliar seu bem-estar.";
+        return t("monthMessages.high");
       default:
-        return "Acompanhe seu mês aqui.";
+        return t("monthMessages.default");
     }
   };
 
@@ -70,30 +71,30 @@ export default function DashboardPage() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <KpiCard
           icon={<TrendingUp className="w-4 h-4 text-moss-600" />}
-          label="Receita do mês"
+          label={t("kpi.monthRevenue")}
           value={finance ? formatCurrency(finance.currentRevenue) : "—"}
-          sub={finance ? `Meta: ${formatCurrency(finance.idealMonthlyGoal)}` : ""}
+          sub={finance ? t("kpi.goalPrefix", { value: formatCurrency(finance.idealMonthlyGoal) }) : ""}
           bg="bg-moss-50"
         />
         <KpiCard
           icon={<Calendar className="w-4 h-4 text-blue-600" />}
-          label="Plantões confirmados"
+          label={t("kpi.confirmedShifts")}
           value={workload ? String(workload.shiftsThisMonth) : "—"}
-          sub={workload ? `${workload.totalHoursThisMonth}h este mês` : ""}
+          sub={workload ? t("kpi.hoursThisMonth", { hours: workload.totalHoursThisMonth }) : ""}
           bg="bg-blue-50"
         />
         <KpiCard
           icon={<Clock className="w-4 h-4 text-amber-600" />}
-          label="Horas na semana"
+          label={t("kpi.weeklyHours")}
           value={workload ? `${workload.totalHoursThisWeek}h` : "—"}
-          sub={workload?.nextRestDayRecommended ? "Descanso recomendado" : "Carga tranquila"}
+          sub={workload?.nextRestDayRecommended ? t("kpi.restRecommended") : t("kpi.calmLoad")}
           bg="bg-amber-50"
         />
         <KpiCard
           icon={<AlertTriangle className="w-4 h-4 text-gray-600" />}
-          label="Nível de risco"
+          label={t("kpi.riskLevel")}
           value={risk ? <RiskBadge level={risk.level} size="sm" /> : "—"}
-          sub={risk ? `Score: ${risk.score}/100` : ""}
+          sub={risk ? t("kpi.riskScore", { score: risk.score }) : ""}
           bg="bg-cream-100"
         />
       </div>
@@ -103,7 +104,7 @@ export default function DashboardPage() {
         {/* Meta financeira */}
         <Card>
           <CardHeader>
-            <CardTitle>Meta financeira</CardTitle>
+            <CardTitle>{t("financialGoal")}</CardTitle>
             <span className="text-xs text-gray-500">
               {new Date().toLocaleString("pt-BR", { month: "long", year: "numeric" })}
             </span>
@@ -115,30 +116,30 @@ export default function DashboardPage() {
                 color={finance.progressToMinimum >= 100 ? "moss" : "amber"}
                 size="md"
                 showLabel
-                label="Meta mínima"
+                label={t("minimumGoal")}
               />
               <ProgressBar
                 value={finance.progressToIdeal}
                 color="moss"
                 size="md"
                 showLabel
-                label="Meta ideal"
+                label={t("idealGoal")}
               />
               <div className="grid grid-cols-3 gap-3 pt-2">
                 <div className="bg-sand-100 rounded-xl p-3">
-                  <p className="text-xs text-gray-500">Falta para mínimo</p>
+                  <p className="text-xs text-gray-500">{t("remainingToMinimum")}</p>
                   <p className="text-sm font-bold text-gray-800 mt-0.5">
                     {formatCurrency(finance.revenueToMinimum)}
                   </p>
                 </div>
                 <div className="bg-sand-100 rounded-xl p-3">
-                  <p className="text-xs text-gray-500">Plantões mínimos</p>
+                  <p className="text-xs text-gray-500">{t("minimumShifts")}</p>
                   <p className="text-sm font-bold text-gray-800 mt-0.5">
-                    {finance.minimumShiftsRequired} plantões
+                    {t("shiftsLabel", { count: finance.minimumShiftsRequired })}
                   </p>
                 </div>
                 <div className="bg-moss-50 rounded-xl p-3">
-                  <p className="text-xs text-gray-500">Valor médio/plantão</p>
+                  <p className="text-xs text-gray-500">{t("avgPerShift")}</p>
                   <p className="text-sm font-bold text-moss-700 mt-0.5">
                     {formatCurrency(finance.profile.averageShiftValue)}
                   </p>
@@ -146,14 +147,14 @@ export default function DashboardPage() {
               </div>
             </div>
           ) : (
-            <NoData href="/onboarding" text="Configure seu perfil para ver a meta" />
+            <NoData href="/onboarding" text={t("configureProfile")} configureLabel={tCommon("configure")} />
           )}
         </Card>
 
         {/* Risco atual */}
         <Card>
           <CardHeader>
-            <CardTitle>Carga de trabalho</CardTitle>
+            <CardTitle>{t("workload")}</CardTitle>
             {risk && <RiskBadge level={risk.level} />}
           </CardHeader>
           {risk && workload ? (
@@ -162,17 +163,17 @@ export default function DashboardPage() {
                 &ldquo;{risk.recommendation}&rdquo;
               </p>
               <div className="grid grid-cols-2 gap-3">
-                <Metric label="Horas nos 5 dias" value={`${workload.hoursInLast5Days}h`} limit="/ 60h" warn={workload.hoursInLast5Days >= 48} />
-                <Metric label="Horas na semana" value={`${workload.totalHoursThisWeek}h`} limit="/ 72h" warn={workload.totalHoursThisWeek >= 56} />
-                <Metric label="Noturno consecutivo" value={`${workload.consecutiveNightShifts}x`} limit="/ 3x" warn={workload.consecutiveNightShifts >= 2} />
-                <Metric label="Plantões seguidos" value={`${workload.consecutiveShifts}x`} limit="/ 3x" warn={workload.consecutiveShifts >= 2} />
+                <Metric label={t("hoursIn5Days")} value={`${workload.hoursInLast5Days}h`} limit="/ 60h" warn={workload.hoursInLast5Days >= 48} />
+                <Metric label={t("weekHours")} value={`${workload.totalHoursThisWeek}h`} limit="/ 72h" warn={workload.totalHoursThisWeek >= 56} />
+                <Metric label={t("consecutiveNight")} value={`${workload.consecutiveNightShifts}x`} limit="/ 3x" warn={workload.consecutiveNightShifts >= 2} />
+                <Metric label={t("consecutiveShifts")} value={`${workload.consecutiveShifts}x`} limit="/ 3x" warn={workload.consecutiveShifts >= 2} />
               </div>
               {/* Exhaustion & Sustainability */}
               <div className="grid grid-cols-2 gap-3 border-t border-sand-200 pt-3">
                 <div className={`rounded-xl p-3 ${workload.totalExhaustionScore >= 7 ? "bg-amber-50" : "bg-sand-100"}`}>
                   <div className="flex items-center gap-1.5 mb-1">
                     <Battery className="w-3.5 h-3.5 text-gray-500" />
-                    <p className="text-xs text-gray-500">Exaustão</p>
+                    <p className="text-xs text-gray-500">{t("exhaustion")}</p>
                   </div>
                   <p className={`text-sm font-bold ${workload.totalExhaustionScore >= 10 ? "text-red-600" : workload.totalExhaustionScore >= 7 ? "text-amber-700" : "text-gray-800"}`}>
                     {workload.totalExhaustionScore?.toFixed(1) ?? "0.0"} <span className="text-xs font-normal text-gray-400">/ 10.0</span>
@@ -181,16 +182,16 @@ export default function DashboardPage() {
                 <div className="rounded-xl p-3 bg-sand-100">
                   <div className="flex items-center gap-1.5 mb-1">
                     <TrendingUp className="w-3.5 h-3.5 text-gray-500" />
-                    <p className="text-xs text-gray-500">Sustentabilidade</p>
+                    <p className="text-xs text-gray-500">{t("sustainability")}</p>
                   </div>
                   <p className="text-sm font-bold text-gray-800">
-                    {workload.sustainabilityIndex ? formatCurrency(workload.sustainabilityIndex) : "—"} <span className="text-xs font-normal text-gray-400">/ exaustão</span>
+                    {workload.sustainabilityIndex ? formatCurrency(workload.sustainabilityIndex) : "—"} <span className="text-xs font-normal text-gray-400">{t("perExhaustion")}</span>
                   </p>
                 </div>
               </div>
             </div>
           ) : (
-            <NoData href="/shifts" text="Adicione plantões para ver sua carga" />
+            <NoData href="/shifts" text={t("addShiftsForLoad")} configureLabel={tCommon("configure")} />
           )}
         </Card>
       </div>
@@ -199,7 +200,7 @@ export default function DashboardPage() {
       {chartData.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Projeção dos próximos 3 meses</CardTitle>
+            <CardTitle>{t("projectionTitle")}</CardTitle>
           </CardHeader>
           <div className="h-44">
             <ResponsiveContainer width="100%" height="100%">
@@ -228,9 +229,9 @@ export default function DashboardPage() {
       <Link href="/simulate">
         <div className="bg-moss-gradient rounded-2xl p-6 flex items-center justify-between cursor-pointer hover:opacity-95 transition-opacity shadow-float">
           <div>
-            <p className="text-white font-semibold text-lg">Simular um plantão</p>
+            <p className="text-white font-semibold text-lg">{t("simulateCta")}</p>
             <p className="text-moss-100 text-sm mt-0.5">
-              Veja o impacto financeiro e de carga antes de aceitar
+              {t("simulateCtaSub")}
             </p>
           </div>
           <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0">
@@ -272,12 +273,12 @@ function Metric({ label, value, limit, warn }: {
   );
 }
 
-function NoData({ href, text }: { href: string; text: string }) {
+function NoData({ href, text, configureLabel }: { href: string; text: string; configureLabel: string }) {
   return (
     <div className="flex flex-col items-center justify-center py-8 text-center">
       <p className="text-sm text-gray-500 mb-3">{text}</p>
       <Link href={href} className="text-sm text-moss-600 font-medium hover:underline flex items-center gap-1">
-        Configurar <ArrowRight className="w-3.5 h-3.5" />
+        {configureLabel} <ArrowRight className="w-3.5 h-3.5" />
       </Link>
     </div>
   );

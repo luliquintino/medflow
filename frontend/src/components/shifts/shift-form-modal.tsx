@@ -1,11 +1,12 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { X } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { clsx } from "clsx";
+import { useTranslations } from "next-intl";
 import { api, unwrap, getErrorMessage } from "@/lib/api";
 import { formatCurrency } from "@/lib/format";
 import { Button } from "@/components/ui/button";
@@ -20,17 +21,6 @@ const TEMPLATE_TO_SHIFT_TYPE: Record<ShiftTemplateType, ShiftType> = {
   PERSONALIZADO: "TWELVE_HOURS",
 };
 
-const schema = z.object({
-  date: z.string().min(1, "Data obrigatória"),
-  type: z.enum(["TWELVE_HOURS", "TWENTY_FOUR_HOURS", "NIGHT"]),
-  value: z.coerce.number().min(0),
-  location: z.string().min(1, "Local obrigatório"),
-  notes: z.string().optional(),
-  status: z.enum(["CONFIRMED", "SIMULATED"]).default("CONFIRMED"),
-  hospitalId: z.string().optional(),
-});
-type FormData = z.infer<typeof schema>;
-
 interface ShiftFormModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -40,10 +30,27 @@ interface ShiftFormModalProps {
 }
 
 export function ShiftFormModal({ isOpen, onClose, editingShift, defaultDate, onSuccess }: ShiftFormModalProps) {
+  const t = useTranslations("shiftForm");
+  const tv = useTranslations("validation");
   const qc = useQueryClient();
   const [error, setError] = useState("");
   const [selectedHospitalId, setSelectedHospitalId] = useState("");
   const [templates, setTemplates] = useState<ShiftTemplate[]>([]);
+
+  const schema = useMemo(
+    () =>
+      z.object({
+        date: z.string().min(1, tv("dateRequired")),
+        type: z.enum(["TWELVE_HOURS", "TWENTY_FOUR_HOURS", "NIGHT"]),
+        value: z.coerce.number().min(0),
+        location: z.string().min(1, tv("locationRequired")),
+        notes: z.string().optional(),
+        status: z.enum(["CONFIRMED", "SIMULATED"]).default("CONFIRMED"),
+        hospitalId: z.string().optional(),
+      }),
+    [tv]
+  );
+  type FormData = z.infer<typeof schema>;
 
   const { data: hospitals = [] } = useQuery({
     queryKey: ["hospitals"],
@@ -193,7 +200,7 @@ export function ShiftFormModal({ isOpen, onClose, editingShift, defaultDate, onS
       >
         <div className="flex items-center justify-between mb-6">
           <h3 id="shift-form-title" className="text-lg font-semibold text-gray-800">
-            {editingShift ? "Editar plantão" : "Novo plantão"}
+            {editingShift ? t("titleEdit") : t("titleNew")}
           </h3>
           <button onClick={handleClose} className="text-gray-400 hover:text-gray-600" aria-label="Fechar">
             <X className="w-5 h-5" />
@@ -204,13 +211,13 @@ export function ShiftFormModal({ isOpen, onClose, editingShift, defaultDate, onS
           {/* Hospital selector */}
           {hospitals.length > 0 && (
             <div>
-              <label className="text-sm font-medium text-gray-700 mb-2 block">Hospital (opcional)</label>
+              <label className="text-sm font-medium text-gray-700 mb-2 block">{t("hospitalLabel")}</label>
               <select
                 value={selectedHospitalId}
                 onChange={(e) => onHospitalChange(e.target.value)}
                 className="w-full rounded-xl border border-cream-300 bg-white px-3 py-2.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-moss-300 focus:border-moss-400"
               >
-                <option value="">Selecionar hospital...</option>
+                <option value="">{t("hospitalPlaceholder")}</option>
                 {hospitals.map((h) => (
                   <option key={h.id} value={h.id}>{h.name}</option>
                 ))}
@@ -221,17 +228,17 @@ export function ShiftFormModal({ isOpen, onClose, editingShift, defaultDate, onS
           {/* Template quick-select */}
           {templates.length > 0 && (
             <div>
-              <label className="text-sm font-medium text-gray-700 mb-2 block">Modelo de plantão</label>
+              <label className="text-sm font-medium text-gray-700 mb-2 block">{t("templateLabel")}</label>
               <div className="grid grid-cols-2 gap-2">
-                {templates.map((t) => (
+                {templates.map((tpl) => (
                   <button
-                    key={t.id}
+                    key={tpl.id}
                     type="button"
-                    onClick={() => onTemplateSelect(t)}
+                    onClick={() => onTemplateSelect(tpl)}
                     className="rounded-xl py-2 px-3 text-xs font-medium border border-cream-300 bg-white text-gray-600 hover:border-moss-300 hover:bg-moss-50 transition-all text-left"
                   >
-                    <p className="font-semibold">{t.name || TEMPLATE_TYPE_LABELS[t.type]}</p>
-                    <p className="text-gray-400 mt-0.5">{t.durationInHours}h · {formatCurrency(t.defaultValue)}</p>
+                    <p className="font-semibold">{tpl.name || TEMPLATE_TYPE_LABELS[tpl.type]}</p>
+                    <p className="text-gray-400 mt-0.5">{tpl.durationInHours}h · {formatCurrency(tpl.defaultValue)}</p>
                   </button>
                 ))}
               </div>
@@ -240,34 +247,34 @@ export function ShiftFormModal({ isOpen, onClose, editingShift, defaultDate, onS
 
           {/* Type */}
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-2 block">Tipo</label>
+            <label className="text-sm font-medium text-gray-700 mb-2 block">{t("typeLabel")}</label>
             <div className="grid grid-cols-3 gap-2">
-              {(["TWELVE_HOURS", "TWENTY_FOUR_HOURS", "NIGHT"] as ShiftType[]).map((t) => (
+              {(["TWELVE_HOURS", "TWENTY_FOUR_HOURS", "NIGHT"] as ShiftType[]).map((tp) => (
                 <button
-                  key={t}
+                  key={tp}
                   type="button"
-                  onClick={() => setValue("type", t)}
+                  onClick={() => setValue("type", tp)}
                   className={clsx(
                     "rounded-xl py-2.5 text-xs font-medium border transition-all",
-                    shiftType === t
+                    shiftType === tp
                       ? "bg-moss-600 text-white border-moss-600"
                       : "bg-white border-cream-300 text-gray-600 hover:border-moss-300"
                   )}
                 >
-                  {SHIFT_TYPE_LABELS[t]}
+                  {SHIFT_TYPE_LABELS[tp]}
                 </button>
               ))}
             </div>
           </div>
 
-          <Input label="Data e hora" type="datetime-local" error={errors.date?.message} {...register("date")} />
-          <Input label="Valor (R$)" type="number" placeholder="Ex: 1500" error={errors.value?.message} {...register("value")} />
-          <Input label="Local" placeholder="Hospital / UPA / Pronto-Socorro" error={errors.location?.message} {...register("location")} />
-          <Input label="Observações (opcional)" placeholder="Alguma anotação..." {...register("notes")} />
+          <Input label={t("dateLabel")} type="datetime-local" error={errors.date?.message} {...register("date")} />
+          <Input label={t("valueLabel")} type="number" placeholder={t("valuePlaceholder")} error={errors.value?.message} {...register("value")} />
+          <Input label={t("locationLabel")} placeholder={t("locationPlaceholder")} error={errors.location?.message} {...register("location")} />
+          <Input label={t("notesLabel")} placeholder={t("notesPlaceholder")} {...register("notes")} />
 
           {/* Status */}
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-2 block">Status</label>
+            <label className="text-sm font-medium text-gray-700 mb-2 block">{t("statusLabel")}</label>
             <div className="flex gap-2">
               {["CONFIRMED", "SIMULATED"].map((s) => (
                 <button
@@ -281,7 +288,7 @@ export function ShiftFormModal({ isOpen, onClose, editingShift, defaultDate, onS
                       : "bg-white border-cream-300 text-gray-600"
                   )}
                 >
-                  {s === "CONFIRMED" ? "Confirmado" : "Simulado"}
+                  {s === "CONFIRMED" ? t("statusConfirmed") : t("statusSimulated")}
                 </button>
               ))}
             </div>
@@ -291,10 +298,10 @@ export function ShiftFormModal({ isOpen, onClose, editingShift, defaultDate, onS
 
           <div className="flex gap-3 pt-2">
             <Button type="button" variant="secondary" onClick={handleClose} className="flex-1">
-              Cancelar
+              {t("cancel")}
             </Button>
             <Button type="submit" className="flex-1" loading={isSubmitting || saveMutation.isPending}>
-              {editingShift ? "Salvar" : "Adicionar"}
+              {editingShift ? t("save") : t("add")}
             </Button>
           </div>
         </form>

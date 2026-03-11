@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { api, unwrap } from "@/lib/api";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,7 @@ import { useConfirm } from "@/hooks/use-confirm";
 import type { Shift } from "@/types";
 
 export default function ShiftsPage() {
+  const t = useTranslations("shifts");
   const qc = useQueryClient();
   const { confirm, ConfirmDialogComponent } = useConfirm();
   const [showForm, setShowForm] = useState(false);
@@ -30,7 +32,7 @@ export default function ShiftsPage() {
       qc.invalidateQueries({ queryKey: ["dashboard"] });
       qc.invalidateQueries({ queryKey: ["finance"] });
       qc.invalidateQueries({ queryKey: ["finance-insights"] });
-      toast.success("Plantão removido");
+      toast.success(t("toastDeleted"));
     },
   });
 
@@ -42,7 +44,7 @@ export default function ShiftsPage() {
       qc.invalidateQueries({ queryKey: ["dashboard"] });
       qc.invalidateQueries({ queryKey: ["finance"] });
       qc.invalidateQueries({ queryKey: ["finance-insights"] });
-      toast.success(variables.realized ? "Plantão marcado como realizado" : "Plantão marcado como não realizado");
+      toast.success(variables.realized ? t("toastRealized") : t("toastUnrealized"));
     },
   });
 
@@ -58,16 +60,16 @@ export default function ShiftsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-gray-800">Meus Plantões</h2>
+          <h2 className="text-xl font-bold text-gray-800">{t("title")}</h2>
           <p className="text-sm text-gray-500 mt-0.5">
-            {confirmed.length} confirmados · {simulated.length} simulados
+            {t("summary", { confirmed: confirmed.length, simulated: simulated.length })}
             {unrealized.length > 0 && (
-              <span className="text-red-500"> · {unrealized.length} não realizado{unrealized.length !== 1 ? "s" : ""}</span>
+              <span className="text-red-500"> · {t("unrealized", { count: unrealized.length })}</span>
             )}
           </p>
         </div>
         <Button onClick={() => setShowForm(true)} icon={<Plus className="w-4 h-4" />}>
-          Novo plantão
+          {t("newShift")}
         </Button>
       </div>
 
@@ -82,9 +84,9 @@ export default function ShiftsPage() {
       {/* Shifts list */}
       {shifts.length === 0 ? (
         <Card className="text-center py-12">
-          <p className="text-gray-500 mb-3">Você ainda não tem plantões cadastrados.</p>
+          <p className="text-gray-500 mb-3">{t("emptyState")}</p>
           <Button onClick={() => setShowForm(true)} icon={<Plus className="w-4 h-4" />}>
-            Adicionar primeiro plantão
+            {t("addFirstShift")}
           </Button>
         </Card>
       ) : (
@@ -98,9 +100,9 @@ export default function ShiftsPage() {
               onEdit={() => { setEditing(shift); setShowForm(true); }}
               onDelete={async () => {
                 const ok = await confirm({
-                  title: "Remover plantão",
-                  message: "Tem certeza que deseja remover este plantão? Esta ação não pode ser desfeita.",
-                  confirmLabel: "Remover",
+                  title: t("confirmDeleteTitle"),
+                  message: t("confirmDeleteMessage"),
+                  confirmLabel: t("confirmDeleteLabel"),
                   variant: "danger",
                 });
                 if (ok) deleteMutation.mutate(shift.id);

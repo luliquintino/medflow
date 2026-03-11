@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { TrendingUp, Target } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { api, unwrap } from "@/lib/api";
 import { formatCurrency } from "@/lib/format";
 import { Card } from "@/components/ui/card";
@@ -21,6 +22,8 @@ import { BudgetModal } from "./_components/budget-modal";
 import { AnalyticsPreview } from "./_components/analytics-preview";
 
 export default function FinancePage() {
+  const t = useTranslations("finance");
+  const tCommon = useTranslations("common");
   const qc = useQueryClient();
   const { confirm, ConfirmDialogComponent } = useConfirm();
   const now = new Date();
@@ -60,9 +63,9 @@ export default function FinancePage() {
 
   async function handleDeleteShift(shiftId: string) {
     const ok = await confirm({
-      title: "Remover plantão",
-      message: "Tem certeza que deseja remover este plantão? Esta ação não pode ser desfeita.",
-      confirmLabel: "Remover",
+      title: t("confirmDeleteTitle"),
+      message: t("confirmDeleteMessage"),
+      confirmLabel: t("confirmDeleteLabel"),
       variant: "danger",
     });
     if (ok) deleteMutation.mutate(shiftId);
@@ -92,14 +95,14 @@ export default function FinancePage() {
       {ConfirmDialogComponent}
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold text-gray-800">Painel Financeiro</h2>
+        <h2 className="text-xl font-bold text-gray-800">{t("title")}</h2>
         <Button
           variant="secondary"
           size="sm"
           icon={<Target className="w-4 h-4" />}
           onClick={() => setShowBudgetModal(true)}
         >
-          Editar Metas
+          {t("editGoals")}
         </Button>
       </div>
 
@@ -109,7 +112,7 @@ export default function FinancePage() {
       {isPast && (
         <div className="flex items-center gap-2 text-xs text-gray-400">
           <span className="w-2 h-2 rounded-full bg-gray-300" />
-          Mês encerrado — dados históricos
+          {t("pastMonthBadge")}
         </div>
       )}
 
@@ -122,10 +125,10 @@ export default function FinancePage() {
           : "bg-cream-100 border-cream-200"}`}>
           <p className={`font-semibold text-sm ${finance.isIdealReached ? "text-moss-700" : finance.isMinimumReached ? "text-amber-700" : "text-gray-700"}`}>
             {finance.isIdealReached
-              ? "🎉 Meta ideal atingida! Você pode descansar com tranquilidade."
+              ? `🎉 ${t("idealReached")}`
               : finance.isMinimumReached
-              ? "✅ Meta mínima garantida. Mais plantões vão te aproximar da meta ideal."
-              : `Você precisa de mais ${formatCurrency(finance.revenueToMinimum)} para atingir a meta mínima.`}
+              ? `✅ ${t("minimumReached")}`
+              : t("remainingToMinimum", { value: formatCurrency(finance.revenueToMinimum) })}
           </p>
         </div>
       )}
@@ -156,11 +159,11 @@ export default function FinancePage() {
                 <Target className="w-5 h-5 text-amber-600" />
               </div>
               <div>
-                <p className="text-xs text-gray-500">Plantões para meta mínima</p>
+                <p className="text-xs text-gray-500">{t("shiftsForMinimum")}</p>
                 <p className="text-2xl font-bold text-gray-800 mt-0.5">
                   {finance.minimumShiftsRequired}
                 </p>
-                <p className="text-xs text-gray-400">por mês</p>
+                <p className="text-xs text-gray-400">{t("perMonth")}</p>
               </div>
             </div>
           </Card>
@@ -170,11 +173,11 @@ export default function FinancePage() {
                 <TrendingUp className="w-5 h-5 text-moss-600" />
               </div>
               <div>
-                <p className="text-xs text-gray-500">Plantões para meta ideal</p>
+                <p className="text-xs text-gray-500">{t("shiftsForIdeal")}</p>
                 <p className="text-2xl font-bold text-gray-800 mt-0.5">
                   {finance.idealShiftsRequired}
                 </p>
-                <p className="text-xs text-gray-400">por mês</p>
+                <p className="text-xs text-gray-400">{t("perMonth")}</p>
               </div>
             </div>
           </Card>

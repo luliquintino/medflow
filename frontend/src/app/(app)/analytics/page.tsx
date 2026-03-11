@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { api, unwrap } from "@/lib/api";
 import { PageSpinner } from "@/components/ui/spinner";
 import type { AnalyticsData } from "@/types";
@@ -12,13 +13,14 @@ import { HospitalIncomeChart } from "./_components/hospital-income-chart";
 import { ShiftTypeBreakdown } from "./_components/shift-type-breakdown";
 import { GrowthTrendChart } from "./_components/growth-trend-chart";
 
-const PERIODS = [
-  { label: "6 meses", value: 6 },
-  { label: "12 meses", value: 12 },
-] as const;
-
 export default function AnalyticsPage() {
+  const t = useTranslations("analytics");
   const [monthsBack, setMonthsBack] = useState(6);
+
+  const PERIODS = [
+    { label: t("period6months"), value: 6 },
+    { label: t("period12months"), value: 12 },
+  ] as const;
 
   const { data: analytics, isLoading } = useQuery({
     queryKey: ["analytics", monthsBack],
@@ -34,7 +36,7 @@ export default function AnalyticsPage() {
     <div className="max-w-5xl space-y-6">
       {/* Header + period toggle */}
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold text-gray-800">Analytics</h2>
+        <h2 className="text-xl font-bold text-gray-800">{t("title")}</h2>
         <div className="flex gap-1 bg-cream-100 rounded-xl p-1">
           {PERIODS.map((p) => (
             <button
