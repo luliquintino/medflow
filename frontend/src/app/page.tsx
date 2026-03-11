@@ -12,7 +12,6 @@ import {
   UserPlus,
   Sliders,
   CalendarDays,
-  Stethoscope,
   Sparkles,
   Menu,
   X,
@@ -305,7 +304,7 @@ export default function RootPage() {
                 icon={<ArrowRight className="w-4 h-4" />}
                 onClick={() => router.push("/auth/register")}
               >
-                Começar agora — é grátis
+                Começar agora
               </Button>
               <Button
                 variant="secondary"
@@ -318,18 +317,12 @@ export default function RootPage() {
             </div>
 
             {/* Social proof */}
-            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-8 gap-y-3">
-              {[
-                { value: "500+", label: "médicos ativos", icon: Stethoscope },
-                { value: "10k+", label: "plantões geridos", icon: CalendarDays },
-                { value: "100%", label: "gratuito", icon: Sparkles },
-              ].map(({ value, label, icon: Icon }) => (
-                <div key={label} className="flex items-center gap-2 text-sm">
-                  <Icon className="w-4 h-4 text-moss-500" />
-                  <span className="font-semibold text-gray-800">{value}</span>
-                  <span className="text-gray-400">{label}</span>
-                </div>
-              ))}
+            <div className="flex items-center justify-center lg:justify-start">
+              <div className="flex items-center gap-2 text-sm">
+                <Sparkles className="w-4 h-4 text-moss-500" />
+                <span className="font-semibold text-gray-800">100%</span>
+                <span className="text-gray-400">gratuito</span>
+              </div>
             </div>
           </div>
 
