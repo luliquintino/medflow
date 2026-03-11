@@ -21,7 +21,6 @@ const registerSchema = z
       /^\d{1,6}\/(AC|AL|AP|AM|BA|CE|DF|ES|GO|MA|MT|MS|MG|PA|PB|PR|PE|PI|RJ|RN|RS|RO|RR|SC|SP|SE|TO)$/i,
       "CRM inválido. Use o formato: 123456/UF",
     ),
-    gender: z.enum(["MALE", "FEMALE", "NON_BINARY", "PREFER_NOT_TO_SAY"]).optional(),
     email: z.string().email("E-mail invalido"),
     password: z
       .string()
@@ -57,7 +56,6 @@ export default function RegisterPage() {
         crm: data.crm,
         email: data.email,
         password: data.password,
-        gender: data.gender || undefined,
       });
       const payload = res.data.data || res.data;
 
@@ -106,22 +104,6 @@ export default function RegisterPage() {
               {!errors.crm && (
                 <p className="text-xs text-gray-400 mt-1">Formato: numero/UF (ex: 123456/SP)</p>
               )}
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-gray-700">
-                Genero <span className="text-gray-400 font-normal">(opcional)</span>
-              </label>
-              <select
-                {...register("gender")}
-                className="w-full rounded-xl border border-cream-300 bg-white/70 px-4 py-3 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-moss-400 focus:border-transparent transition-all duration-200"
-              >
-                <option value="">Prefiro nao informar</option>
-                <option value="MALE">Masculino</option>
-                <option value="FEMALE">Feminino</option>
-                <option value="NON_BINARY">Nao-binario</option>
-                <option value="PREFER_NOT_TO_SAY">Prefiro nao dizer</option>
-              </select>
             </div>
 
             <Input
