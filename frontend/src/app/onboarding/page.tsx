@@ -27,7 +27,7 @@ const schema = z.object({
   savingsGoal: z.coerce.number().min(0),
   averageShiftValue: z.coerce.number().min(0),
   shiftTypes: z.array(z.string()).min(1, "Selecione ao menos um tipo"),
-  maxWeeklyHours: z.coerce.number().optional(),
+  maxWeeklyHours: z.coerce.number().min(1).max(120).optional(),
   preferredRestDays: z.array(z.number()).optional(),
 });
 
@@ -212,8 +212,9 @@ export default function OnboardingPage() {
                 label="Limite máximo de horas semanais (opcional)"
                 type="number"
                 placeholder="Ex: 60"
-                hint="Seu limite pessoal de segurança"
+                hint="Máximo 120 horas"
                 {...register("maxWeeklyHours")}
+                error={errors.maxWeeklyHours?.message}
               />
 
               {/* Rest days */}
