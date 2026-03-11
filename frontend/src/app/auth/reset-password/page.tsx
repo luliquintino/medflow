@@ -7,6 +7,7 @@ import { z } from "zod";
 import Image from "next/image";
 import { CheckCircle2, AlertCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { Button } from "@/components/ui/button";
 import { PasswordInput } from "@/components/ui/password-input";
 import { api, getErrorMessage } from "@/lib/api";
@@ -65,7 +66,10 @@ function ResetPasswordInner() {
   }
 
   return (
-    <div className="min-h-dvh flex items-center justify-center px-4 bg-cream-50">
+    <div className="min-h-dvh flex items-center justify-center px-4 bg-cream-50 relative">
+      <div className="absolute top-4 right-4">
+        <LanguageSwitcher />
+      </div>
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">

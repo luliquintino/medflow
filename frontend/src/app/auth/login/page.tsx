@@ -8,6 +8,7 @@ import { z } from "zod";
 import Image from "next/image";
 import { Mail } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { api, getErrorMessage } from "@/lib/api";
 import { useAuthStore } from "@/store/auth.store";
 import { Button } from "@/components/ui/button";
@@ -61,7 +62,10 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-dvh bg-cream-50 flex items-center justify-center px-4">
+    <div className="min-h-dvh bg-cream-50 flex items-center justify-center px-4 relative">
+      <div className="absolute top-4 right-4">
+        <LanguageSwitcher />
+      </div>
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
