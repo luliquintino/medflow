@@ -21,7 +21,6 @@ import {
   Target,
   Activity,
   CircleCheck,
-  AlertTriangle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageSpinner } from "@/components/ui/spinner";
@@ -117,126 +116,84 @@ function scrollTo(id: string) {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Animated counter                                                   */
+/*  Hero Mockup — animated value flow                                  */
 /* ------------------------------------------------------------------ */
 
-function useAnimatedNumber(end: number, duration = 2000, delay = 600) {
-  const [value, setValue] = useState(0);
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      const start = performance.now();
-      const step = (now: number) => {
-        const progress = Math.min((now - start) / duration, 1);
-        const eased = 1 - Math.pow(1 - progress, 3);
-        setValue(Math.round(eased * end));
-        if (progress < 1) requestAnimationFrame(step);
-      };
-      requestAnimationFrame(step);
-    }, delay);
-    return () => clearTimeout(timeout);
-  }, [end, duration, delay]);
-  return value;
-}
-
-/* ------------------------------------------------------------------ */
-/*  Hero Mockup — animated floating cards                              */
-/* ------------------------------------------------------------------ */
+const FLOW_STEPS = [
+  {
+    icon: CalendarDays,
+    title: "Registre seu plantão",
+    detail: "UPA Centro — Noturno 12h — R$ 1.400",
+    gradient: "from-moss-500 to-moss-600",
+    delay: 400,
+  },
+  {
+    icon: TrendingUp,
+    title: "Cálculo automático",
+    detail: "R$ 10.950 de R$ 15.000 — faltam 3 plantões",
+    gradient: "from-emerald-500 to-emerald-600",
+    delay: 1200,
+  },
+  {
+    icon: Shield,
+    title: "Alerta de proteção",
+    detail: "Carga semanal: 52h — Risco moderado de burnout",
+    gradient: "from-amber-500 to-amber-600",
+    delay: 2000,
+  },
+  {
+    icon: CircleCheck,
+    title: "Meta batida!",
+    detail: "Parabéns! Você atingiu sua meta com equilíbrio.",
+    gradient: "from-sky-500 to-sky-600",
+    delay: 2800,
+  },
+];
 
 function HeroMockup() {
-  const earned = useAnimatedNumber(10950, 2200, 800);
-  const goal = 15000;
-  const pct = Math.round((earned / goal) * 100);
-  const shifts = useAnimatedNumber(12, 1200, 1000);
-  const [showToast, setShowToast] = useState(false);
+  const [visibleSteps, setVisibleSteps] = useState(0);
 
   useEffect(() => {
-    const t = setTimeout(() => setShowToast(true), 2400);
-    return () => clearTimeout(t);
+    const timers = FLOW_STEPS.map((step, i) =>
+      setTimeout(() => setVisibleSteps(i + 1), step.delay)
+    );
+    return () => timers.forEach(clearTimeout);
   }, []);
 
   return (
-    <div className="relative w-full h-[420px] lg:h-[460px]">
-      {/* ── Main card: Financial tracker ── */}
-      <div
-        className="absolute top-0 left-0 right-4 bg-white rounded-2xl border border-gray-100 shadow-[0_20px_60px_rgba(0,0,0,0.08)] p-6 animate-[fadeSlideUp_0.8s_ease-out_0.3s_both]"
-      >
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center">
-              <TrendingUp className="w-4.5 h-4.5 text-white" />
-            </div>
-            <div>
-              <p className="text-[13px] font-semibold text-gray-900">Meta mensal</p>
-              <p className="text-[11px] text-gray-400">Março 2026</p>
-            </div>
-          </div>
-          <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full">
-            {pct}%
-          </span>
-        </div>
+    <div className="relative w-full">
+      <div className="space-y-3">
+        {FLOW_STEPS.map(({ icon: Icon, title, detail, gradient }, idx) => (
+          <div key={title} className="relative">
+            {/* Connector line */}
+            {idx > 0 && (
+              <div className={`absolute -top-3 left-5 w-px h-3 transition-all duration-500 ${idx < visibleSteps ? "bg-gray-200" : "bg-transparent"}`} />
+            )}
 
-        <div className="mb-3">
-          <div className="flex items-baseline justify-between mb-1.5">
-            <span className="text-2xl font-bold text-gray-900 tabular-nums">
-              R$ {earned.toLocaleString("pt-BR")}
-            </span>
-            <span className="text-xs text-gray-400">de R$ 15.000</span>
-          </div>
-          <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full transition-all duration-[2200ms] ease-out"
-              style={{ width: `${pct}%` }}
-            />
+              className={`flex items-start gap-4 bg-white rounded-2xl border p-5 transition-all duration-500 ${
+                idx < visibleSteps
+                  ? "opacity-100 translate-x-0 border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.06)]"
+                  : "opacity-0 translate-x-6 border-transparent"
+              }`}
+            >
+              <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center shrink-0 shadow-sm`}>
+                <Icon className="w-5 h-5 text-white" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[13px] font-semibold text-gray-900 mb-0.5">{title}</p>
+                <p className="text-[12px] text-gray-500 leading-relaxed">{detail}</p>
+              </div>
+              {idx < visibleSteps && (
+                <div className={`ml-auto shrink-0 w-5 h-5 rounded-full flex items-center justify-center transition-all duration-300 ${
+                  idx === visibleSteps - 1 ? "bg-emerald-500 scale-110" : "bg-emerald-100"
+                }`}>
+                  <Check className={`w-3 h-3 ${idx === visibleSteps - 1 ? "text-white" : "text-emerald-600"}`} strokeWidth={3} />
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-
-        <div className="flex items-center gap-4 pt-2 border-t border-gray-50">
-          <div className="flex items-center gap-1.5">
-            <CalendarDays className="w-3.5 h-3.5 text-gray-400" />
-            <span className="text-xs text-gray-500"><span className="font-semibold text-gray-700 tabular-nums">{shifts}</span> plantões</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <Target className="w-3.5 h-3.5 text-gray-400" />
-            <span className="text-xs text-gray-500">Faltam <span className="font-semibold text-gray-700">5</span></span>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Secondary card: Burnout risk ── */}
-      <div
-        className="absolute bottom-16 left-0 w-[200px] bg-white rounded-2xl border border-gray-100 shadow-[0_16px_48px_rgba(0,0,0,0.07)] p-5 animate-[fadeSlideUp_0.8s_ease-out_0.9s_both]"
-      >
-        <div className="flex items-center gap-2 mb-3">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center">
-            <Shield className="w-4 h-4 text-white" />
-          </div>
-          <p className="text-[12px] font-semibold text-gray-900">Risco de burnout</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="flex gap-0.5">
-            <div className="w-8 h-1.5 rounded-full bg-emerald-400" />
-            <div className="w-8 h-1.5 rounded-full bg-amber-400" />
-            <div className="w-8 h-1.5 rounded-full bg-gray-200" />
-            <div className="w-8 h-1.5 rounded-full bg-gray-200" />
-          </div>
-        </div>
-        <div className="flex items-center gap-1.5 mt-2">
-          <AlertTriangle className="w-3 h-3 text-amber-500" />
-          <span className="text-[11px] font-medium text-amber-600">Moderado</span>
-        </div>
-      </div>
-
-      {/* ── Toast notification ── */}
-      <div
-        className={`absolute bottom-0 right-0 left-16 bg-white rounded-xl border border-gray-100 shadow-[0_12px_36px_rgba(0,0,0,0.08)] px-4 py-3 flex items-center gap-3 transition-all duration-500 ${showToast ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"}`}
-      >
-        <div className="w-7 h-7 rounded-full bg-emerald-500 flex items-center justify-center shrink-0">
-          <CircleCheck className="w-4 h-4 text-white" />
-        </div>
-        <div>
-          <p className="text-[12px] font-semibold text-gray-900">Plantão registrado!</p>
-          <p className="text-[11px] text-gray-400">UPA Centro — Noturno 12h</p>
-        </div>
+        ))}
       </div>
     </div>
   );
