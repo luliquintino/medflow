@@ -15,6 +15,8 @@ const mockAuthService = {
   forgotPassword: jest.fn(),
   resetPassword: jest.fn(),
   googleLogin: jest.fn(),
+  createAuthCode: jest.fn(),
+  exchangeAuthCode: jest.fn(),
 };
 
 const mockConfigService = {
@@ -136,33 +138,31 @@ describe('AuthController', () => {
   // ─── GOOGLE CALLBACK ───────────────────────────────
 
   describe('googleCallback', () => {
-    it('should call authService.googleLogin and redirect to frontend', async () => {
-      const tokens = { accessToken: 'access-token', refreshToken: 'refresh-token' };
-      mockAuthService.googleLogin.mockResolvedValue(tokens);
+    it('should create auth code and redirect to frontend', async () => {
+      mockAuthService.createAuthCode.mockReturnValue('mock-auth-code');
 
-      const req = { user: { email: 'test@example.com', name: 'Dr. Test' } };
+      const req = { user: { id: 'user-1', email: 'test@example.com', name: 'Dr. Test' } };
       const res = { redirect: jest.fn() };
 
       await controller.googleCallback(req as any, res as any);
 
-      expect(mockAuthService.googleLogin).toHaveBeenCalledWith(req.user);
+      expect(mockAuthService.createAuthCode).toHaveBeenCalledWith('user-1', 'test@example.com');
       expect(res.redirect).toHaveBeenCalledWith(
-        `http://localhost:3000/auth/callback?token=${tokens.accessToken}&refresh=${tokens.refreshToken}`,
+        'http://localhost:3000/auth/callback?code=mock-auth-code',
       );
     });
 
     it('should use default frontend URL when config returns undefined', async () => {
       mockConfigService.get.mockReturnValueOnce(undefined);
-      const tokens = { accessToken: 'at', refreshToken: 'rt' };
-      mockAuthService.googleLogin.mockResolvedValue(tokens);
+      mockAuthService.createAuthCode.mockReturnValue('mock-code');
 
-      const req = { user: { email: 'test@example.com' } };
+      const req = { user: { id: 'user-2', email: 'test@example.com' } };
       const res = { redirect: jest.fn() };
 
       await controller.googleCallback(req as any, res as any);
 
       expect(res.redirect).toHaveBeenCalledWith(
-        `http://localhost:3000/auth/callback?token=${tokens.accessToken}&refresh=${tokens.refreshToken}`,
+        'http://localhost:3000/auth/callback?code=mock-code',
       );
     });
   });

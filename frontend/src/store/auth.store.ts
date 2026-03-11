@@ -3,6 +3,14 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { User } from "@/types";
 
+function setSessionCookie() {
+  document.cookie = "medflow-has-session=1; path=/; SameSite=Strict; max-age=604800";
+}
+
+function clearSessionCookie() {
+  document.cookie = "medflow-has-session=; path=/; SameSite=Strict; max-age=0";
+}
+
 interface AuthState {
   user: User | null;
   accessToken: string | null;
@@ -19,8 +27,14 @@ export const useAuthStore = create<AuthState>()(
       accessToken: null,
       refreshToken: null,
       setUser: (user) => set({ user }),
-      setTokens: (accessToken, refreshToken) => set({ accessToken, refreshToken }),
-      logout: () => set({ user: null, accessToken: null, refreshToken: null }),
+      setTokens: (accessToken, refreshToken) => {
+        setSessionCookie();
+        set({ accessToken, refreshToken });
+      },
+      logout: () => {
+        clearSessionCookie();
+        set({ user: null, accessToken: null, refreshToken: null });
+      },
     }),
     {
       name: "medflow-auth",

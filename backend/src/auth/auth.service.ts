@@ -21,6 +21,7 @@ import { SubscriptionStatus } from '@prisma/client';
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
+  private authCodes = new Map<string, { userId: string; email: string; expiresAt: number }>();
 
   constructor(
     private prisma: PrismaService,
@@ -90,18 +91,52 @@ export class AuthService {
       throw new UnauthorizedException('E-mail ou senha incorretos.');
     }
 
+    // Check account lockout
+    if (user.lockedUntil && user.lockedUntil > new Date()) {
+      const minutesLeft = Math.ceil((user.lockedUntil.getTime() - Date.now()) / 60000);
+      throw new UnauthorizedException(
+        `Conta bloqueada temporariamente. Tente novamente em ${minutesLeft} minuto(s).`,
+      );
+    }
+
     if (!user.passwordHash) {
       throw new UnauthorizedException('E-mail ou senha incorretos.');
     }
 
     const passwordMatch = await bcrypt.compare(dto.password, user.passwordHash);
     if (!passwordMatch) {
+      // Increment failed attempts
+      const failedAttempts = user.failedLoginAttempts + 1;
+      const updateData: any = {
+        failedLoginAttempts: failedAttempts,
+        lastFailedLoginAt: new Date(),
+      };
+
+      // Lock account after 5 failed attempts for 15 minutes
+      if (failedAttempts >= 5) {
+        updateData.lockedUntil = new Date(Date.now() + 15 * 60 * 1000);
+        this.logger.warn(`Account locked due to failed attempts: ${user.email}`);
+      }
+
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: updateData,
+      });
+
       throw new UnauthorizedException('E-mail ou senha incorretos.');
+    }
+
+    // Reset failed attempts on successful login
+    if (user.failedLoginAttempts > 0 || user.lockedUntil) {
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: { failedLoginAttempts: 0, lockedUntil: null, lastFailedLoginAt: null },
+      });
     }
 
     const tokens = await this.generateTokens(user.id, user.email);
 
-    const { passwordHash, ...safeUser } = user;
+    const { passwordHash, failedLoginAttempts, lockedUntil, lastFailedLoginAt, ...safeUser } = user;
 
     return { user: safeUser, ...tokens };
   }
@@ -213,6 +248,43 @@ export class AuthService {
 
   async googleLogin(user: any) {
     return this.generateTokens(user.id, user.email);
+  }
+
+  // ─── AUTH CODE (for OAuth callback security) ──────
+
+  createAuthCode(userId: string, email: string): string {
+    const code = uuidv4();
+    this.authCodes.set(code, {
+      userId,
+      email,
+      expiresAt: Date.now() + 60 * 1000, // 60 seconds
+    });
+
+    // Cleanup expired codes periodically
+    if (this.authCodes.size > 100) {
+      const now = Date.now();
+      for (const [key, val] of this.authCodes) {
+        if (val.expiresAt < now) this.authCodes.delete(key);
+      }
+    }
+
+    return code;
+  }
+
+  async exchangeAuthCode(code: string) {
+    const entry = this.authCodes.get(code);
+
+    if (!entry) {
+      throw new UnauthorizedException('Código de autorização inválido.');
+    }
+
+    this.authCodes.delete(code);
+
+    if (entry.expiresAt < Date.now()) {
+      throw new UnauthorizedException('Código de autorização expirado.');
+    }
+
+    return this.generateTokens(entry.userId, entry.email);
   }
 
   // ─── HELPERS (public for GoogleStrategy) ─────

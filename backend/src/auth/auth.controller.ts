@@ -8,6 +8,7 @@ import {
   UseGuards,
   Req,
   Res,
+  BadRequestException,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
@@ -84,6 +85,18 @@ export class AuthController {
     return this.authService.resetPassword(dto);
   }
 
+  @Public()
+  @Throttle({ default: { ttl: 60000, limit: 10 } })
+  @HttpCode(HttpStatus.OK)
+  @Post('exchange-code')
+  @ApiOperation({ summary: 'Trocar código de autorização por tokens' })
+  async exchangeCode(@Body() body: { code: string }) {
+    if (!body.code) {
+      throw new BadRequestException('Código é obrigatório.');
+    }
+    return this.authService.exchangeAuthCode(body.code);
+  }
+
   // ─── GOOGLE OAUTH ─────────────────────────────
 
   @Public()
@@ -100,10 +113,8 @@ export class AuthController {
   @ApiOperation({ summary: 'Callback do Google OAuth' })
   async googleCallback(@Req() req: Request, @Res() res: Response) {
     const user = (req as any).user;
-    const tokens = await this.authService.googleLogin(user);
+    const code = this.authService.createAuthCode(user.id, user.email);
     const frontendUrl = this.config.get<string>('frontendUrl') || 'http://localhost:3000';
-    res.redirect(
-      `${frontendUrl}/auth/callback?token=${tokens.accessToken}&refresh=${tokens.refreshToken}`,
-    );
+    res.redirect(`${frontendUrl}/auth/callback?code=${code}`);
   }
 }

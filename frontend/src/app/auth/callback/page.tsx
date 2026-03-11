@@ -13,18 +13,43 @@ function CallbackHandler() {
   const { setTokens, setUser } = useAuthStore();
 
   useEffect(() => {
-    const token = searchParams.get("token");
-    const refresh = searchParams.get("refresh");
+    const code = searchParams.get("code");
 
-    if (!token || !refresh) {
+    // Support legacy token params for backwards compatibility
+    const legacyToken = searchParams.get("token");
+    const legacyRefresh = searchParams.get("refresh");
+
+    if (legacyToken && legacyRefresh) {
+      // Legacy flow: tokens directly in URL
+      setTokens(legacyToken, legacyRefresh);
+      api
+        .get("/users/me", { headers: { Authorization: `Bearer ${legacyToken}` } })
+        .then((r) => {
+          const user = unwrap<User>(r);
+          setUser(user);
+          router.replace(user.onboardingCompleted ? "/dashboard" : "/onboarding");
+        })
+        .catch(() => router.replace("/auth/login"));
+      return;
+    }
+
+    if (!code) {
       router.replace("/auth/login");
       return;
     }
 
-    setTokens(token, refresh);
-
+    // Exchange auth code for tokens
     api
-      .get("/users/me", { headers: { Authorization: `Bearer ${token}` } })
+      .post("/auth/exchange-code", { code })
+      .then((r) => {
+        const data = r.data?.data || r.data;
+        const { accessToken, refreshToken } = data;
+        setTokens(accessToken, refreshToken);
+
+        return api.get("/users/me", {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+      })
       .then((r) => {
         const user = unwrap<User>(r);
         setUser(user);

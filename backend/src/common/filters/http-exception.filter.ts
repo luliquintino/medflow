@@ -16,6 +16,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
+    const userId = (request as any).user?.id || 'anonymous';
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
     let message: string | object = 'Ocorreu um erro inesperado.';
@@ -27,8 +28,30 @@ export class AllExceptionsFilter implements ExceptionFilter {
         typeof exceptionResponse === 'string'
           ? exceptionResponse
           : (exceptionResponse as any).message || exceptionResponse;
+
+      // Log 4xx as warnings with structured data
+      if (status >= 400 && status < 500) {
+        this.logger.warn(
+          JSON.stringify({
+            status,
+            method: request.method,
+            url: request.url,
+            userId,
+            message: typeof message === 'string' ? message : JSON.stringify(message),
+          }),
+        );
+      }
     } else {
-      this.logger.error('Unhandled exception', exception);
+      this.logger.error(
+        JSON.stringify({
+          status: 500,
+          method: request.method,
+          url: request.url,
+          userId,
+          error: exception instanceof Error ? exception.message : 'Unknown error',
+          stack: exception instanceof Error ? exception.stack : undefined,
+        }),
+      );
     }
 
     response.status(status).json({

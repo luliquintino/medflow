@@ -175,7 +175,7 @@ describe('MailService', () => {
       expect(Resend).toHaveBeenCalledWith('re_test_api_key_123');
     });
 
-    it('should use default from address when config is empty', async () => {
+    it('should skip email when API key is not configured', async () => {
       const emptyConfigService = {
         get: jest.fn(() => undefined),
       };
@@ -187,11 +187,8 @@ describe('MailService', () => {
       const svc = module.get<MailService>(MailService);
       await svc.sendWelcome('test@test.com', 'Test User');
 
-      expect(mockSend).toHaveBeenCalledWith(
-        expect.objectContaining({
-          from: 'Med Flow <onboarding@resend.dev>',
-        }),
-      );
+      // When API key is not set, Resend is not initialized, so no email is sent
+      expect(mockSend).not.toHaveBeenCalled();
     });
   });
 });

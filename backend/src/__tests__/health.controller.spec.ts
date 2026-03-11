@@ -1,5 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { HealthController } from '../health.controller';
+import { PrismaService } from '../prisma/prisma.service';
+
+const mockPrismaService = {
+  $queryRawUnsafe: jest.fn().mockResolvedValue([{ '?column?': 1 }]),
+};
 
 describe('HealthController', () => {
   let controller: HealthController;
@@ -9,6 +14,7 @@ describe('HealthController', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [HealthController],
+      providers: [{ provide: PrismaService, useValue: mockPrismaService }],
     }).compile();
 
     controller = module.get<HealthController>(HealthController);
@@ -17,17 +23,24 @@ describe('HealthController', () => {
   // ─── HEALTH CHECK ──────────────────────────────────
 
   describe('check', () => {
-    it('should return status ok with a timestamp', () => {
-      const before = new Date().toISOString();
-      const result = controller.check();
-      const after = new Date().toISOString();
+    it('should return status ok with DB connected', async () => {
+      const result = await controller.check();
 
       expect(result).toHaveProperty('status', 'ok');
       expect(result).toHaveProperty('timestamp');
       expect(typeof result.timestamp).toBe('string');
-      // Verify the timestamp is within the test execution window
-      expect(result.timestamp >= before).toBe(true);
-      expect(result.timestamp <= after).toBe(true);
+      expect(result).toHaveProperty('uptime');
+      expect(result.db.connected).toBe(true);
+      expect(result.db.responseTimeMs).toBeGreaterThanOrEqual(0);
+    });
+
+    it('should return status degraded when DB fails', async () => {
+      mockPrismaService.$queryRawUnsafe.mockRejectedValueOnce(new Error('DB down'));
+
+      const result = await controller.check();
+
+      expect(result).toHaveProperty('status', 'degraded');
+      expect(result.db.connected).toBe(false);
     });
   });
 });

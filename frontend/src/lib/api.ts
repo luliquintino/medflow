@@ -1,6 +1,12 @@
 import axios, { AxiosError } from "axios";
 import type { InternalAxiosRequestConfig } from "axios";
 
+function clearSessionCookie() {
+  if (typeof document !== "undefined") {
+    document.cookie = "medflow-has-session=; path=/; SameSite=Strict; max-age=0";
+  }
+}
+
 const BASE_URL = "/api/v1";
 
 export const api = axios.create({
@@ -91,6 +97,7 @@ api.interceptors.response.use(
     } catch (refreshError) {
       processQueue(refreshError, null);
       // Clear auth and redirect to login
+      clearSessionCookie();
       localStorage.removeItem("medflow-auth");
       if (typeof window !== "undefined") {
         window.location.href = "/auth/login";
