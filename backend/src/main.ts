@@ -32,9 +32,13 @@ async function bootstrap() {
     'http://127.0.0.1:3002',
   ].filter(Boolean);
 
+  // Also allow any Vercel preview/production URLs
+  const isVercelOrigin = (origin: string) =>
+    /^https:\/\/.*\.vercel\.app$/.test(origin);
+
   app.enableCors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (!origin || allowedOrigins.includes(origin) || isVercelOrigin(origin || '')) {
         callback(null, true);
       } else {
         callback(new Error(`CORS blocked: ${origin}`));
