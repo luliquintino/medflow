@@ -231,8 +231,6 @@
       "idealGoalLabel": "Ideal monthly goal (R$)",
       "idealGoalPlaceholder": "E.g., 15000",
       "idealGoalHint": "How much you would like to earn per month",
-      "savingsGoalLabel": "Monthly savings goal (R$)",
-      "savingsGoalPlaceholder": "E.g., 2000",
       "averageShiftValueLabel": "Average value per shift (R$)",
       "averageShiftValuePlaceholder": "E.g., 1500"
     },
@@ -240,9 +238,9 @@
       "title": "Work profile",
       "description": "How do you usually work?",
       "shiftTypesLabel": "Types of shifts you work",
-      "maxWeeklyHoursLabel": "Maximum weekly hours limit (optional)",
+      "maxWeeklyHoursLabel": "Maximum weekly hours limit",
       "maxWeeklyHoursPlaceholder": "E.g., 60",
-      "maxWeeklyHoursHint": "Maximum 120 hours",
+      "maxWeeklyHoursHint": "Used to calculate burnout alerts and overload risks (max 120h)",
       "restDaysLabel": "Preferred rest days"
     },
     "next": "Next",

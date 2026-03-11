@@ -26,10 +26,12 @@ function createSchema(tv: (key: string) => string) {
   return z.object({
     minimumMonthlyGoal: z.coerce.number().min(0),
     idealMonthlyGoal: z.coerce.number().min(0),
-    savingsGoal: z.coerce.number().min(0),
     averageShiftValue: z.coerce.number().min(0),
     shiftTypes: z.array(z.string()).min(1, tv("selectAtLeastOneType")),
-    maxWeeklyHours: z.coerce.number().min(1).max(120).optional(),
+    maxWeeklyHours: z.preprocess(
+      (v) => (v === "" || v === undefined ? undefined : Number(v)),
+      z.number().min(1).max(120).optional(),
+    ),
     preferredRestDays: z.array(z.number()).optional(),
   });
 }
@@ -55,7 +57,6 @@ export default function OnboardingPage() {
       defaultValues: {
         minimumMonthlyGoal: 0,
         idealMonthlyGoal: 0,
-        savingsGoal: 0,
         averageShiftValue: 0,
         shiftTypes: [],
         preferredRestDays: [],
@@ -90,7 +91,7 @@ export default function OnboardingPage() {
         financial: {
           minimumMonthlyGoal: data.minimumMonthlyGoal,
           idealMonthlyGoal: data.idealMonthlyGoal,
-          savingsGoal: data.savingsGoal,
+          savingsGoal: 0,
           averageShiftValue: data.averageShiftValue,
         },
         work: {
@@ -157,14 +158,6 @@ export default function OnboardingPage() {
               />
 
               <Input
-                label={t("financialProfile.savingsGoalLabel")}
-                type="number"
-                placeholder={t("financialProfile.savingsGoalPlaceholder")}
-                {...register("savingsGoal")}
-                error={errors.savingsGoal?.message}
-              />
-
-              <Input
                 label={t("financialProfile.averageShiftValueLabel")}
                 type="number"
                 placeholder={t("financialProfile.averageShiftValuePlaceholder")}
@@ -173,7 +166,7 @@ export default function OnboardingPage() {
               />
 
               <Button type="button" className="w-full" onClick={async () => {
-                  const valid = await trigger(["minimumMonthlyGoal", "idealMonthlyGoal", "savingsGoal", "averageShiftValue"]);
+                  const valid = await trigger(["minimumMonthlyGoal", "idealMonthlyGoal", "averageShiftValue"]);
                   if (valid) setStep(2);
                 }}
                 icon={<ChevronRight className="w-4 h-4" />}>
@@ -264,7 +257,7 @@ export default function OnboardingPage() {
                 <Button type="submit" className="flex-1" loading={isSubmitting}
                   onClick={async () => {
                     const valid = await trigger();
-                    if (!valid && (errors.minimumMonthlyGoal || errors.idealMonthlyGoal || errors.savingsGoal || errors.averageShiftValue)) {
+                    if (!valid && (errors.minimumMonthlyGoal || errors.idealMonthlyGoal || errors.averageShiftValue)) {
                       setStep(1);
                     }
                   }}>

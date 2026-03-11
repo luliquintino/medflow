@@ -231,8 +231,6 @@
       "idealGoalLabel": "Meta mensal ideal (R$)",
       "idealGoalPlaceholder": "Ex: 15000",
       "idealGoalHint": "Quanto você gostaria de ganhar por mês",
-      "savingsGoalLabel": "Meta de reserva/poupança mensal (R$)",
-      "savingsGoalPlaceholder": "Ex: 2000",
       "averageShiftValueLabel": "Valor médio por plantão (R$)",
       "averageShiftValuePlaceholder": "Ex: 1500"
     },
@@ -240,9 +238,9 @@
       "title": "Perfil de trabalho",
       "description": "Como você costuma trabalhar?",
       "shiftTypesLabel": "Tipos de plantão que você faz",
-      "maxWeeklyHoursLabel": "Limite máximo de horas semanais (opcional)",
+      "maxWeeklyHoursLabel": "Limite máximo de horas semanais",
       "maxWeeklyHoursPlaceholder": "Ex: 60",
-      "maxWeeklyHoursHint": "Máximo 120 horas",
+      "maxWeeklyHoursHint": "Usado para calcular alertas de burnout e riscos de sobrecarga (máx. 120h)",
       "restDaysLabel": "Dias preferenciais de descanso"
     },
     "next": "Próximo",
