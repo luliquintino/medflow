@@ -5,12 +5,16 @@ import { Resend } from 'resend';
 @Injectable()
 export class MailService {
   private readonly logger = new Logger(MailService.name);
-  private resend: Resend;
+  private resend: Resend | null = null;
   private from: string;
 
   constructor(private config: ConfigService) {
-    const apiKey = this.config.get<string>('resend.apiKey') || '';
-    this.resend = new Resend(apiKey);
+    const apiKey = this.config.get<string>('resend.apiKey');
+    if (apiKey) {
+      this.resend = new Resend(apiKey);
+    } else {
+      this.logger.warn('RESEND_API_KEY not set — email sending disabled');
+    }
     this.from = this.config.get<string>('resend.from') || 'Med Flow <onboarding@resend.dev>';
   }
 
@@ -67,6 +71,11 @@ export class MailService {
   </table>
 </body>
 </html>`;
+
+    if (!this.resend) {
+      this.logger.warn(`Skipping password reset email to ${email} — Resend not configured`);
+      return;
+    }
 
     try {
       const { error } = await this.resend.emails.send({
@@ -131,6 +140,11 @@ export class MailService {
   </table>
 </body>
 </html>`;
+
+    if (!this.resend) {
+      this.logger.warn(`Skipping welcome email to ${email} — Resend not configured`);
+      return;
+    }
 
     try {
       const { error } = await this.resend.emails.send({
