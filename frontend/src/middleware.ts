@@ -4,13 +4,15 @@ import type { NextRequest } from 'next/server';
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Skip public paths
+  // Skip public/static paths
   if (
     pathname.startsWith('/auth') ||
     pathname.startsWith('/api') ||
     pathname.startsWith('/_next') ||
     pathname === '/' ||
-    pathname === '/favicon.ico'
+    pathname === '/favicon.ico' ||
+    pathname === '/logo.png' ||
+    pathname.match(/\.(png|jpg|jpeg|gif|svg|ico|webp|css|js|woff|woff2|ttf|eot)$/)
   ) {
     return NextResponse.next();
   }
@@ -26,5 +28,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|api).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|logo\\.png|api).*)'],
 };
