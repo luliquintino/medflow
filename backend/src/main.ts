@@ -35,7 +35,8 @@ async function bootstrap() {
   // Also allow Vercel preview/production URLs and custom domain
   const isAllowedDynamic = (origin: string) =>
     /^https:\/\/.*\.vercel\.app$/.test(origin) ||
-    /^https:\/\/(www\.)?medflow\.tec\.br$/.test(origin);
+    /^https:\/\/(www\.)?medflow\.tec\.br$/.test(origin) ||
+    (process.env.NODE_ENV !== 'production' && /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin));
 
   app.enableCors({
     origin: (origin, callback) => {
