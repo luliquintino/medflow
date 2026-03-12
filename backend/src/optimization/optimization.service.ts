@@ -78,7 +78,7 @@ export class OptimizationService {
         endDate: s.endDate,
         hours: s.hours,
         value: s.value,
-        isNightShift: s.type === 'NIGHT',
+        isNightShift: s.type === 'TWELVE_NIGHT' || s.type === 'TWENTY_FOUR_INVERTED',
       })),
       availableTemplates,
       riskLimits,
@@ -119,11 +119,9 @@ export class OptimizationService {
           hospitalId: template.hospitalId,
           date: shiftDate,
           endDate,
-          type: template.isNightShift
-            ? 'NIGHT'
-            : template.durationInHours === 24
-              ? 'TWENTY_FOUR_HOURS'
-              : 'TWELVE_HOURS',
+          type: template.durationInHours === 24
+            ? (template.isNightShift ? 'TWENTY_FOUR_INVERTED' : 'TWENTY_FOUR')
+            : (template.isNightShift ? 'TWELVE_NIGHT' : 'TWELVE_DAY'),
           hours: template.durationInHours,
           value: template.defaultValue,
           location: template.hospital.name,

@@ -285,8 +285,8 @@
     "shiftsLabel": "{count} plantões",
     "avgPerShift": "Valor médio/plantão",
     "workload": "Carga de trabalho",
-    "hoursIn5Days": "Horas nos 5 dias",
     "weekHours": "Horas na semana",
+    "monthHours": "Horas no mês",
     "consecutiveNight": "Noturno consecutivo",
     "consecutiveShifts": "Plantões seguidos",
     "exhaustion": "Exaustão",
@@ -487,8 +487,8 @@
     "minimumGoal": "Meta mínima",
     "idealGoal": "Meta ideal",
     "workloadImpact": "Impacto na carga horária",
-    "hoursIn5Days": "Horas nos 5 dias",
     "weekHours": "Horas na semana",
+    "monthHours": "Horas no mês",
     "consecutiveNight": "Noturnos seguidos",
     "consecutiveShifts": "Plantões seguidos",
     "triggeredRules": "Regras ativadas:",
@@ -506,7 +506,6 @@
     "subtitle": "Acompanhe como sua carga de trabalho evoluiu ao longo do tempo.",
     "emptyState": "Nenhum registro ainda. O historico e gerado automaticamente.",
     "scoreLabel": "Score: {score}/100",
-    "hoursIn5Days": "{hours}h / 5 dias",
     "hoursInWeek": "{hours}h / semana",
     "consecutiveNights": "{count} noturno(s) seguido(s)",
     "distributionTitle": "Distribuição de Risco",
@@ -570,15 +569,17 @@
   },
 
   "shiftTypes": {
-    "twelveHours": "12 horas",
-    "twentyFourHours": "24 horas",
-    "night": "Noturno"
+    "twelveDay": "12h Diurno",
+    "twelveNight": "12h Noturno",
+    "twentyFour": "24h",
+    "twentyFourInverted": "24h Invertido"
   },
 
   "shiftTypeDesc": {
-    "twelveHours": "Plantão diurno",
-    "twentyFourHours": "Plantão completo",
-    "night": "Plantão noturno"
+    "twelveDay": "Plantão diurno de 12h",
+    "twelveNight": "Plantão noturno de 12h",
+    "twentyFour": "Plantão de 24h (entrada de dia)",
+    "twentyFourInverted": "Plantão de 24h (entrada de noite)"
   },
 
   "templateTypes": {

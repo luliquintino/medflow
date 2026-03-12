@@ -24,7 +24,7 @@ describe('AnalyticsService', () => {
 
   describe('getAnalytics', () => {
     const mockShifts = [
-      { date: new Date('2026-02-10'), value: 3000, hours: 12, type: 'TWELVE_HOURS', status: 'CONFIRMED', realized: true, hospitalId: 'h1' },
+      { date: new Date('2026-02-10'), value: 3000, hours: 12, type: 'TWELVE_DAY', status: 'CONFIRMED', realized: true, hospitalId: 'h1' },
     ];
     const mockHospitals = [{ id: 'h1', name: 'Hospital A' }];
 

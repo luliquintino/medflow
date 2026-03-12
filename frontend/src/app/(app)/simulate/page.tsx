@@ -27,7 +27,7 @@ export default function SimulatePage() {
 
   const schema = useMemo(() => z.object({
     date: z.string().min(1, tValidation("dateRequired")),
-    type: z.enum(["TWELVE_HOURS", "TWENTY_FOUR_HOURS", "NIGHT"]),
+    type: z.enum(["TWELVE_DAY", "TWELVE_NIGHT", "TWENTY_FOUR", "TWENTY_FOUR_INVERTED"]),
     value: z.coerce.number().min(0, tValidation("valueRequired")),
   }), [tValidation]);
 
@@ -41,7 +41,7 @@ export default function SimulatePage() {
     useForm<FormData>({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       resolver: zodResolver(schema) as any,
-      defaultValues: { type: "TWELVE_HOURS" },
+      defaultValues: { type: "TWELVE_DAY" },
     });
 
   const shiftType = watch("type") as ShiftType;
@@ -96,8 +96,8 @@ export default function SimulatePage() {
           {/* Type */}
           <div>
             <label className="text-sm font-medium text-gray-700 mb-2 block">{t("typeLabel")}</label>
-            <div className="grid grid-cols-3 gap-2">
-              {(["TWELVE_HOURS", "TWENTY_FOUR_HOURS", "NIGHT"] as ShiftType[]).map((tp) => (
+            <div className="grid grid-cols-2 gap-2">
+              {(["TWELVE_DAY", "TWELVE_NIGHT", "TWENTY_FOUR", "TWENTY_FOUR_INVERTED"] as ShiftType[]).map((tp) => (
                 <button
                   key={tp}
                   type="button"
@@ -219,8 +219,8 @@ export default function SimulatePage() {
             </CardHeader>
             <div className="grid grid-cols-2 gap-3">
               {[
-                { label: t("hoursIn5Days"), value: `${result.risk.workload.hoursInLast5Days}h`, limit: "60h" },
-                { label: t("weekHours"), value: `${result.risk.workload.totalHoursThisWeek}h`, limit: "72h" },
+                { label: t("weekHours"), value: `${result.risk.workload.totalHoursThisWeek}h`, limit: "60h" },
+                { label: t("monthHours"), value: `${result.risk.workload.totalHoursThisMonth}h` },
                 { label: t("consecutiveNight"), value: `${result.risk.workload.consecutiveNightShifts}x`, limit: "3x" },
                 { label: t("consecutiveShifts"), value: `${result.risk.workload.consecutiveShifts}x`, limit: "3x" },
               ].map(({ label, value, limit }) => (

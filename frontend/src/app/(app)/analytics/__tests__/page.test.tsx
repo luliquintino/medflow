@@ -81,7 +81,7 @@ const analyticsData = {
     { hospitalId: '1', hospitalName: 'Hospital A', totalRevenue: 15000, avgPerShift: 1500, shiftCount: 10, totalHours: 120, revenueShare: 60 },
   ],
   incomeByShiftType: [
-    { type: 'TWELVE_HOURS', typeLabel: '12 horas', totalRevenue: 10000, shiftCount: 8, totalHours: 96, avgPerShift: 1250, avgPerHour: 104 },
+    { type: 'TWELVE_DAY', typeLabel: '12h Diurno', totalRevenue: 10000, shiftCount: 8, totalHours: 96, avgPerShift: 1250, avgPerHour: 104 },
   ],
   monthOverMonthGrowth: [
     { label: 'Jan', growthPercent: 5 },

@@ -38,7 +38,7 @@ function makeShift(overrides: Partial<Shift> = {}): Shift {
     id: '1',
     date: '2026-03-10',
     hospital: 'Hospital A',
-    type: 'TWELVE_HOURS',
+    type: 'TWELVE_DAY',
     period: 'DAY',
     status: 'CONFIRMED',
     value: 1500,
@@ -75,8 +75,8 @@ describe('MonthShiftsList', () => {
 
   it('renders shift cards when shifts are provided', () => {
     const shifts = [
-      makeShift({ id: '1', hospital: 'Hospital A' }),
-      makeShift({ id: '2', hospital: 'Hospital B' }),
+      makeShift({ id: '1', hospital: { id: 'h1', name: 'Hospital A' } as any }),
+      makeShift({ id: '2', hospital: { id: 'h2', name: 'Hospital B' } as any }),
     ];
     render(
       <MonthShiftsList

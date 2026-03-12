@@ -21,7 +21,7 @@ jest.mock('@tanstack/react-query', () => ({
 const mockReset = jest.fn();
 const mockSetValue = jest.fn();
 const mockWatch = jest.fn((field: string) => {
-  if (field === 'type') return 'TWELVE_HOURS';
+  if (field === 'type') return 'TWELVE_DAY';
   if (field === 'status') return 'CONFIRMED';
   return '';
 });
@@ -94,7 +94,7 @@ const mockEditingShift = {
   id: '1',
   date: '2025-01-15T08:00:00Z',
   endDate: '2025-01-15T20:00:00Z',
-  type: 'TWELVE_HOURS' as const,
+  type: 'TWELVE_DAY' as const,
   hours: 12,
   value: 1500,
   location: 'Hospital A',
@@ -134,9 +134,10 @@ describe('ShiftFormModal', () => {
     expect(screen.getByText('Tipo')).toBeInTheDocument();
     expect(screen.getByText('Valor (R$)')).toBeInTheDocument();
     expect(screen.getByText('Local')).toBeInTheDocument();
-    expect(screen.getByText('12 horas')).toBeInTheDocument();
-    expect(screen.getByText('24 horas')).toBeInTheDocument();
-    expect(screen.getByText('Noturno')).toBeInTheDocument();
+    expect(screen.getByText('12h Diurno')).toBeInTheDocument();
+    expect(screen.getByText('12h Noturno')).toBeInTheDocument();
+    expect(screen.getByText('24h')).toBeInTheDocument();
+    expect(screen.getByText('24h Invertido')).toBeInTheDocument();
   });
 
   it('cancel button calls onClose', () => {

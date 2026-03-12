@@ -14,9 +14,10 @@ datasource db {
 // ─────────────────────────────────────────────
 
 enum ShiftType {
-  TWELVE_HOURS
-  TWENTY_FOUR_HOURS
-  NIGHT
+  TWELVE_DAY
+  TWELVE_NIGHT
+  TWENTY_FOUR
+  TWENTY_FOUR_INVERTED
 }
 
 enum ShiftStatus {

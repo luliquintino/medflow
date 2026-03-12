@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { RiskEngine, RiskInput } from './risk.engine';
 import { WorkloadEngine, EnergyCosts, DEFAULT_ENERGY_COSTS } from '../shifts/shifts.engine';
-import { diffHours, subtractDays } from '../common/utils/date.utils';
+import { diffHours } from '../common/utils/date.utils';
 import { ShiftType } from '@prisma/client';
 
 @Injectable()
@@ -11,7 +11,6 @@ export class RiskEngineService {
 
   async evaluate(userId: string) {
     const now = new Date();
-    const fiveDaysAgo = subtractDays(now, 5);
 
     // Fetch all confirmed shifts + work profile
     const [shifts, workProfile] = await Promise.all([
@@ -31,7 +30,6 @@ export class RiskEngineService {
     const hoursSinceLastShift = lastShift ? diffHours(now, lastShift.endDate) : null;
 
     const input: RiskInput = {
-      hoursInLast5Days: workload.hoursInLast5Days,
       hoursInLastWeek: workload.totalHoursThisWeek,
       consecutiveNightShifts: workload.consecutiveNightShifts,
       hoursSinceLastShift,
@@ -51,14 +49,20 @@ export class RiskEngineService {
       where: { userId, createdAt: { gte: startOfToday } },
     });
 
+    const weekStart = new Date(now);
+    const dayOfWeek = weekStart.getDay();
+    const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    weekStart.setDate(weekStart.getDate() + diffToMonday);
+    weekStart.setHours(0, 0, 0, 0);
+
     const snapshotData = {
       riskLevel: result.level,
       riskScore: result.score,
       triggerRules: result.triggeredRules,
       recommendation: result.recommendation,
-      periodStart: fiveDaysAgo,
+      periodStart: weekStart,
       periodEnd: now,
-      hoursIn5Days: workload.hoursInLast5Days,
+      hoursIn5Days: 0,
       hoursInWeek: workload.totalHoursThisWeek,
       consecutiveNights: workload.consecutiveNightShifts,
     };
@@ -126,7 +130,6 @@ export class RiskEngineService {
     ];
 
     const input: RiskInput = {
-      hoursInLast5Days: workloadAfter.hoursInLast5Days,
       hoursInLastWeek: workloadAfter.totalHoursThisWeek,
       consecutiveNightShifts: workloadAfter.consecutiveNightShifts,
       hoursSinceLastShift,

@@ -8,9 +8,10 @@ import type { Shift, ShiftType } from "@/types";
 import { SHIFT_TYPE_LABELS } from "@/types";
 
 const SHIFT_COLORS: Record<ShiftType, string> = {
-  TWELVE_HOURS:      "bg-blue-100 text-blue-700 border-blue-200",
-  TWENTY_FOUR_HOURS: "bg-purple-100 text-purple-700 border-purple-200",
-  NIGHT:             "bg-indigo-100 text-indigo-700 border-indigo-200",
+  TWELVE_DAY:          "bg-blue-100 text-blue-700 border-blue-200",
+  TWELVE_NIGHT:        "bg-indigo-100 text-indigo-700 border-indigo-200",
+  TWENTY_FOUR:         "bg-purple-100 text-purple-700 border-purple-200",
+  TWENTY_FOUR_INVERTED: "bg-violet-100 text-violet-700 border-violet-200",
 };
 
 interface ShiftCardProps {

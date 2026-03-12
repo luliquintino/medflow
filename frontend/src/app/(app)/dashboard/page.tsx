@@ -163,8 +163,8 @@ export default function DashboardPage() {
                 &ldquo;{risk.recommendation}&rdquo;
               </p>
               <div className="grid grid-cols-2 gap-3">
-                <Metric label={t("hoursIn5Days")} value={`${workload.hoursInLast5Days}h`} limit="/ 60h" warn={workload.hoursInLast5Days >= 48} />
-                <Metric label={t("weekHours")} value={`${workload.totalHoursThisWeek}h`} limit="/ 72h" warn={workload.totalHoursThisWeek >= 56} />
+                <Metric label={t("weekHours")} value={`${workload.totalHoursThisWeek}h`} limit="/ 60h" warn={workload.totalHoursThisWeek >= 44} />
+                <Metric label={t("monthHours")} value={`${workload.totalHoursThisMonth}h`} />
                 <Metric label={t("consecutiveNight")} value={`${workload.consecutiveNightShifts}x`} limit="/ 3x" warn={workload.consecutiveNightShifts >= 2} />
                 <Metric label={t("consecutiveShifts")} value={`${workload.consecutiveShifts}x`} limit="/ 3x" warn={workload.consecutiveShifts >= 2} />
               </div>

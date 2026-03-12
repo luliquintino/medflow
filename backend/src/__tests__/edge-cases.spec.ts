@@ -34,7 +34,7 @@ describe('Edge Cases', () => {
     const userId = 'user-1';
     const baseDto = {
       date: '2026-03-15T07:00:00.000Z',
-      type: 'TWELVE_HOURS' as const,
+      type: 'TWELVE_DAY' as const,
       hours: 12,
       value: 1500,
       location: 'Hospital A',
@@ -208,7 +208,7 @@ describe('Edge Cases', () => {
           value: 1500,
           status: 'CONFIRMED',
           hours: 12,
-          type: 'TWELVE_HOURS',
+          type: 'TWELVE_DAY',
         },
         {
           id: 's2',
@@ -217,7 +217,7 @@ describe('Edge Cases', () => {
           value: 2000,
           status: 'SIMULATED',
           hours: 12,
-          type: 'TWELVE_HOURS',
+          type: 'TWELVE_DAY',
         },
       ];
 
@@ -361,14 +361,14 @@ describe('Edge Cases', () => {
       prisma.shift.findMany.mockResolvedValue([]);
 
       await shiftsService.findAll(userId, {
-        type: 'TWELVE_HOURS' as any,
+        type: 'TWELVE_DAY' as any,
       });
 
       expect(prisma.shift.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
             userId,
-            type: 'TWELVE_HOURS',
+            type: 'TWELVE_DAY',
           }),
         }),
       );

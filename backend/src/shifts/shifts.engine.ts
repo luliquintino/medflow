@@ -51,7 +51,6 @@ export interface ShiftExhaustion {
 export interface WorkloadSummary {
   totalHoursThisWeek: number;
   totalHoursThisMonth: number;
-  hoursInLast5Days: number;
   consecutiveShifts: number;
   consecutiveNightShifts: number;
   shiftsThisMonth: number;
@@ -76,13 +75,18 @@ export interface HypotheticalShift {
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
+function isNightShift(type: ShiftType): boolean {
+  return type === 'TWELVE_NIGHT' || type === 'TWENTY_FOUR_INVERTED';
+}
+
 function getBaseCost(type: ShiftType, costs: EnergyCosts): number {
   switch (type) {
-    case 'NIGHT':
+    case 'TWELVE_NIGHT':
       return costs.noturno;
-    case 'TWENTY_FOUR_HOURS':
+    case 'TWENTY_FOUR':
+    case 'TWENTY_FOUR_INVERTED':
       return costs.h24;
-    case 'TWELVE_HOURS':
+    case 'TWELVE_DAY':
     default:
       return costs.diurno;
   }
@@ -100,9 +104,11 @@ export class WorkloadEngine {
     const confirmed = shifts.filter((s) => s.status === 'CONFIRMED' && s.realized !== false);
     confirmed.sort((a, b) => a.date.getTime() - b.date.getTime());
 
-    // ── Week boundaries ─────────────────────────────
+    // ── Week boundaries (Monday–Sunday) ────────────
     const weekStart = new Date(now);
-    weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+    const dayOfWeek = weekStart.getDay();
+    const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    weekStart.setDate(weekStart.getDate() + diffToMonday);
     weekStart.setHours(0, 0, 0, 0);
     const weekEnd = new Date(weekStart);
     weekEnd.setDate(weekEnd.getDate() + 6);
@@ -112,18 +118,11 @@ export class WorkloadEngine {
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
     const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
 
-    // ── Last 5 days ─────────────────────────────────
-    const last5Start = new Date(now);
-    last5Start.setDate(last5Start.getDate() - 4);
-    last5Start.setHours(0, 0, 0, 0);
-
     const weekShifts = confirmed.filter((s) => s.date >= weekStart && s.date <= weekEnd);
     const monthShifts = confirmed.filter((s) => s.date >= monthStart && s.date <= monthEnd);
-    const last5Shifts = confirmed.filter((s) => s.date >= last5Start);
 
     const totalHoursThisWeek = weekShifts.reduce((s, sh) => s + sh.hours, 0);
     const totalHoursThisMonth = monthShifts.reduce((s, sh) => s + sh.hours, 0);
-    const hoursInLast5Days = last5Shifts.reduce((s, sh) => s + sh.hours, 0);
     const revenueThisMonth = monthShifts.reduce((s, sh) => s + sh.value, 0);
 
     // ── Consecutive shifts ───────────────────────────
@@ -137,7 +136,7 @@ export class WorkloadEngine {
       for (const shift of reversed) {
         if (!lastEnd) {
           consecutiveShifts = 1;
-          consecutiveNightShifts = shift.type === 'NIGHT' ? 1 : 0;
+          consecutiveNightShifts = isNightShift(shift.type) ? 1 : 0;
           lastEnd = shift.endDate;
           continue;
         }
@@ -145,7 +144,7 @@ export class WorkloadEngine {
         const gapHours = (lastEnd.getTime() - shift.endDate.getTime()) / 36e5;
         if (gapHours <= 48) {
           consecutiveShifts++;
-          if (shift.type === 'NIGHT') consecutiveNightShifts++;
+          if (isNightShift(shift.type)) consecutiveNightShifts++;
           else consecutiveNightShifts = 0;
           lastEnd = shift.endDate;
         } else {
@@ -169,7 +168,6 @@ export class WorkloadEngine {
     return {
       totalHoursThisWeek,
       totalHoursThisMonth,
-      hoursInLast5Days,
       consecutiveShifts,
       consecutiveNightShifts,
       shiftsThisMonth: monthShifts.length,
@@ -234,13 +232,13 @@ export class WorkloadEngine {
         }
 
         // Penalty: 24h shift with < 24h gap
-        if (shift.type === 'TWENTY_FOUR_HOURS' && gapHours < 24) {
+        if ((shift.type === 'TWENTY_FOUR' || shift.type === 'TWENTY_FOUR_INVERTED') && gapHours < 24) {
           penalties += PENALTY_24H_AFTER_SHIFT;
         }
       }
 
       // Penalty: 3rd+ consecutive night
-      if (shift.type === 'NIGHT') {
+      if (isNightShift(shift.type)) {
         consecutiveNights++;
         if (consecutiveNights >= 3) {
           penalties += PENALTY_THIRD_CONSECUTIVE_NIGHT;

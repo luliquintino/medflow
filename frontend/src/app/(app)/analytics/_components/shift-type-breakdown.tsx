@@ -9,15 +9,17 @@ interface Props {
 }
 
 const TYPE_ICONS: Record<string, typeof Sun> = {
-  TWELVE_HOURS: Sun,
-  TWENTY_FOUR_HOURS: Clock,
-  NIGHT: Moon,
+  TWELVE_DAY: Sun,
+  TWELVE_NIGHT: Moon,
+  TWENTY_FOUR: Clock,
+  TWENTY_FOUR_INVERTED: Clock,
 };
 
 const TYPE_COLORS: Record<string, string> = {
-  TWELVE_HOURS: "bg-amber-50 text-amber-600",
-  TWENTY_FOUR_HOURS: "bg-blue-50 text-blue-600",
-  NIGHT: "bg-indigo-50 text-indigo-600",
+  TWELVE_DAY: "bg-amber-50 text-amber-600",
+  TWELVE_NIGHT: "bg-indigo-50 text-indigo-600",
+  TWENTY_FOUR: "bg-blue-50 text-blue-600",
+  TWENTY_FOUR_INVERTED: "bg-violet-50 text-violet-600",
 };
 
 export function ShiftTypeBreakdown({ data }: Props) {

@@ -69,7 +69,7 @@ describe('Shifts (e2e)', () => {
     it('should reject POST /shifts without token', async () => {
       await request(app.getHttpServer())
         .post('/api/v1/shifts')
-        .send({ date: '2026-04-01T08:00:00.000Z', type: 'TWELVE_HOURS', hours: 12, value: 1500, location: 'Test' })
+        .send({ date: '2026-04-01T08:00:00.000Z', type: 'TWELVE_DAY', hours: 12, value: 1500, location: 'Test' })
         .expect(401);
     });
   });
@@ -111,7 +111,7 @@ describe('Shifts (e2e)', () => {
         .set('Authorization', `Bearer ${accessToken}`)
         .send({
           date: '2026-04-15T08:00:00.000Z',
-          type: 'TWELVE_HOURS',
+          type: 'TWELVE_DAY',
           hours: 12,
           value: 1500,
           location: 'Hospital E2E Test',
@@ -122,7 +122,7 @@ describe('Shifts (e2e)', () => {
 
       const data = res.body.data || res.body;
       expect(data.id).toBeDefined();
-      expect(data.type).toBe('TWELVE_HOURS');
+      expect(data.type).toBe('TWELVE_DAY');
       expect(data.hours).toBe(12);
       expect(data.value).toBe(1500);
       expect(data.location).toBe('Hospital E2E Test');
@@ -224,7 +224,7 @@ describe('Shifts (e2e)', () => {
         .set('Authorization', `Bearer ${accessToken}`)
         .send({
           date: '2026-04-20T08:00:00.000Z',
-          type: 'TWENTY_FOUR_HOURS',
+          type: 'TWENTY_FOUR',
           hours: 24,
           value: 3000,
         })

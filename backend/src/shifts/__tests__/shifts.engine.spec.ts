@@ -7,7 +7,7 @@ describe('WorkloadEngine', () => {
     return {
       id: 'shift-1',
       endDate: new Date(overrides.date.getTime() + 12 * 3600000),
-      type: 'TWELVE_HOURS' as any,
+      type: 'TWELVE_DAY' as any,
       hours: 12,
       value: 1500,
       location: 'Hospital A',
@@ -92,7 +92,7 @@ describe('WorkloadEngine', () => {
     it('should calculate base cost for diurno shifts', () => {
       const shift = makeShift({
         date: new Date('2026-03-10T07:00:00'),
-        type: 'TWELVE_HOURS' as any,
+        type: 'TWELVE_DAY' as any,
       });
       const result = WorkloadEngine.calculateExhaustion([shift]);
       expect(result.totalExhaustion).toBe(1.0);
@@ -102,7 +102,7 @@ describe('WorkloadEngine', () => {
     it('should calculate higher cost for night shifts', () => {
       const shift = makeShift({
         date: new Date('2026-03-10T19:00:00'),
-        type: 'NIGHT' as any,
+        type: 'TWELVE_NIGHT' as any,
       });
       const result = WorkloadEngine.calculateExhaustion([shift]);
       expect(result.totalExhaustion).toBe(1.5);
@@ -111,7 +111,7 @@ describe('WorkloadEngine', () => {
     it('should calculate highest cost for 24h shifts', () => {
       const shift = makeShift({
         date: new Date('2026-03-10T07:00:00'),
-        type: 'TWENTY_FOUR_HOURS' as any,
+        type: 'TWENTY_FOUR' as any,
         hours: 24,
       });
       const result = WorkloadEngine.calculateExhaustion([shift]);
@@ -139,19 +139,19 @@ describe('WorkloadEngine', () => {
           id: 's1',
           date: new Date('2026-03-10T19:00:00'),
           endDate: new Date('2026-03-11T07:00:00'),
-          type: 'NIGHT' as any,
+          type: 'TWELVE_NIGHT' as any,
         }),
         makeShift({
           id: 's2',
           date: new Date('2026-03-11T19:00:00'),
           endDate: new Date('2026-03-12T07:00:00'),
-          type: 'NIGHT' as any,
+          type: 'TWELVE_NIGHT' as any,
         }),
         makeShift({
           id: 's3',
           date: new Date('2026-03-12T19:00:00'),
           endDate: new Date('2026-03-13T07:00:00'),
-          type: 'NIGHT' as any,
+          type: 'TWELVE_NIGHT' as any,
         }),
       ];
       const result = WorkloadEngine.calculateExhaustion(shifts);
@@ -175,7 +175,7 @@ describe('WorkloadEngine', () => {
       });
       const hypothetical = {
         date: new Date('2026-03-12T07:00:00'),
-        type: 'TWELVE_HOURS' as any,
+        type: 'TWELVE_DAY' as any,
         hours: 12,
         value: 1500,
       };

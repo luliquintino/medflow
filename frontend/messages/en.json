@@ -285,8 +285,8 @@
     "shiftsLabel": "{count} shifts",
     "avgPerShift": "Avg. value/shift",
     "workload": "Workload",
-    "hoursIn5Days": "Hours in 5 days",
     "weekHours": "Weekly hours",
+    "monthHours": "Monthly hours",
     "consecutiveNight": "Consecutive nights",
     "consecutiveShifts": "Consecutive shifts",
     "exhaustion": "Exhaustion",
@@ -487,8 +487,8 @@
     "minimumGoal": "Minimum goal",
     "idealGoal": "Ideal goal",
     "workloadImpact": "Workload impact",
-    "hoursIn5Days": "Hours in 5 days",
     "weekHours": "Weekly hours",
+    "monthHours": "Monthly hours",
     "consecutiveNight": "Consecutive nights",
     "consecutiveShifts": "Consecutive shifts",
     "triggeredRules": "Triggered rules:",
@@ -506,7 +506,6 @@
     "subtitle": "Track how your workload has evolved over time.",
     "emptyState": "No records yet. History is generated automatically.",
     "scoreLabel": "Score: {score}/100",
-    "hoursIn5Days": "{hours}h / 5 days",
     "hoursInWeek": "{hours}h / week",
     "consecutiveNights": "{count} consecutive night(s)",
     "distributionTitle": "Risk Distribution",
@@ -570,15 +569,17 @@
   },
 
   "shiftTypes": {
-    "twelveHours": "12 hours",
-    "twentyFourHours": "24 hours",
-    "night": "Night"
+    "twelveDay": "12h Day",
+    "twelveNight": "12h Night",
+    "twentyFour": "24h",
+    "twentyFourInverted": "24h Inverted"
   },
 
   "shiftTypeDesc": {
-    "twelveHours": "Day shift",
-    "twentyFourHours": "Full shift",
-    "night": "Night shift"
+    "twelveDay": "12-hour day shift",
+    "twelveNight": "12-hour night shift",
+    "twentyFour": "24-hour shift (day entry)",
+    "twentyFourInverted": "24-hour shift (night entry)"
   },
 
   "templateTypes": {

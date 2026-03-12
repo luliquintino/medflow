@@ -22,12 +22,13 @@ const TEMPLATE_DEFAULTS: Record<string, { duration: number; isNight: boolean }> 
   DIURNO_12H: { duration: 12, isNight: false },
   NOTURNO_12H: { duration: 12, isNight: true },
   PLANTAO_24H: { duration: 24, isNight: false },
+  PLANTAO_24H_INV: { duration: 24, isNight: true },
   PERSONALIZADO: { duration: 12, isNight: false },
 };
 
 const schema = z.object({
   name: z.string().optional(),
-  type: z.enum(["DIURNO_12H", "NOTURNO_12H", "PLANTAO_24H", "PERSONALIZADO"]),
+  type: z.enum(["DIURNO_12H", "NOTURNO_12H", "PLANTAO_24H", "PLANTAO_24H_INV", "PERSONALIZADO"]),
   durationInHours: z.coerce.number().min(1, "Mínimo 1 hora"),
   defaultValue: z.coerce.number().min(0, "Valor deve ser positivo"),
   isNightShift: z.boolean(),
@@ -158,7 +159,7 @@ export default function TemplatesPage() {
               <div>
                 <label className="text-sm font-medium text-gray-700 mb-2 block">Tipo</label>
                 <div className="grid grid-cols-2 gap-2">
-                  {(["DIURNO_12H", "NOTURNO_12H", "PLANTAO_24H", "PERSONALIZADO"] as ShiftTemplateType[]).map((t) => (
+                  {(["DIURNO_12H", "NOTURNO_12H", "PLANTAO_24H", "PLANTAO_24H_INV", "PERSONALIZADO"] as ShiftTemplateType[]).map((t) => (
                     <button
                       key={t}
                       type="button"

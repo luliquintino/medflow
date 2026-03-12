@@ -22,7 +22,7 @@ const createShift = (overrides: Partial<Shift> = {}): Shift => ({
   id: 'shift-1',
   date: '2026-03-01T08:00:00Z',
   endDate: '2026-03-01T20:00:00Z',
-  type: 'TWELVE_HOURS',
+  type: 'TWELVE_DAY',
   hours: 12,
   value: 1500,
   location: 'Hospital Santa Casa',
@@ -43,13 +43,13 @@ describe('ShiftCard', () => {
   });
 
   it('should render 24h type label', () => {
-    render(<ShiftCard shift={createShift({ type: 'TWENTY_FOUR_HOURS', hours: 24 })} />);
-    expect(screen.getByText('24 horas')).toBeInTheDocument();
+    render(<ShiftCard shift={createShift({ type: 'TWENTY_FOUR', hours: 24 })} />);
+    expect(screen.getByText('24h')).toBeInTheDocument();
   });
 
   it('should render night type label', () => {
-    render(<ShiftCard shift={createShift({ type: 'NIGHT' })} />);
-    expect(screen.getByText('Noturno')).toBeInTheDocument();
+    render(<ShiftCard shift={createShift({ type: 'TWELVE_NIGHT' })} />);
+    expect(screen.getByText('12h Noturno')).toBeInTheDocument();
   });
 
   it('should render location', () => {

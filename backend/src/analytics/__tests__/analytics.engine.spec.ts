@@ -5,7 +5,7 @@ function makeShift(overrides: Partial<AnalyticsShift> = {}): AnalyticsShift {
     date: new Date(),
     value: 1500,
     hours: 12,
-    type: 'TWELVE_HOURS',
+    type: 'TWELVE_DAY',
     status: 'CONFIRMED',
     realized: null,
     hospitalId: 'h1',
@@ -178,19 +178,19 @@ describe('AnalyticsEngine', () => {
       const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 10);
 
       const shifts = [
-        makeShift({ date: lastMonth, value: 1500, hours: 12, type: 'TWELVE_HOURS' }),
-        makeShift({ date: lastMonth, value: 2000, hours: 24, type: 'TWENTY_FOUR_HOURS' }),
-        makeShift({ date: lastMonth, value: 1800, hours: 12, type: 'NIGHT' }),
-        makeShift({ date: lastMonth, value: 1500, hours: 12, type: 'TWELVE_HOURS' }),
+        makeShift({ date: lastMonth, value: 1500, hours: 12, type: 'TWELVE_DAY' }),
+        makeShift({ date: lastMonth, value: 2000, hours: 24, type: 'TWENTY_FOUR' }),
+        makeShift({ date: lastMonth, value: 1800, hours: 12, type: 'TWELVE_NIGHT' }),
+        makeShift({ date: lastMonth, value: 1500, hours: 12, type: 'TWELVE_DAY' }),
       ];
 
       const result = AnalyticsEngine.calculate(makeInput({ shifts }));
 
       expect(result.incomeByShiftType).toHaveLength(3);
 
-      const twelve = result.incomeByShiftType.find((t) => t.type === 'TWELVE_HOURS');
-      const twentyFour = result.incomeByShiftType.find((t) => t.type === 'TWENTY_FOUR_HOURS');
-      const night = result.incomeByShiftType.find((t) => t.type === 'NIGHT');
+      const twelve = result.incomeByShiftType.find((t) => t.type === 'TWELVE_DAY');
+      const twentyFour = result.incomeByShiftType.find((t) => t.type === 'TWENTY_FOUR');
+      const night = result.incomeByShiftType.find((t) => t.type === 'TWELVE_NIGHT');
 
       expect(twelve?.totalRevenue).toBe(3000);
       expect(twelve?.shiftCount).toBe(2);

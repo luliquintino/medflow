@@ -15,7 +15,6 @@ interface RiskHistoryRecord {
   riskLevel: RiskLevel;
   riskScore: number;
   createdAt: string;
-  hoursIn5Days: number;
   hoursInWeek: number;
   consecutiveNights: number;
   recommendation?: string;
@@ -64,7 +63,6 @@ export default function RiskHistoryPage() {
                   </p>
                 </div>
                 <div className="text-right text-xs text-gray-500 space-y-0.5">
-                  <p>{t("hoursIn5Days", { hours: record.hoursIn5Days })}</p>
                   <p>{t("hoursInWeek", { hours: record.hoursInWeek })}</p>
                   <p>{t("consecutiveNights", { count: record.consecutiveNights })}</p>
                 </div>

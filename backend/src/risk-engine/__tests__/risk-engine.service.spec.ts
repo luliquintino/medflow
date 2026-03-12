@@ -28,7 +28,7 @@ describe('RiskEngineService', () => {
           userId,
           date: new Date(now.getTime() - 2 * 24 * 3600000),
           endDate: new Date(now.getTime() - 2 * 24 * 3600000 + 12 * 3600000),
-          type: 'TWELVE_HOURS',
+          type: 'TWELVE_DAY',
           hours: 12,
           value: 1500,
           location: 'Hospital A',
@@ -79,7 +79,7 @@ describe('RiskEngineService', () => {
           userId,
           date: new Date(now.getTime() - 5 * 24 * 3600000),
           endDate: new Date(now.getTime() - 5 * 24 * 3600000 + 12 * 3600000),
-          type: 'TWELVE_HOURS',
+          type: 'TWELVE_DAY',
           hours: 12,
           value: 1500,
           location: 'Hospital A',
@@ -164,7 +164,7 @@ describe('RiskEngineService', () => {
           userId,
           date: new Date(now.getTime() - 1 * 24 * 3600000),
           endDate: new Date(now.getTime() - 1 * 24 * 3600000 + 12 * 3600000),
-          type: 'TWELVE_HOURS',
+          type: 'TWELVE_DAY',
           hours: 12,
           value: 1500,
           location: 'Hospital A',
@@ -177,7 +177,7 @@ describe('RiskEngineService', () => {
 
       const hypothetical = {
         date: new Date(now.getTime() + 1 * 24 * 3600000).toISOString(),
-        type: 'TWELVE_HOURS' as const,
+        type: 'TWELVE_DAY' as const,
         hours: 12,
       };
 
@@ -198,7 +198,7 @@ describe('RiskEngineService', () => {
 
       const hypothetical = {
         date: new Date(now.getTime() + 1 * 24 * 3600000).toISOString(),
-        type: 'NIGHT' as const,
+        type: 'TWELVE_NIGHT' as const,
         hours: 12,
       };
 
@@ -225,7 +225,7 @@ describe('RiskEngineService', () => {
 
       const hypothetical = {
         date: new Date(now.getTime() + 1 * 24 * 3600000).toISOString(),
-        type: 'TWENTY_FOUR_HOURS' as const,
+        type: 'TWENTY_FOUR' as const,
         hours: 24,
       };
 

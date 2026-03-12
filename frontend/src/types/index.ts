@@ -43,7 +43,7 @@ export interface WorkProfile {
 
 // ─── Shifts ──────────────────────────────────────────────────────────────────
 
-export type ShiftType = "TWELVE_HOURS" | "TWENTY_FOUR_HOURS" | "NIGHT";
+export type ShiftType = "TWELVE_DAY" | "TWELVE_NIGHT" | "TWENTY_FOUR" | "TWENTY_FOUR_INVERTED";
 export type ShiftStatus = "CONFIRMED" | "SIMULATED" | "CANCELLED";
 
 export interface Shift {
@@ -78,7 +78,7 @@ export interface Hospital {
 
 // ─── Shift Templates ────────────────────────────────────────────────────────
 
-export type ShiftTemplateType = "DIURNO_12H" | "NOTURNO_12H" | "PLANTAO_24H" | "PERSONALIZADO";
+export type ShiftTemplateType = "DIURNO_12H" | "NOTURNO_12H" | "PLANTAO_24H" | "PLANTAO_24H_INV" | "PERSONALIZADO";
 
 export interface ShiftTemplate {
   id: string;
@@ -92,9 +92,10 @@ export interface ShiftTemplate {
 }
 
 export const TEMPLATE_TYPE_LABELS: Record<ShiftTemplateType, string> = {
-  DIURNO_12H: "Diurno 12h",
-  NOTURNO_12H: "Noturno 12h",
-  PLANTAO_24H: "Plantão 24h",
+  DIURNO_12H: "12h Diurno",
+  NOTURNO_12H: "12h Noturno",
+  PLANTAO_24H: "24h",
+  PLANTAO_24H_INV: "24h Invertido",
   PERSONALIZADO: "Personalizado",
 };
 
@@ -131,15 +132,17 @@ export interface OptimizationResult {
 }
 
 export const SHIFT_TYPE_LABELS: Record<ShiftType, string> = {
-  TWELVE_HOURS: "12 horas",
-  TWENTY_FOUR_HOURS: "24 horas",
-  NIGHT: "Noturno",
+  TWELVE_DAY: "12h Diurno",
+  TWELVE_NIGHT: "12h Noturno",
+  TWENTY_FOUR: "24h",
+  TWENTY_FOUR_INVERTED: "24h Invertido",
 };
 
 export const SHIFT_TYPE_HOURS: Record<ShiftType, number> = {
-  TWELVE_HOURS: 12,
-  TWENTY_FOUR_HOURS: 24,
-  NIGHT: 12,
+  TWELVE_DAY: 12,
+  TWELVE_NIGHT: 12,
+  TWENTY_FOUR: 24,
+  TWENTY_FOUR_INVERTED: 24,
 };
 
 // ─── Finance ─────────────────────────────────────────────────────────────────
@@ -222,7 +225,6 @@ export interface ShiftExhaustion {
 export interface WorkloadSummary {
   totalHoursThisWeek: number;
   totalHoursThisMonth: number;
-  hoursInLast5Days: number;
   consecutiveShifts: number;
   consecutiveNightShifts: number;
   shiftsThisMonth: number;

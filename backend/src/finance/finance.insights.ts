@@ -223,9 +223,10 @@ export class InsightsEngine {
     if (typeStats.size < 2) return;
 
     const typeLabels: Record<string, string> = {
-      TWELVE_HOURS: 'Diurno 12h',
-      TWENTY_FOUR_HOURS: 'Plantão 24h',
-      NIGHT: 'Noturno',
+      TWELVE_DAY: '12h Diurno',
+      TWELVE_NIGHT: '12h Noturno',
+      TWENTY_FOUR: '24h',
+      TWENTY_FOUR_INVERTED: '24h Invertido',
     };
 
     let bestType = '';

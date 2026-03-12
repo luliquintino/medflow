@@ -15,10 +15,11 @@ import type { Shift, ShiftType, Hospital, ShiftTemplate, ShiftTemplateType } fro
 import { SHIFT_TYPE_LABELS, SHIFT_TYPE_HOURS, TEMPLATE_TYPE_LABELS } from "@/types";
 
 const TEMPLATE_TO_SHIFT_TYPE: Record<ShiftTemplateType, ShiftType> = {
-  DIURNO_12H: "TWELVE_HOURS",
-  NOTURNO_12H: "NIGHT",
-  PLANTAO_24H: "TWENTY_FOUR_HOURS",
-  PERSONALIZADO: "TWELVE_HOURS",
+  DIURNO_12H: "TWELVE_DAY",
+  NOTURNO_12H: "TWELVE_NIGHT",
+  PLANTAO_24H: "TWENTY_FOUR",
+  PLANTAO_24H_INV: "TWENTY_FOUR_INVERTED",
+  PERSONALIZADO: "TWELVE_DAY",
 };
 
 interface ShiftFormModalProps {
@@ -41,7 +42,7 @@ export function ShiftFormModal({ isOpen, onClose, editingShift, defaultDate, onS
     () =>
       z.object({
         date: z.string().min(1, tv("dateRequired")),
-        type: z.enum(["TWELVE_HOURS", "TWENTY_FOUR_HOURS", "NIGHT"]),
+        type: z.enum(["TWELVE_DAY", "TWELVE_NIGHT", "TWENTY_FOUR", "TWENTY_FOUR_INVERTED"]),
         value: z.coerce.number().min(0),
         location: z.string().min(1, tv("locationRequired")),
         notes: z.string().optional(),
@@ -62,7 +63,7 @@ export function ShiftFormModal({ isOpen, onClose, editingShift, defaultDate, onS
     useForm<FormData>({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       resolver: zodResolver(schema) as any,
-      defaultValues: { type: "TWELVE_HOURS", status: "CONFIRMED" },
+      defaultValues: { type: "TWELVE_DAY", status: "CONFIRMED" },
     });
 
   const shiftType = watch("type") as ShiftType;
@@ -89,7 +90,7 @@ export function ShiftFormModal({ isOpen, onClose, editingShift, defaultDate, onS
     } else {
       reset({
         date: defaultDate || "",
-        type: "TWELVE_HOURS",
+        type: "TWELVE_DAY",
         value: 0,
         location: "",
         notes: "",
@@ -248,8 +249,8 @@ export function ShiftFormModal({ isOpen, onClose, editingShift, defaultDate, onS
           {/* Type */}
           <div>
             <label className="text-sm font-medium text-gray-700 mb-2 block">{t("typeLabel")}</label>
-            <div className="grid grid-cols-3 gap-2">
-              {(["TWELVE_HOURS", "TWENTY_FOUR_HOURS", "NIGHT"] as ShiftType[]).map((tp) => (
+            <div className="grid grid-cols-2 gap-2">
+              {(["TWELVE_DAY", "TWELVE_NIGHT", "TWENTY_FOUR", "TWENTY_FOUR_INVERTED"] as ShiftType[]).map((tp) => (
                 <button
                   key={tp}
                   type="button"

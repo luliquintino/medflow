@@ -24,7 +24,7 @@ describe('ShiftsService', () => {
     const userId = 'user-1';
     const baseDto = {
       date: '2026-03-15T07:00:00.000Z',
-      type: 'TWELVE_HOURS' as const,
+      type: 'TWELVE_DAY' as const,
       hours: 12,
       value: 1500,
       location: 'Hospital A',

@@ -34,7 +34,7 @@ describe('ShiftTemplatesService', () => {
       const hospitalId = 'hosp-1';
       const dto = {
         name: 'Plantao diurno padrao',
-        type: 'TWELVE_HOURS' as any,
+        type: 'TWELVE_DAY' as any,
         durationInHours: 12,
         defaultValue: 1400,
         isNightShift: false,
@@ -68,7 +68,7 @@ describe('ShiftTemplatesService', () => {
       const hospitalId = 'hosp-999';
       const dto = {
         name: 'Template',
-        type: 'TWELVE_HOURS' as any,
+        type: 'TWELVE_DAY' as any,
         durationInHours: 12,
         defaultValue: 1400,
         isNightShift: false,
@@ -145,7 +145,7 @@ describe('ShiftTemplatesService', () => {
         id: 'tpl-1',
         hospitalId,
         name: 'Plantao diurno',
-        type: 'TWELVE_HOURS',
+        type: 'TWELVE_DAY',
         durationInHours: 12,
         defaultValue: 1400,
         isNightShift: false,

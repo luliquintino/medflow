@@ -58,7 +58,7 @@ async function main() {
   await prisma.workProfile.create({
     data: {
       userId: ana.id,
-      shiftTypes: [ShiftType.TWELVE_HOURS, ShiftType.TWENTY_FOUR_HOURS],
+      shiftTypes: [ShiftType.TWELVE_DAY, ShiftType.TWENTY_FOUR],
       maxWeeklyHours: 60,
       preferredRestDays: [0, 6], // Sun and Sat
     },
@@ -139,11 +139,11 @@ async function main() {
   const month = now.getMonth();
 
   const anaShifts = [
-    { day: 3, type: ShiftType.TWELVE_HOURS, hours: 12, value: 1400, location: 'Hospital Santa Casa', hospitalId: anaSantaCasa.id },
-    { day: 7, type: ShiftType.TWENTY_FOUR_HOURS, hours: 24, value: 2200, location: 'UPA Central', hospitalId: anaUPA.id },
-    { day: 12, type: ShiftType.TWELVE_HOURS, hours: 12, value: 1400, location: 'Hospital Santa Casa', hospitalId: anaSantaCasa.id },
-    { day: 16, type: ShiftType.NIGHT, hours: 12, value: 1600, location: 'Pronto-Socorro Norte', hospitalId: anaProntoSocorro.id },
-    { day: 20, type: ShiftType.TWELVE_HOURS, hours: 12, value: 1400, location: 'Hospital Santa Casa', hospitalId: anaSantaCasa.id },
+    { day: 3, type: ShiftType.TWELVE_DAY, hours: 12, value: 1400, location: 'Hospital Santa Casa', hospitalId: anaSantaCasa.id },
+    { day: 7, type: ShiftType.TWENTY_FOUR, hours: 24, value: 2200, location: 'UPA Central', hospitalId: anaUPA.id },
+    { day: 12, type: ShiftType.TWELVE_DAY, hours: 12, value: 1400, location: 'Hospital Santa Casa', hospitalId: anaSantaCasa.id },
+    { day: 16, type: ShiftType.TWELVE_NIGHT, hours: 12, value: 1600, location: 'Pronto-Socorro Norte', hospitalId: anaProntoSocorro.id },
+    { day: 20, type: ShiftType.TWELVE_DAY, hours: 12, value: 1400, location: 'Hospital Santa Casa', hospitalId: anaSantaCasa.id },
   ];
 
   for (const s of anaShifts) {
@@ -200,7 +200,7 @@ async function main() {
   await prisma.workProfile.create({
     data: {
       userId: carlos.id,
-      shiftTypes: [ShiftType.TWELVE_HOURS, ShiftType.TWENTY_FOUR_HOURS, ShiftType.NIGHT],
+      shiftTypes: [ShiftType.TWELVE_DAY, ShiftType.TWENTY_FOUR, ShiftType.TWELVE_NIGHT],
       maxWeeklyHours: 72,
       preferredRestDays: [0], // Sun
     },
@@ -285,13 +285,13 @@ async function main() {
 
   // ── Carlos's Shifts (heavy schedule, linked to hospitals) ───────────────
   const carlosShifts = [
-    { day: 1, type: ShiftType.NIGHT, hours: 12, value: 2000, location: 'Hospital Regional', hospitalId: carlosRegional.id },
-    { day: 2, type: ShiftType.NIGHT, hours: 12, value: 2000, location: 'UPA Sul', hospitalId: carlosUPA.id },
-    { day: 3, type: ShiftType.NIGHT, hours: 12, value: 2000, location: 'Pronto-Socorro Leste', hospitalId: carlosProntoSocorro.id },
-    { day: 5, type: ShiftType.TWENTY_FOUR_HOURS, hours: 24, value: 3200, location: 'Hospital Regional', hospitalId: carlosRegional.id },
-    { day: 9, type: ShiftType.TWELVE_HOURS, hours: 12, value: 1800, location: 'UPA Sul', hospitalId: carlosUPA.id },
-    { day: 13, type: ShiftType.TWELVE_HOURS, hours: 12, value: 1800, location: 'Hospital Regional', hospitalId: carlosRegional.id },
-    { day: 18, type: ShiftType.TWENTY_FOUR_HOURS, hours: 24, value: 3200, location: 'Hospital Regional', hospitalId: carlosRegional.id },
+    { day: 1, type: ShiftType.TWELVE_NIGHT, hours: 12, value: 2000, location: 'Hospital Regional', hospitalId: carlosRegional.id },
+    { day: 2, type: ShiftType.TWELVE_NIGHT, hours: 12, value: 2000, location: 'UPA Sul', hospitalId: carlosUPA.id },
+    { day: 3, type: ShiftType.TWELVE_NIGHT, hours: 12, value: 2000, location: 'Pronto-Socorro Leste', hospitalId: carlosProntoSocorro.id },
+    { day: 5, type: ShiftType.TWENTY_FOUR, hours: 24, value: 3200, location: 'Hospital Regional', hospitalId: carlosRegional.id },
+    { day: 9, type: ShiftType.TWELVE_DAY, hours: 12, value: 1800, location: 'UPA Sul', hospitalId: carlosUPA.id },
+    { day: 13, type: ShiftType.TWELVE_DAY, hours: 12, value: 1800, location: 'Hospital Regional', hospitalId: carlosRegional.id },
+    { day: 18, type: ShiftType.TWENTY_FOUR, hours: 24, value: 3200, location: 'Hospital Regional', hospitalId: carlosRegional.id },
   ];
 
   for (const s of carlosShifts) {
@@ -387,7 +387,7 @@ async function main() {
   await prisma.workProfile.create({
     data: {
       userId: luiza.id,
-      shiftTypes: [ShiftType.TWELVE_HOURS, ShiftType.TWENTY_FOUR_HOURS, ShiftType.NIGHT],
+      shiftTypes: [ShiftType.TWELVE_DAY, ShiftType.TWENTY_FOUR, ShiftType.TWELVE_NIGHT],
       maxWeeklyHours: 60,
       preferredRestDays: [0, 6],
     },
@@ -446,9 +446,9 @@ async function main() {
 
   // ── Luiza's Shifts ────────────────────────────────────────────────────────
   const luizaShifts = [
-    { day: 2, type: ShiftType.TWELVE_HOURS, hours: 12, value: 1500, location: 'Hospital Copa D\'Or', hospitalId: luizaCopaDor.id },
-    { day: 8, type: ShiftType.TWENTY_FOUR_HOURS, hours: 24, value: 2500, location: 'Hospital Miguel Couto', hospitalId: luizaMiguel.id },
-    { day: 14, type: ShiftType.NIGHT, hours: 12, value: 1800, location: 'Hospital Copa D\'Or', hospitalId: luizaCopaDor.id },
+    { day: 2, type: ShiftType.TWELVE_DAY, hours: 12, value: 1500, location: 'Hospital Copa D\'Or', hospitalId: luizaCopaDor.id },
+    { day: 8, type: ShiftType.TWENTY_FOUR, hours: 24, value: 2500, location: 'Hospital Miguel Couto', hospitalId: luizaMiguel.id },
+    { day: 14, type: ShiftType.TWELVE_NIGHT, hours: 12, value: 1800, location: 'Hospital Copa D\'Or', hospitalId: luizaCopaDor.id },
   ];
 
   for (const s of luizaShifts) {

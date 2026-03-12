@@ -54,14 +54,16 @@ jest.mock('@/components/ui/progress-bar', () => ({
 
 jest.mock('@/types', () => ({
   SHIFT_TYPE_LABELS: {
-    TWELVE_HOURS: '12 horas',
-    TWENTY_FOUR_HOURS: '24 horas',
-    NIGHT: 'Noturno',
+    TWELVE_DAY: '12h Diurno',
+    TWELVE_NIGHT: '12h Noturno',
+    TWENTY_FOUR: '24h',
+    TWENTY_FOUR_INVERTED: '24h Invertido',
   },
   SHIFT_TYPE_HOURS: {
-    TWELVE_HOURS: 12,
-    TWENTY_FOUR_HOURS: 24,
-    NIGHT: 12,
+    TWELVE_DAY: 12,
+    TWELVE_NIGHT: 12,
+    TWENTY_FOUR: 24,
+    TWENTY_FOUR_INVERTED: 24,
   },
 }));
 
@@ -91,9 +93,10 @@ describe('SimulatePage', () => {
 
   it('renders shift type buttons', () => {
     render(<SimulatePage />);
-    expect(screen.getByText('12 horas')).toBeInTheDocument();
-    expect(screen.getByText('24 horas')).toBeInTheDocument();
-    expect(screen.getByText('Noturno')).toBeInTheDocument();
+    expect(screen.getByText('12h Diurno')).toBeInTheDocument();
+    expect(screen.getByText('12h Noturno')).toBeInTheDocument();
+    expect(screen.getByText('24h')).toBeInTheDocument();
+    expect(screen.getByText('24h Invertido')).toBeInTheDocument();
   });
 
   it('renders form fields', () => {

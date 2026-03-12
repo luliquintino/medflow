@@ -15,9 +15,10 @@ import { clsx } from "clsx";
 import type { User } from "@/types";
 
 const SHIFT_TYPE_KEYS = [
-  { value: "TWELVE_HOURS", labelKey: "twelveHours" as const, descKey: "twelveHours" as const },
-  { value: "TWENTY_FOUR_HOURS", labelKey: "twentyFourHours" as const, descKey: "twentyFourHours" as const },
-  { value: "NIGHT", labelKey: "night" as const, descKey: "night" as const },
+  { value: "TWELVE_DAY", labelKey: "twelveDay" as const, descKey: "twelveDay" as const },
+  { value: "TWELVE_NIGHT", labelKey: "twelveNight" as const, descKey: "twelveNight" as const },
+  { value: "TWENTY_FOUR", labelKey: "twentyFour" as const, descKey: "twentyFour" as const },
+  { value: "TWENTY_FOUR_INVERTED", labelKey: "twentyFourInverted" as const, descKey: "twentyFourInverted" as const },
 ];
 
 const DAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] as const;

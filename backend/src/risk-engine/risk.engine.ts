@@ -15,7 +15,6 @@ import {
 export type RiskLevel = 'SAFE' | 'MODERATE' | 'HIGH';
 
 export interface RiskInput {
-  hoursInLast5Days: number;
   hoursInLastWeek: number;
   consecutiveNightShifts: number;
   hoursSinceLastShift: number | null; // null = sem plantão recente
@@ -24,7 +23,7 @@ export interface RiskInput {
   shifts?: Array<{
     date: Date;
     endDate: Date;
-    type: 'TWELVE_HOURS' | 'TWENTY_FOUR_HOURS' | 'NIGHT';
+    type: string;
     hours: number;
     value: number;
     status: string;
@@ -59,27 +58,15 @@ const EXHAUSTION_WEEKLY_LIMIT = 10.0; // max sustainable exhaustion per week
 // ─── Regras ────────────────────────────────────────────────────────────────
 
 const RULES = {
-  HOURS_5_DAYS: (h: number): RiskRule => ({
-    id: 'HOURS_5_DAYS',
-    triggered: h >= 60,
-    level: 'HIGH',
-    message: `Você acumulou ${h}h nos últimos 5 dias (limite: 60h).`,
-  }),
-  HOURS_5_DAYS_MODERATE: (h: number): RiskRule => ({
-    id: 'HOURS_5_DAYS_MODERATE',
-    triggered: h >= 48 && h < 60,
-    level: 'MODERATE',
-    message: `Você acumulou ${h}h nos últimos 5 dias — fique de olho.`,
-  }),
   HOURS_WEEK: (h: number): RiskRule => ({
     id: 'HOURS_WEEK',
-    triggered: h >= 72,
+    triggered: h >= 60,
     level: 'HIGH',
-    message: `Você está com ${h}h na semana (limite recomendado: 72h).`,
+    message: `Você está com ${h}h na semana (limite recomendado: 60h).`,
   }),
   HOURS_WEEK_MODERATE: (h: number): RiskRule => ({
     id: 'HOURS_WEEK_MODERATE',
-    triggered: h >= 56 && h < 72,
+    triggered: h >= 44 && h < 60,
     level: 'MODERATE',
     message: `Carga semanal elevada: ${h}h. Considere um descanso.`,
   }),
@@ -151,8 +138,6 @@ export class RiskEngine {
     }
 
     const allRules: RiskRule[] = [
-      RULES.HOURS_5_DAYS(input.hoursInLast5Days),
-      RULES.HOURS_5_DAYS_MODERATE(input.hoursInLast5Days),
       RULES.HOURS_WEEK(input.hoursInLastWeek),
       RULES.HOURS_WEEK_MODERATE(input.hoursInLastWeek),
       RULES.CONSECUTIVE_NIGHTS(input.consecutiveNightShifts),
@@ -174,15 +159,14 @@ export class RiskEngine {
     if (hasHigh) level = 'HIGH';
     else if (hasModerate) level = 'MODERATE';
 
-    // Score: 5 dimensions (30+25+15+10+20=100)
+    // Score: 4 dimensions (40+20+15+25=100)
     let score = 0;
-    score += Math.min(30, (input.hoursInLast5Days / 60) * 30);
-    score += Math.min(25, (input.hoursInLastWeek / 72) * 25);
-    score += Math.min(15, (input.consecutiveNightShifts / 3) * 15);
+    score += Math.min(40, (input.hoursInLastWeek / 60) * 40);
+    score += Math.min(20, (input.consecutiveNightShifts / 3) * 20);
     if (input.hoursSinceLastShift !== null && input.hoursSinceLastShift < 48) {
-      score += 10;
+      score += 15;
     }
-    score += Math.min(20, (exhaustionScore / EXHAUSTION_WEEKLY_LIMIT) * 20);
+    score += Math.min(25, (exhaustionScore / EXHAUSTION_WEEKLY_LIMIT) * 25);
     score = Math.round(Math.min(100, score));
 
     const recommendation = this.buildRecommendation(level, triggered);

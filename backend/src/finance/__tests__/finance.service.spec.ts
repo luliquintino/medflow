@@ -43,7 +43,7 @@ describe('FinanceService', () => {
           userId,
           date: new Date('2026-03-10T07:00:00'),
           endDate: new Date('2026-03-10T19:00:00'),
-          type: 'TWELVE_HOURS',
+          type: 'TWELVE_DAY',
           hours: 12,
           value: 1500,
           location: 'Hospital A',

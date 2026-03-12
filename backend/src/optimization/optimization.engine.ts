@@ -90,10 +90,9 @@ function getWeekNumber(date: Date): number {
 function getShiftType(
   isNight: boolean,
   hours: number,
-): 'TWELVE_HOURS' | 'TWENTY_FOUR_HOURS' | 'NIGHT' {
-  if (isNight) return 'NIGHT';
-  if (hours === 24) return 'TWENTY_FOUR_HOURS';
-  return 'TWELVE_HOURS';
+): 'TWELVE_DAY' | 'TWELVE_NIGHT' | 'TWENTY_FOUR' | 'TWENTY_FOUR_INVERTED' {
+  if (hours === 24) return isNight ? 'TWENTY_FOUR_INVERTED' : 'TWENTY_FOUR';
+  return isNight ? 'TWELVE_NIGHT' : 'TWELVE_DAY';
 }
 
 // ─── Engine ──────────────────────────────────────────────────────────────────

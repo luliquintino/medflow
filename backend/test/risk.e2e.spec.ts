@@ -93,7 +93,7 @@ describe('Risk Engine (e2e)', () => {
         .set('Authorization', `Bearer ${accessToken}`)
         .send({
           date: '2026-04-01T08:00:00.000Z',
-          type: 'TWENTY_FOUR_HOURS',
+          type: 'TWENTY_FOUR',
           hours: 24,
         })
         .expect(201);
@@ -115,7 +115,7 @@ describe('Risk Engine (e2e)', () => {
         .post('/api/v1/risk/simulate')
         .send({
           date: '2026-04-01T08:00:00.000Z',
-          type: 'TWENTY_FOUR_HOURS',
+          type: 'TWENTY_FOUR',
           hours: 24,
         })
         .expect(401);

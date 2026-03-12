@@ -111,7 +111,7 @@ describe('Users (e2e)', () => {
             averageShiftValue: 1500,
           },
           work: {
-            shiftTypes: ['TWELVE_HOURS', 'NIGHT'],
+            shiftTypes: ['TWELVE_DAY', 'TWELVE_NIGHT'],
             maxWeeklyHours: 60,
             preferredRestDays: [0, 6],
           },
@@ -128,7 +128,7 @@ describe('Users (e2e)', () => {
         .set('Authorization', `Bearer ${accessToken}`)
         .send({
           work: {
-            shiftTypes: ['TWELVE_HOURS'],
+            shiftTypes: ['TWELVE_DAY'],
           },
         });
       // Should fail with validation error (400) or internal error (500)
