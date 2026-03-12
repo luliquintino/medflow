@@ -6,6 +6,7 @@ import { ErrorBoundary } from "@/components/error-boundary";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages, getTranslations } from "next-intl/server";
 import { Analytics } from "@vercel/analytics/react";
+import { PWARegister } from "@/components/pwa-register";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -17,6 +18,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
+  themeColor: "#638f46",
 };
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -24,7 +26,19 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: t("title"),
     description: t("description"),
-    icons: { icon: "/favicon.ico" },
+    icons: {
+      icon: "/favicon.ico",
+      apple: "/apple-touch-icon.png",
+    },
+    manifest: "/manifest.json",
+    appleWebApp: {
+      capable: true,
+      statusBarStyle: "default",
+      title: "MedFlow",
+    },
+    other: {
+      "mobile-web-app-capable": "yes",
+    },
     robots: {
       index: false,
       follow: false,
@@ -51,6 +65,7 @@ export default async function RootLayout({
           </ErrorBoundary>
         </NextIntlClientProvider>
         <Analytics />
+        <PWARegister />
       </body>
     </html>
   );
