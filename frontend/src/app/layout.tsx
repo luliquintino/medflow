@@ -5,6 +5,7 @@ import { Providers } from "@/components/providers";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages, getTranslations } from "next-intl/server";
+import { Analytics } from "@vercel/analytics/react";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -43,6 +44,7 @@ export default async function RootLayout({
             <Providers>{children}</Providers>
           </ErrorBoundary>
         </NextIntlClientProvider>
+        <Analytics />
       </body>
     </html>
   );
