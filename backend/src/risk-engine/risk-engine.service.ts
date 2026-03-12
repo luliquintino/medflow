@@ -43,21 +43,36 @@ export class RiskEngineService {
 
     const result = RiskEngine.evaluate(input);
 
-    // Persist to risk history
-    await this.prisma.riskHistory.create({
-      data: {
-        userId,
-        riskLevel: result.level,
-        riskScore: result.score,
-        triggerRules: result.triggeredRules,
-        recommendation: result.recommendation,
-        periodStart: fiveDaysAgo,
-        periodEnd: now,
-        hoursIn5Days: workload.hoursInLast5Days,
-        hoursInWeek: workload.totalHoursThisWeek,
-        consecutiveNights: workload.consecutiveNightShifts,
-      },
+    // Persist to risk history — one snapshot per day (upsert)
+    const startOfToday = new Date(now);
+    startOfToday.setHours(0, 0, 0, 0);
+
+    const existingToday = await this.prisma.riskHistory.findFirst({
+      where: { userId, createdAt: { gte: startOfToday } },
     });
+
+    const snapshotData = {
+      riskLevel: result.level,
+      riskScore: result.score,
+      triggerRules: result.triggeredRules,
+      recommendation: result.recommendation,
+      periodStart: fiveDaysAgo,
+      periodEnd: now,
+      hoursIn5Days: workload.hoursInLast5Days,
+      hoursInWeek: workload.totalHoursThisWeek,
+      consecutiveNights: workload.consecutiveNightShifts,
+    };
+
+    if (existingToday) {
+      await this.prisma.riskHistory.update({
+        where: { id: existingToday.id },
+        data: snapshotData,
+      });
+    } else {
+      await this.prisma.riskHistory.create({
+        data: { userId, ...snapshotData },
+      });
+    }
 
     return { ...result, workload };
   }
@@ -126,11 +141,22 @@ export class RiskEngineService {
   }
 
   async getHistory(userId: string, limit = 30) {
-    return this.prisma.riskHistory.findMany({
+    const all = await this.prisma.riskHistory.findMany({
       where: { userId },
       orderBy: { createdAt: 'desc' },
-      take: limit,
+      take: limit * 3, // fetch extra to compensate for legacy duplicates
     });
+
+    // Deduplicate: keep only the most recent entry per day
+    const seen = new Set<string>();
+    const unique = all.filter((r) => {
+      const day = r.createdAt.toISOString().slice(0, 10);
+      if (seen.has(day)) return false;
+      seen.add(day);
+      return true;
+    });
+
+    return unique.slice(0, limit);
   }
 
   private getEnergyCosts(workProfile: any): EnergyCosts {

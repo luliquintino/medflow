@@ -7,6 +7,7 @@ import { formatDate } from "@/lib/format";
 import { Card } from "@/components/ui/card";
 import { RiskBadge } from "@/components/ui/risk-badge";
 import { PageSpinner } from "@/components/ui/spinner";
+import { RiskDistributionChart } from "./_components/risk-distribution-chart";
 import type { RiskLevel } from "@/types";
 
 interface RiskHistoryRecord {
@@ -38,6 +39,8 @@ export default function RiskHistoryPage() {
           {t("subtitle")}
         </p>
       </div>
+
+      {history.length > 0 && <RiskDistributionChart history={history} />}
 
       {history.length === 0 ? (
         <Card className="text-center py-12">

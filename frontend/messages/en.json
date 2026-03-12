@@ -508,7 +508,11 @@
     "scoreLabel": "Score: {score}/100",
     "hoursIn5Days": "{hours}h / 5 days",
     "hoursInWeek": "{hours}h / week",
-    "consecutiveNights": "{count} consecutive night(s)"
+    "consecutiveNights": "{count} consecutive night(s)",
+    "distributionTitle": "Risk Distribution",
+    "safe": "Safe",
+    "moderate": "Moderate",
+    "high": "High"
   },
 
   "settings": {
