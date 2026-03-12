@@ -67,7 +67,7 @@ export function ShiftCard({ shift, onEdit, onDelete, onRealize, compact }: Shift
           <div className="flex items-center gap-3 text-sm text-gray-600 flex-wrap">
             <span className="flex items-center gap-1">
               {shift.hospital ? <Building2 className="w-3 h-3 text-gray-400" /> : <MapPin className="w-3 h-3 text-gray-400" />}
-              <span className="truncate max-w-[140px]">{shift.hospital?.name || shift.location}</span>
+              <span className="truncate max-w-[120px] sm:max-w-[180px]">{shift.hospital?.name || shift.location}</span>
             </span>
             {!compact && (
               <span className="flex items-center gap-1">
@@ -84,12 +84,12 @@ export function ShiftCard({ shift, onEdit, onDelete, onRealize, compact }: Shift
         {(onEdit || onDelete) && (
           <div className="flex items-center gap-1 flex-shrink-0">
             {onEdit && (
-              <button onClick={onEdit} className="w-8 h-8 rounded-lg hover:bg-cream-200 flex items-center justify-center transition-colors">
+              <button onClick={onEdit} className="w-9 h-9 rounded-lg hover:bg-cream-200 flex items-center justify-center transition-colors">
                 <Pencil className="w-3.5 h-3.5 text-gray-500" />
               </button>
             )}
             {onDelete && (
-              <button onClick={onDelete} className="w-8 h-8 rounded-lg hover:bg-red-50 flex items-center justify-center transition-colors">
+              <button onClick={onDelete} className="w-9 h-9 rounded-lg hover:bg-red-50 flex items-center justify-center transition-colors">
                 <Trash2 className="w-3.5 h-3.5 text-red-400" />
               </button>
             )}
@@ -103,13 +103,13 @@ export function ShiftCard({ shift, onEdit, onDelete, onRealize, compact }: Shift
           <div className="flex items-center gap-2">
             <button
               onClick={() => onRealize(shift.id, true)}
-              className="text-xs px-3 py-1 rounded-lg bg-moss-50 text-moss-700 hover:bg-moss-100 font-medium transition-colors"
+              className="text-xs px-3 py-1.5 rounded-lg bg-moss-50 text-moss-700 hover:bg-moss-100 font-medium transition-colors"
             >
               {t("realizationYes")}
             </button>
             <button
               onClick={() => onRealize(shift.id, false)}
-              className="text-xs px-3 py-1 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 font-medium transition-colors"
+              className="text-xs px-3 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 font-medium transition-colors"
             >
               {t("realizationNo")}
             </button>

@@ -11,7 +11,7 @@ export function Topbar({ onMenuToggle }: { onMenuToggle: () => void }) {
   const t = useTranslations("topbar");
 
   return (
-    <header className="h-16 bg-cream-50/80 backdrop-blur-sm border-b border-cream-200 flex items-center justify-between px-6 sticky top-0 z-20">
+    <header className="h-14 sm:h-16 bg-cream-50/80 backdrop-blur-sm border-b border-cream-200 flex items-center justify-between px-4 sm:px-6 sticky top-0 z-20">
       <div className="flex items-center gap-3">
         {/* Hamburger — mobile only */}
         <button

@@ -38,7 +38,7 @@ export function RiskDistributionChart({ history }: { history: RiskHistoryRecord[
       <h3 className="text-sm font-semibold text-gray-700 mb-3 px-1">
         {t("distributionTitle")}
       </h3>
-      <div className="h-56">
+      <div className="h-48 sm:h-56">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie

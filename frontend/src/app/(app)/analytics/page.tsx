@@ -35,7 +35,7 @@ export default function AnalyticsPage() {
   return (
     <div className="max-w-5xl space-y-6">
       {/* Header + period toggle */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
         <h2 className="text-xl font-bold text-gray-800">{t("title")}</h2>
         <div className="flex gap-1 bg-cream-100 rounded-xl p-1">
           {PERIODS.map((p) => (

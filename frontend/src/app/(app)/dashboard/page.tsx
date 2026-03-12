@@ -61,7 +61,7 @@ export default function DashboardPage() {
     <div className="space-y-6 max-w-5xl">
       {/* Header greeting */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-800">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
           {greeting()}
         </h2>
         <p className="text-gray-500 mt-1">{monthMessage()}</p>
@@ -125,7 +125,7 @@ export default function DashboardPage() {
                 showLabel
                 label={t("idealGoal")}
               />
-              <div className="grid grid-cols-3 gap-3 pt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
                 <div className="bg-sand-100 rounded-xl p-3">
                   <p className="text-xs text-gray-500">{t("remainingToMinimum")}</p>
                   <p className="text-sm font-bold text-gray-800 mt-0.5">
@@ -253,7 +253,7 @@ function KpiCard({ icon, label, value, sub, bg }: {
       <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${bg}`}>{icon}</div>
       <div>
         <p className="text-xs text-gray-500">{label}</p>
-        <div className="text-xl font-bold text-gray-800 mt-0.5">{value}</div>
+        <div className="text-lg sm:text-xl font-bold text-gray-800 mt-0.5">{value}</div>
         {sub && <p className="text-xs text-gray-400 mt-0.5">{sub}</p>}
       </div>
     </Card>
