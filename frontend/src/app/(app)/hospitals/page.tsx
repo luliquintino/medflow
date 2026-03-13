@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Link from "next/link";
 import { toast } from "sonner";
+import { track } from "@vercel/analytics";
 import { useTranslations } from "next-intl";
 import { api, unwrap, getErrorMessage } from "@/lib/api";
 import { BRAZIL_STATES, fetchCitiesByUF } from "@/lib/brazil-states";
@@ -81,8 +82,9 @@ export default function HospitalsPage() {
       if (editing) return api.patch(`/hospitals/${editing.id}`, data);
       return api.post("/hospitals", data);
     },
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       qc.invalidateQueries({ queryKey: ["hospitals"] });
+      if (!editing) track("hospital_created", { state: variables.state ?? "" });
       toast.success(editing ? t("toastUpdated") : t("toastAdded"));
       closeForm();
     },

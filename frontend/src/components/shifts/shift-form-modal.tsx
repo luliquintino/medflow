@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { clsx } from "clsx";
+import { track } from "@vercel/analytics";
 import { useTranslations } from "next-intl";
 import { api, unwrap, getErrorMessage } from "@/lib/api";
 import { formatCurrency } from "@/lib/format";
@@ -129,11 +130,12 @@ export function ShiftFormModal({ isOpen, onClose, editingShift, defaultDate, onS
       if (editingShift) return api.patch(`/shifts/${editingShift.id}`, payload);
       return api.post("/shifts", payload);
     },
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       qc.invalidateQueries({ queryKey: ["shifts"] });
       qc.invalidateQueries({ queryKey: ["dashboard"] });
       qc.invalidateQueries({ queryKey: ["finance"] });
       qc.invalidateQueries({ queryKey: ["finance-insights"] });
+      if (!editingShift) track("shift_created", { type: variables.type, status: variables.status });
       onSuccess?.();
       handleClose();
     },

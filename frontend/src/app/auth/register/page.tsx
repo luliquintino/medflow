@@ -9,6 +9,7 @@ import Image from "next/image";
 import { User as UserIcon, Mail, FileText } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
+import { track } from "@vercel/analytics";
 import { api, getErrorMessage } from "@/lib/api";
 import { useAuthStore } from "@/store/auth.store";
 import { Button } from "@/components/ui/button";
@@ -73,6 +74,7 @@ export default function RegisterPage() {
 
       setTokens(accessToken, refreshToken);
       setUser(user);
+      track("user_registered", { method: "email" });
 
       router.replace(user.onboardingCompleted ? "/dashboard" : "/onboarding");
     } catch (e) {

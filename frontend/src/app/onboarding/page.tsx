@@ -13,6 +13,7 @@ import { EnergyCostSlider } from "@/components/ui/energy-cost-slider";
 import { api, unwrap, getErrorMessage } from "@/lib/api";
 import { useAuthStore } from "@/store/auth.store";
 import { clsx } from "clsx";
+import { track } from "@vercel/analytics";
 import type { User } from "@/types";
 
 const SHIFT_TYPE_KEYS = [
@@ -118,6 +119,7 @@ export default function OnboardingPage() {
       });
       const user = unwrap<User>(res);
       setUser(user);
+      track("goal_created", { shiftTypes: data.shiftTypes.length });
       router.push("/dashboard");
     } catch (e) {
       setError(getErrorMessage(e));

@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { RiskBadge } from "@/components/ui/risk-badge";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { clsx } from "clsx";
+import { track } from "@vercel/analytics";
 import type { SimulationResult, RiskResult, ShiftType } from "@/types";
 import { SHIFT_TYPE_LABELS, SHIFT_TYPE_HOURS } from "@/types";
 
@@ -62,6 +63,7 @@ export default function SimulatePage() {
         finance: unwrap<SimulationResult>(financeRes),
         risk: unwrap<RiskResult>(riskRes),
       });
+      track("shift_simulated", { type: data.type });
     } catch (e) {
       setError(getErrorMessage(e));
     } finally {

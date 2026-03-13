@@ -1,8 +1,10 @@
 "use client";
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { TrendingUp, Clock, Calendar, Zap, ArrowRight, AlertTriangle, Battery, Watch, Activity } from "lucide-react";
 import { clsx } from "clsx";
+import { track } from "@vercel/analytics";
 import { useTranslations } from "next-intl";
 import { api, unwrap } from "@/lib/api";
 import { formatCurrency } from "@/lib/format";
@@ -34,6 +36,10 @@ export default function DashboardPage() {
     queryFn: () => api.get("/dashboard").then((r) => unwrap<DashboardData>(r)),
     refetchInterval: 60_000,
   });
+
+  useEffect(() => {
+    track("dashboard_viewed");
+  }, []);
 
   if (isLoading) return <PageSpinner />;
 
