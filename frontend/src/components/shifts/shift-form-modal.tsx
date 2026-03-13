@@ -1,7 +1,7 @@
 "use client";
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { X, BarChart3 } from "lucide-react";
+import { X, BarChart3, AlertTriangle } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -69,6 +69,43 @@ export function ShiftFormModal({ isOpen, onClose, editingShift, defaultDate, onS
     });
 
   const shiftType = watch("type") as ShiftType;
+  const watchDate = watch("date");
+
+  // Conflict check state
+  const [conflicts, setConflicts] = useState<{
+    overlaps: Array<{ location: string; date: string; endDate: string }>;
+    restWarnings: Array<{ type: string; gapHours: number; adjacentShiftLocation: string }>;
+  } | null>(null);
+  const conflictTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Debounced conflict check when date + type change
+  const checkConflicts = useCallback(async (date: string, type: ShiftType) => {
+    if (!date) { setConflicts(null); return; }
+    const hours = SHIFT_TYPE_HOURS[type];
+    try {
+      const res = await api.post("/shifts/check-conflicts", {
+        date: new Date(date).toISOString(),
+        hours,
+        ...(editingShift ? { excludeShiftId: editingShift.id } : {}),
+      });
+      const data = unwrap<{
+        overlaps: Array<{ location: string; date: string; endDate: string }>;
+        restWarnings: Array<{ type: string; gapHours: number; adjacentShiftLocation: string }>;
+      }>(res);
+      setConflicts(data);
+    } catch {
+      setConflicts(null);
+    }
+  }, [editingShift]);
+
+  useEffect(() => {
+    if (!isOpen || !watchDate) { setConflicts(null); return; }
+    if (conflictTimerRef.current) clearTimeout(conflictTimerRef.current);
+    conflictTimerRef.current = setTimeout(() => {
+      checkConflicts(watchDate, shiftType);
+    }, 500);
+    return () => { if (conflictTimerRef.current) clearTimeout(conflictTimerRef.current); };
+  }, [watchDate, shiftType, isOpen, checkConflicts]);
 
   // Pre-fill when editing or when defaultDate changes
   useEffect(() => {
@@ -272,6 +309,29 @@ export function ShiftFormModal({ isOpen, onClose, editingShift, defaultDate, onS
           </div>
 
           <Input label={t("dateLabel")} type="datetime-local" error={errors.date?.message} {...register("date")} />
+
+          {/* Conflict warnings */}
+          {conflicts && (conflicts.overlaps.length > 0 || conflicts.restWarnings.length > 0) && (
+            <div className="space-y-1.5">
+              {conflicts.overlaps.map((o, i) => (
+                <div key={`overlap-${i}`} className="flex items-start gap-2 rounded-xl bg-amber-50 border border-amber-200 px-3 py-2">
+                  <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                  <p className="text-xs text-amber-700">
+                    {t("conflictOverlap", { location: o.location })}
+                  </p>
+                </div>
+              ))}
+              {conflicts.restWarnings.map((w, i) => (
+                <div key={`rest-${i}`} className="flex items-start gap-2 rounded-xl bg-amber-50 border border-amber-200 px-3 py-2">
+                  <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                  <p className="text-xs text-amber-700">
+                    {t("conflictRest", { hours: String(w.gapHours), location: w.adjacentShiftLocation })}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+
           <Input label={t("valueLabel")} type="number" placeholder={t("valuePlaceholder")} error={errors.value?.message} {...register("value")} />
           <Input label={t("locationLabel")} placeholder={t("locationPlaceholder")} error={errors.location?.message} {...register("location")} />
           <Input label={t("notesLabel")} placeholder={t("notesPlaceholder")} {...register("notes")} />

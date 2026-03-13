@@ -5,7 +5,7 @@ import { clsx } from "clsx";
 import Image from "next/image";
 import {
   LayoutDashboard, Calendar, AlertTriangle,
-  Zap, Settings, LogOut, Building2, Brain, BarChart3,
+  Zap, Settings, LogOut, Building2, Brain, BarChart3, Clock,
 } from "lucide-react";
 import { useAuthStore } from "@/store/auth.store";
 import { api } from "@/lib/api";
@@ -15,6 +15,7 @@ const NAV_KEYS = [
   { href: "/dashboard",      icon: LayoutDashboard, key: "dashboard" },
   { href: "/hospitals",      icon: Building2,       key: "hospitals" },
   { href: "/shifts",         icon: Calendar,        key: "shifts" },
+  { href: "/shifts/history", icon: Clock,           key: "shiftHistory" },
   { href: "/analytics",      icon: BarChart3,       key: "analytics" },
   { href: "/smart-planner",  icon: Brain,           key: "smartPlanner" },
   { href: "/simulate",       icon: Zap,             key: "simulate" },
@@ -82,7 +83,9 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         {/* Nav */}
         <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
           {NAV_KEYS.map(({ href, icon: Icon, key }) => {
-            const active = pathname.startsWith(href);
+            // Longest-match: only mark active if no other nav item is a longer prefix match
+            const active = pathname.startsWith(href) &&
+              !NAV_KEYS.some((other) => other.href !== href && other.href.startsWith(href) && pathname.startsWith(other.href));
             return (
               <Link
                 key={href}

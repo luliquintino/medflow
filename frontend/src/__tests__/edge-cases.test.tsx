@@ -90,6 +90,28 @@ jest.mock('@/components/shifts/shift-form-modal', () => ({
   ShiftFormModal: ({ isOpen }: any) => isOpen ? <div data-testid="modal">Modal</div> : null,
 }));
 
+jest.mock('@/components/shifts/calendar/shift-calendar', () => ({
+  ShiftCalendar: ({ shifts }: any) => <div data-testid="shift-calendar">Calendar ({shifts.length})</div>,
+}));
+
+jest.mock('@/components/shifts/calendar/calendar-day-panel', () => ({
+  CalendarDayPanel: () => <div data-testid="day-panel">Day Panel</div>,
+}));
+
+jest.mock('@/components/shifts/view-toggle', () => ({
+  ViewToggle: ({ view, onChange }: any) => (
+    <div data-testid="view-toggle">
+      <button onClick={() => onChange('list')} data-testid="toggle-list">Lista</button>
+      <button onClick={() => onChange('calendar')} data-testid="toggle-calendar">Cal</button>
+    </div>
+  ),
+}));
+
+jest.mock('@/lib/calendar', () => ({
+  getMonthRange: jest.fn(() => ({ from: '2026-03-01', to: '2026-03-31' })),
+  groupShiftsByDay: jest.fn(() => new Map()),
+}));
+
 jest.mock('@/lib/brazil-states', () => ({
   BRAZIL_STATES: [],
   fetchCitiesByUF: jest.fn().mockResolvedValue([]),
@@ -145,17 +167,15 @@ describe('Frontend Edge Cases', () => {
     });
   });
 
-  describe('Shifts renders empty states correctly', () => {
-    it('renders empty state message with empty array', async () => {
+  describe('Shifts renders correctly', () => {
+    it('renders calendar view by default with empty data', async () => {
       mockUseQuery.mockReturnValue({ data: [], isLoading: false });
       const ShiftsPage = (await import('../app/(app)/shifts/page')).default;
       render(<ShiftsPage />);
-      expect(screen.getByText('Você ainda não tem plantões cadastrados.')).toBeInTheDocument();
+      expect(screen.getByTestId('shift-calendar')).toBeInTheDocument();
     });
 
     it('shows 0 confirmed and 0 simulated with empty array', async () => {
-      // For the shifts page with empty data, it shows the empty state card
-      // instead of the header counts - the counts are only in the header
       mockUseQuery.mockReturnValue({ data: [], isLoading: false });
       const ShiftsPage = (await import('../app/(app)/shifts/page')).default;
       render(<ShiftsPage />);

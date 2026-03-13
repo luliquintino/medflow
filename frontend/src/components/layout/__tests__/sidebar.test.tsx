@@ -5,6 +5,7 @@ import { Sidebar } from '../sidebar';
 jest.mock('lucide-react', () => ({
   LayoutDashboard: (props: any) => <svg data-testid="icon-dashboard" {...props} />,
   Calendar: (props: any) => <svg data-testid="icon-calendar" {...props} />,
+  Clock: (props: any) => <svg data-testid="icon-clock" {...props} />,
   Building2: (props: any) => <svg data-testid="icon-building" {...props} />,
   TrendingUp: (props: any) => <svg data-testid="icon-trending" {...props} />,
   BarChart3: (props: any) => <svg data-testid="icon-barchart3" {...props} />,
@@ -56,6 +57,7 @@ describe('Sidebar', () => {
     render(<Sidebar isOpen={true} onClose={jest.fn()} />);
     expect(screen.getByText('Meu Painel')).toBeInTheDocument();
     expect(screen.getByText('Plantões')).toBeInTheDocument();
+    expect(screen.getByText('Histórico')).toBeInTheDocument();
     expect(screen.getByText('Hospitais')).toBeInTheDocument();
     expect(screen.getByText('Analytics')).toBeInTheDocument();
     expect(screen.getByText('Aceito ou Não?')).toBeInTheDocument();
@@ -86,10 +88,10 @@ describe('Sidebar', () => {
     expect(screen.getByText('Analytics').closest('a')).toHaveAttribute('href', '/analytics');
   });
 
-  it('should render 8 navigation links', () => {
+  it('should render 9 navigation links', () => {
     render(<Sidebar isOpen={true} onClose={jest.fn()} />);
     const links = screen.getAllByRole('link');
-    // 8 nav items + possibly the logo link
-    expect(links.length).toBeGreaterThanOrEqual(8);
+    // 9 nav items + possibly the logo link
+    expect(links.length).toBeGreaterThanOrEqual(9);
   });
 });

@@ -17,6 +17,8 @@ import { ShiftsService } from './shifts.service';
 import { CreateShiftDto } from './dto/create-shift.dto';
 import { UpdateShiftDto } from './dto/update-shift.dto';
 import { QueryShiftsDto } from './dto/query-shifts.dto';
+import { CheckConflictsDto } from './dto/check-conflicts.dto';
+import { QueryShiftHistoryDto } from './dto/query-shift-history.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 
@@ -52,6 +54,18 @@ export class ShiftsController {
     @Body() body: { date: string; type: ShiftType; hours: number; value: number },
   ) {
     return this.shiftsService.simulateWorkload(userId, body);
+  }
+
+  @Post('check-conflicts')
+  @ApiOperation({ summary: 'Verificar conflitos de horário' })
+  checkConflicts(@CurrentUser('id') userId: string, @Body() dto: CheckConflictsDto) {
+    return this.shiftsService.checkConflicts(userId, dto);
+  }
+
+  @Get('history')
+  @ApiOperation({ summary: 'Histórico de plantões realizados' })
+  getHistory(@CurrentUser('id') userId: string, @Query() query: QueryShiftHistoryDto) {
+    return this.shiftsService.getHistory(userId, query);
   }
 
   @Get(':id')

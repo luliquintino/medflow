@@ -37,6 +37,7 @@
     "smartPlanner": "Planejamento",
     "simulate": "Aceito ou Não?",
     "riskHistory": "Histórico de Risco",
+    "shiftHistory": "Histórico",
     "settings": "Configurações",
     "finance": "Painel Financeiro"
   },
@@ -361,6 +362,8 @@
     "locationPlaceholder": "Hospital / UPA / Pronto-Socorro",
     "notesLabel": "Observações (opcional)",
     "notesPlaceholder": "Alguma anotação...",
+    "conflictOverlap": "⚠️ Conflito com plantão em {location}",
+    "conflictRest": "⚠️ Descanso de apenas {hours}h antes/após plantão em {location} (mínimo 11h)",
     "simulationCta": "Faça a simulação e veja se é bom você aceitar esse plantão com base em dados",
     "cancel": "Cancelar",
     "save": "Salvar",
@@ -582,6 +585,37 @@
     "twelveNight": "Plantão noturno de 12h",
     "twentyFour": "Plantão de 24h (entrada de dia)",
     "twentyFourInverted": "Plantão de 24h (entrada de noite)"
+  },
+
+  "calendar": {
+    "viewCalendar": "Calendário",
+    "viewList": "Lista",
+    "today": "Hoje",
+    "noShifts": "Sem plantões neste dia",
+    "addShift": "Adicionar plantão",
+    "moreShifts": "mais",
+    "conflictBadge": "Conflito de horário detectado",
+    "restBadge": "Descanso insuficiente (< 11h)",
+    "conflictWarning": "Conflito com plantão em {location} ({startTime}–{endTime})",
+    "restWarning": "Descanso de apenas {hours}h após plantão anterior"
+  },
+
+  "shiftHistory": {
+    "title": "Histórico de Plantões",
+    "subtitle": "Visualize seus plantões passados e acompanhe sua evolução",
+    "emptyState": "Nenhum plantão encontrado para os filtros selecionados.",
+    "filterMonth": "Mês",
+    "filterYear": "Ano",
+    "filterHospital": "Hospital",
+    "filterType": "Tipo",
+    "clearFilters": "Limpar filtros",
+    "allMonths": "Todos os meses",
+    "allYears": "Todos os anos",
+    "allHospitals": "Todos os hospitais",
+    "allTypes": "Todos os tipos",
+    "summaryHours": "Total de Horas",
+    "summaryRevenue": "Receita Total",
+    "summaryCount": "Plantões"
   },
 
   "templateTypes": {

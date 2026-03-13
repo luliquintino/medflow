@@ -37,6 +37,7 @@
     "smartPlanner": "Planning",
     "simulate": "Accept or Decline?",
     "riskHistory": "Risk History",
+    "shiftHistory": "History",
     "settings": "Settings",
     "finance": "Financial Dashboard"
   },
@@ -361,6 +362,8 @@
     "locationPlaceholder": "Hospital / UPA / ER",
     "notesLabel": "Notes (optional)",
     "notesPlaceholder": "Any notes...",
+    "conflictOverlap": "⚠️ Conflict with shift at {location}",
+    "conflictRest": "⚠️ Only {hours}h rest before/after shift at {location} (minimum 11h)",
     "simulationCta": "Run a simulation and see if it's worth taking this shift based on data",
     "cancel": "Cancel",
     "save": "Save",
@@ -582,6 +585,37 @@
     "twelveNight": "12-hour night shift",
     "twentyFour": "24-hour shift (day entry)",
     "twentyFourInverted": "24-hour shift (night entry)"
+  },
+
+  "calendar": {
+    "viewCalendar": "Calendar",
+    "viewList": "List",
+    "today": "Today",
+    "noShifts": "No shifts on this day",
+    "addShift": "Add shift",
+    "moreShifts": "more",
+    "conflictBadge": "Schedule conflict detected",
+    "restBadge": "Insufficient rest (< 11h)",
+    "conflictWarning": "Conflict with shift at {location} ({startTime}–{endTime})",
+    "restWarning": "Only {hours}h of rest after previous shift"
+  },
+
+  "shiftHistory": {
+    "title": "Shift History",
+    "subtitle": "View your past shifts and track your progress",
+    "emptyState": "No shifts found for the selected filters.",
+    "filterMonth": "Month",
+    "filterYear": "Year",
+    "filterHospital": "Hospital",
+    "filterType": "Type",
+    "clearFilters": "Clear filters",
+    "allMonths": "All months",
+    "allYears": "All years",
+    "allHospitals": "All hospitals",
+    "allTypes": "All types",
+    "summaryHours": "Total Hours",
+    "summaryRevenue": "Total Revenue",
+    "summaryCount": "Shifts"
   },
 
   "templateTypes": {
