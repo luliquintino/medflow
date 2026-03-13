@@ -1,7 +1,7 @@
 # MedFlow — Documentação Completa
 
 > Copiloto financeiro e de carga para médicos plantonistas.
-> Versão: 1.2 · Março 2026
+> Versão: 1.3 · Março 2026
 
 ---
 
@@ -24,6 +24,9 @@
 15. [Stack Tecnológica](#15-stack-tecnológica)
 16. [Testes & Qualidade](#16-testes--qualidade)
 17. [Feature: Realização de Plantões](#17-feature-realização-de-plantões)
+18. [Event Tracking (Vercel Analytics)](#18-event-tracking-vercel-analytics)
+19. [Deploy & Infraestrutura](#19-deploy--infraestrutura)
+20. [Internacionalização (i18n)](#20-internacionalização-i18n)
 
 ---
 
@@ -935,9 +938,9 @@ faltaParaIdeal = MAX(0, metaIdeal - receitaAtual)
 
 ### Workload Engine (`shifts.engine.ts`)
 
-**Propósito:** Cálculos de carga de trabalho.
+**Propósito:** Cálculos de carga de trabalho e modelo de exaustão.
 
-**Métricas:**
+**Métricas Básicas:**
 ```
 horasNaSemana        // Dom-Sáb da semana corrente
 horasNoMês           // 1º ao último dia do mês
@@ -947,6 +950,44 @@ noturnosConsecutivos  // Noturnos em sequência
 receitaDoMês          // Total de confirmed shifts
 médiaDePorPlantão     // Total horas / count
 recomendaçãoDescanso  // Se ≥ 2 consecutivos
+```
+
+#### Modelo de Exaustão (Energy Costs)
+
+Cada plantão tem um custo energético base multiplicado por fatores configuráveis pelo usuário:
+
+| Tipo de Plantão | Custo Base Padrão | Configurável (0.5–5.0) |
+|----------------|-------------------|------------------------|
+| 12h Diurno | 1.0 ("Leve") | `energyCostDiurno` |
+| 12h Noturno | 1.5 | `energyCostNoturno` |
+| 24h / 24h Invertido | 2.5 ("Pesado") | `energyCost24h` |
+
+**Penalidades de Exaustão (cumulativas):**
+
+| Condição | Penalidade | Descrição |
+|----------|-----------|-----------|
+| Consecutivo (<48h gap) | +0.5 | Plantão seguido sem recuperação adequada |
+| 3+ noites consecutivas | +0.7 | Acúmulo de privação de sono |
+| 24h com <24h de gap | +1.0 | Plantão longo sem descanso proporcional |
+| Sobrecarga semanal (>56h) | +0.3 | Excesso de horas na semana |
+
+**Cálculo:**
+```
+exhaustionScore = Σ (custoBase × multiplicadorUsuário + penalidades)
+```
+
+**Índice de Sustentabilidade:**
+```
+sustainabilityIndex = receitaDoMês / totalExhaustionScore
+```
+- Quanto maior, mais eficiente a geração de renda (mais R$ por unidade de exaustão)
+- Usado no Dashboard e no Simulador para orientar decisões
+
+**Breakdown por Plantão:**
+```
+shiftExhaustionBreakdown = [
+  { shiftId, baseCost, penalties[], totalCost, date, type }
+]
 ```
 
 ### Risk Engine (`risk.engine.ts`)
@@ -962,6 +1003,7 @@ recomendaçãoDescanso  // Se ≥ 2 consecutivos
 | Noturnos consecutivos | = 2 | ≥ 3 | até 20 |
 | Tempo de recuperação | 48-71h | < 48h | até 10 |
 | Limite pessoal | > max definido | — | MODERATE |
+| Exaustão alta | 7.0-9.9 | ≥ 10.0 | — (flag) |
 
 **Score de Risco (0-100):**
 ```
@@ -1065,6 +1107,32 @@ O campo CRM (registro médico) segue o formato `123456/UF` (1-6 dígitos, barra,
 - **Backend:** `@Matches(/^\d{1,6}\/[A-Z]{2}$/)` no DTO de registro. Auto-uppercase via `@Transform`.
 - **Frontend:** Validação Zod com regex `/^\d{1,6}\/[A-Z]{2}$/` no formulário de cadastro.
 - Exemplos válidos: `12345/SP`, `1234/RJ`, `123456/MG`
+
+### Account Lockout
+- Após **5 tentativas de login falhas**: conta bloqueada por **15 minutos** (`lockedUntil`)
+- Contador (`failedLoginAttempts`) reseta ao fazer login com sucesso
+- Campos no model User: `failedLoginAttempts` (Int), `lockedUntil` (DateTime?)
+
+### Rate Limiting
+
+| Endpoint | Limite | Janela |
+|----------|--------|--------|
+| Global (default) | 100 req | 60s |
+| `POST /auth/register` | 5 req | 60s |
+| `POST /auth/login` | 5 req | 60s |
+| `POST /auth/forgot-password` | 3 req | 60s |
+| `POST /auth/exchange-code` | 10 req | 60s |
+
+### CORS Dinâmico
+
+O backend valida origens dinamicamente:
+```
+Origens permitidas:
+├─ https://medflow.tec.br
+├─ https://*.vercel.app (preview deployments)
+├─ http://localhost:* (qualquer porta, apenas dev)
+└─ FRONTEND_URL do .env
+```
 
 ### Verificação de Propriedade
 - Todo endpoint verifica `userId` antes de retornar dados
@@ -1229,15 +1297,19 @@ NEXT_PUBLIC_API_URL=http://127.0.0.1:3001/api/v1  # URL do backend
 | Lucide React | 0.575 | Biblioteca de ícones |
 | date-fns | 4 | Utilidades de data |
 | clsx + tailwind-merge | — | Merge de classes CSS |
+| next-intl | — | Internacionalização (pt-BR, en) |
+| Vercel Analytics | 2.0 | Event tracking e pageviews |
+| Sonner | — | Notificações toast |
+| Capacitor | — | Build mobile (iOS) |
 
 ### Infraestrutura
 
 | Serviço | Uso |
 |---------|-----|
-| Railway | PostgreSQL hosting |
-| Vercel | Frontend deployment (futuro) |
-| Railway | Backend deployment (futuro) |
+| Vercel | Frontend deployment → **medflow.tec.br** |
+| Railway | Backend deployment (NestJS) + PostgreSQL hosting |
 | Resend | Envio de e-mails transacionais |
+| GitHub Actions | CI/CD (testes automatizados em push/PR) |
 
 ---
 
@@ -1365,4 +1437,150 @@ model Shift {
 
 ---
 
-> Documento gerado em Março 2026. MedFlow v1.1.
+## 18. Event Tracking (Vercel Analytics)
+
+### Setup
+
+O MedFlow utiliza `@vercel/analytics` para rastrear pageviews automáticas e 6 custom events que medem as ações-chave do produto.
+
+- **Pacote:** `@vercel/analytics` v2.0.1
+- **Componente:** `<Analytics />` no root layout (`frontend/src/app/layout.tsx`)
+- **Função:** `track(eventName, data?)` importada diretamente nos componentes
+
+### Custom Events
+
+| Evento | Arquivo | Trigger | Dados |
+|--------|---------|---------|-------|
+| `user_registered` | `auth/register/page.tsx` | Após `POST /auth/register` com sucesso | `{ method: "email" }` |
+| `hospital_created` | `(app)/hospitals/page.tsx` | Após criação de hospital (não edição) | `{ state: data.state }` |
+| `shift_created` | `shifts/shift-form-modal.tsx` | Após criação de plantão (não edição) | `{ type, status }` |
+| `shift_simulated` | `(app)/simulate/page.tsx` | Após simulação completa (finance + risk) | `{ type }` |
+| `dashboard_viewed` | `(app)/dashboard/page.tsx` | `useEffect` na montagem do componente | — |
+| `goal_created` | `onboarding/page.tsx` | Após `POST /users/onboarding` com sucesso | `{ shiftTypes: count }` |
+
+### Onde visualizar
+
+Vercel Dashboard → projeto `frontend` → **Analytics** → aba **Custom Events**
+
+---
+
+## 19. Deploy & Infraestrutura
+
+### Ambientes
+
+| Ambiente | Frontend | Backend | Banco de Dados |
+|----------|----------|---------|----------------|
+| **Produção** | Vercel → **medflow.tec.br** | Railway | PostgreSQL (Railway) |
+| **Development** | localhost:3002 | localhost:3001 | PostgreSQL local |
+
+### Frontend (Vercel)
+
+```
+Deploy automático:
+├─ Push para main → Vercel auto-deploy (production)
+├─ Push para branch → Vercel preview deployment
+└─ Deploy manual: cd frontend && npx vercel --prod
+
+Domínio customizado: medflow.tec.br
+Framework: Next.js 14 (auto-detectado)
+Build: npm run build
+Output: .vercel/output
+```
+
+### Backend (Railway)
+
+```
+Deploy automático:
+├─ Push para main → Railway auto-deploy
+└─ Health check: GET /api/v1/health
+
+Serviço: NestJS 11
+PostgreSQL: Railway managed instance
+```
+
+### CI/CD (GitHub Actions)
+
+```
+Trigger: Push ou PR para main/develop
+├── Backend Job
+│   ├─ PostgreSQL 16 (service container)
+│   ├─ npm ci + prisma generate
+│   ├─ ESLint
+│   └─ Jest (testes + coverage)
+└── Frontend Job
+    ├─ npm ci
+    ├─ ESLint
+    ├─ Jest (testes + coverage)
+    └─ npm run build
+```
+
+### Deploy Manual
+
+```bash
+# Frontend → Vercel
+cd frontend
+npx vercel --prod
+
+# Backend → Railway (auto-deploy via git push)
+git push origin main
+```
+
+---
+
+## 20. Internacionalização (i18n)
+
+### Setup
+
+O MedFlow usa `next-intl` para internacionalização com suporte a dois idiomas.
+
+| Config | Valor |
+|--------|-------|
+| **Biblioteca** | `next-intl` |
+| **Idioma padrão** | `pt-BR` |
+| **Idiomas suportados** | `pt-BR`, `en` |
+| **Arquivos de tradução** | `frontend/messages/pt-BR.json`, `frontend/messages/en.json` |
+| **Middleware** | `frontend/src/middleware.ts` (locale detection) |
+
+### Namespaces
+
+As traduções são organizadas por namespace, cada um correspondendo a uma seção da aplicação:
+
+| Namespace | Escopo |
+|-----------|--------|
+| `common` | Textos compartilhados (botões, labels, status) |
+| `auth` | Login, registro, recuperação de senha |
+| `dashboard` | KPIs, saudações, projeções |
+| `shifts` | CRUD de plantões, status, tipos |
+| `finance` | Metas, receitas, insights, projeções |
+| `hospitals` | Cadastro e gestão de hospitais |
+| `analytics` | Gráficos, rankings, tendências |
+| `smartPlanner` | Cenários otimizados, scores |
+| `simulate` | Simulador "Aceito ou Não?" |
+| `riskHistory` | Histórico de risco, timeline |
+| `settings` | Perfil, custos energéticos, wearables |
+| `onboarding` | Etapas 1 e 2 do onboarding |
+| `landing` | Página inicial de marketing |
+
+### Uso nos Componentes
+
+```typescript
+// Acesso ao namespace da página atual
+const t = useTranslations("dashboard");
+t("title"); // → "Meu Painel" (pt-BR) ou "My Dashboard" (en)
+
+// Acesso cross-namespace (ex: wearables no dashboard)
+const tSettings = useTranslations("settings");
+tSettings("wearables.title"); // → "Wearables"
+
+// Textos comuns
+const tCommon = useTranslations("common");
+tCommon("comingSoon"); // → "Em breve" (pt-BR) ou "Coming soon" (en)
+```
+
+### Seletor de Idioma
+
+O Topbar inclui um seletor de idioma que persiste a preferência do usuário via cookie.
+
+---
+
+> Documento gerado em Março 2026. MedFlow v1.3.

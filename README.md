@@ -27,6 +27,8 @@
 - **Histórico de risco** — Acompanhe sua fadiga ao longo do tempo com avaliações automáticas.
 - **Analytics avançado** — Visualize receita por hospital, tipo de plantão e tendência de crescimento ao longo do tempo.
 - **Integração com wearables** — Conecte Apple Health, Garmin, Oura ou Whoop para dados de saúde.
+- **Event tracking** — Métricas de uso do produto com Vercel Analytics (6 custom events).
+- **Internacionalização** — Suporte completo a Português (pt-BR) e Inglês (en).
 
 ---
 
@@ -71,6 +73,8 @@ npm run dev
 ### 4. Acesse a aplicação
 
 Abra [http://localhost:3002](http://localhost:3002) no navegador.
+
+> **Produção:** O app está live em [https://medflow.tec.br](https://medflow.tec.br)
 
 ---
 
