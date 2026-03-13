@@ -9,6 +9,7 @@ import { ChevronRight, ChevronLeft } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { EnergyCostSlider } from "@/components/ui/energy-cost-slider";
 import { api, unwrap, getErrorMessage } from "@/lib/api";
 import { useAuthStore } from "@/store/auth.store";
 import { clsx } from "clsx";
@@ -23,6 +24,12 @@ const SHIFT_TYPE_KEYS = [
 
 const DAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] as const;
 
+const ENERGY_DEFAULTS = {
+  energyCostDiurno: 1.0,
+  energyCostNoturno: 1.5,
+  energyCost24h: 2.5,
+};
+
 function createSchema(tv: (key: string) => string) {
   return z.object({
     minimumMonthlyGoal: z.coerce.number().min(0),
@@ -31,7 +38,7 @@ function createSchema(tv: (key: string) => string) {
     shiftTypes: z.array(z.string()).min(1, tv("selectAtLeastOneType")),
     maxWeeklyHours: z.preprocess(
       (v) => (v === "" || v === undefined ? undefined : Number(v)),
-      z.number().min(1).max(120).optional(),
+      z.number().min(1).optional(),
     ),
     preferredRestDays: z.array(z.number()).optional(),
   });
@@ -48,6 +55,11 @@ export default function OnboardingPage() {
   const tv = useTranslations("validation");
   const tShiftTypes = useTranslations("shiftTypes");
   const tShiftTypeDesc = useTranslations("shiftTypeDesc");
+  const tSettings = useTranslations("settings");
+
+  const [energyCostDiurno, setEnergyCostDiurno] = useState(ENERGY_DEFAULTS.energyCostDiurno);
+  const [energyCostNoturno, setEnergyCostNoturno] = useState(ENERGY_DEFAULTS.energyCostNoturno);
+  const [energyCost24h, setEnergyCost24h] = useState(ENERGY_DEFAULTS.energyCost24h);
 
   const schema = useMemo(() => createSchema(tv), [tv]);
 
@@ -99,6 +111,9 @@ export default function OnboardingPage() {
           shiftTypes: data.shiftTypes,
           maxWeeklyHours: data.maxWeeklyHours || undefined,
           preferredRestDays: data.preferredRestDays,
+          energyCostDiurno,
+          energyCostNoturno,
+          energyCost24h,
         },
       });
       const user = unwrap<User>(res);
@@ -241,6 +256,45 @@ export default function OnboardingPage() {
                       {t(`days.${dayKey}`)}
                     </button>
                   ))}
+                </div>
+              </div>
+
+              {/* Energy costs */}
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-1 block">
+                  {t("workProfile.energyCostsTitle")}
+                </label>
+                <p className="text-xs text-gray-400 mb-4">
+                  {t("workProfile.energyCostsDescription")}
+                </p>
+                <div className="space-y-4">
+                  <EnergyCostSlider
+                    label={tSettings("energy.diurno12h")}
+                    value={energyCostDiurno}
+                    defaultValue={ENERGY_DEFAULTS.energyCostDiurno}
+                    onChange={setEnergyCostDiurno}
+                    defaultLabel={tSettings("energy.defaultLabel", { value: ENERGY_DEFAULTS.energyCostDiurno.toFixed(1) })}
+                    scaleLow={tSettings("energy.scaleLow")}
+                    scaleHigh={tSettings("energy.scaleHigh")}
+                  />
+                  <EnergyCostSlider
+                    label={tSettings("energy.noturno12h")}
+                    value={energyCostNoturno}
+                    defaultValue={ENERGY_DEFAULTS.energyCostNoturno}
+                    onChange={setEnergyCostNoturno}
+                    defaultLabel={tSettings("energy.defaultLabel", { value: ENERGY_DEFAULTS.energyCostNoturno.toFixed(1) })}
+                    scaleLow={tSettings("energy.scaleLow")}
+                    scaleHigh={tSettings("energy.scaleHigh")}
+                  />
+                  <EnergyCostSlider
+                    label={tSettings("energy.plantao24h")}
+                    value={energyCost24h}
+                    defaultValue={ENERGY_DEFAULTS.energyCost24h}
+                    onChange={setEnergyCost24h}
+                    defaultLabel={tSettings("energy.defaultLabel", { value: ENERGY_DEFAULTS.energyCost24h.toFixed(1) })}
+                    scaleLow={tSettings("energy.scaleLow")}
+                    scaleHigh={tSettings("energy.scaleHigh")}
+                  />
                 </div>
               </div>
 

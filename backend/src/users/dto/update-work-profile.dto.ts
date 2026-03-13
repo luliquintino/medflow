@@ -6,7 +6,6 @@ export class UpdateWorkProfileDto {
   @IsOptional()
   @IsInt()
   @Min(1)
-  @Max(120)
   maxWeeklyHours?: number;
 
   @ApiProperty({ example: [0, 6], required: false })

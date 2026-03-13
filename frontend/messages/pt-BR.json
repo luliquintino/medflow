@@ -240,8 +240,10 @@
       "shiftTypesLabel": "Tipos de plantão que você faz",
       "maxWeeklyHoursLabel": "Limite máximo de horas semanais",
       "maxWeeklyHoursPlaceholder": "Ex: 60",
-      "maxWeeklyHoursHint": "Usado para calcular alertas de burnout e riscos de sobrecarga (máx. 120h)",
-      "restDaysLabel": "Dias preferenciais de descanso"
+      "maxWeeklyHoursHint": "Usado para calcular alertas de burnout e riscos de sobrecarga",
+      "restDaysLabel": "Dias preferenciais de descanso",
+      "energyCostsTitle": "Custos energéticos pessoais",
+      "energyCostsDescription": "Ajuste se você sente mais ou menos impacto que a média em cada tipo de plantão."
     },
     "next": "Próximo",
     "back": "Voltar",
@@ -544,6 +546,8 @@
       "save": "Salvar",
       "restoreDefaults": "Restaurar padrões",
       "defaultLabel": "(padrão: {value})",
+      "scaleLow": "Leve",
+      "scaleHigh": "Pesado",
       "toastSuccess": "Custos energéticos salvos",
       "onboardingRequired": "Complete o onboarding primeiro para configurar seus custos energéticos."
     },

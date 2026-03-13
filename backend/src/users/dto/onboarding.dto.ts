@@ -44,7 +44,6 @@ export class OnboardingWorkDto {
   @IsOptional()
   @IsInt()
   @Min(1)
-  @Max(120)
   maxWeeklyHours?: number;
 
   @ApiProperty({ example: [0, 6], description: '0=Dom ... 6=Sab', required: false })

@@ -240,8 +240,10 @@
       "shiftTypesLabel": "Types of shifts you work",
       "maxWeeklyHoursLabel": "Maximum weekly hours limit",
       "maxWeeklyHoursPlaceholder": "E.g., 60",
-      "maxWeeklyHoursHint": "Used to calculate burnout alerts and overload risks (max 120h)",
-      "restDaysLabel": "Preferred rest days"
+      "maxWeeklyHoursHint": "Used to calculate burnout alerts and overload risks",
+      "restDaysLabel": "Preferred rest days",
+      "energyCostsTitle": "Personal energy costs",
+      "energyCostsDescription": "Adjust if you feel more or less impact than average for each shift type."
     },
     "next": "Next",
     "back": "Back",
@@ -544,6 +546,8 @@
       "save": "Save",
       "restoreDefaults": "Restore defaults",
       "defaultLabel": "(default: {value})",
+      "scaleLow": "Light",
+      "scaleHigh": "Heavy",
       "toastSuccess": "Energy costs saved",
       "onboardingRequired": "Complete onboarding first to configure your energy costs."
     },

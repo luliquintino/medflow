@@ -8,6 +8,7 @@ import { api, unwrap, getErrorMessage } from "@/lib/api";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { EnergyCostSlider } from "@/components/ui/energy-cost-slider";
 import { useAuthStore } from "@/store/auth.store";
 import { clsx } from "clsx";
 import type { User as UserType, Gender } from "@/types";
@@ -250,6 +251,8 @@ export default function SettingsPage() {
               defaultValue={ENERGY_DEFAULTS.energyCostDiurno}
               onChange={setEnergyCostDiurno}
               defaultLabel={t("energy.defaultLabel", { value: ENERGY_DEFAULTS.energyCostDiurno.toFixed(1) })}
+              scaleLow={t("energy.scaleLow")}
+              scaleHigh={t("energy.scaleHigh")}
             />
             <EnergyCostSlider
               label={t("energy.noturno12h")}
@@ -257,6 +260,8 @@ export default function SettingsPage() {
               defaultValue={ENERGY_DEFAULTS.energyCostNoturno}
               onChange={setEnergyCostNoturno}
               defaultLabel={t("energy.defaultLabel", { value: ENERGY_DEFAULTS.energyCostNoturno.toFixed(1) })}
+              scaleLow={t("energy.scaleLow")}
+              scaleHigh={t("energy.scaleHigh")}
             />
             <EnergyCostSlider
               label={t("energy.plantao24h")}
@@ -264,6 +269,8 @@ export default function SettingsPage() {
               defaultValue={ENERGY_DEFAULTS.energyCost24h}
               onChange={setEnergyCost24h}
               defaultLabel={t("energy.defaultLabel", { value: ENERGY_DEFAULTS.energyCost24h.toFixed(1) })}
+              scaleLow={t("energy.scaleLow")}
+              scaleHigh={t("energy.scaleHigh")}
             />
 
             <div className="flex gap-3 pt-2">
@@ -335,43 +342,3 @@ export default function SettingsPage() {
   );
 }
 
-function EnergyCostSlider({
-  label,
-  value,
-  defaultValue,
-  onChange,
-  defaultLabel,
-}: {
-  label: string;
-  value: number;
-  defaultValue: number;
-  onChange: (v: number) => void;
-  defaultLabel: string;
-}) {
-  return (
-    <div>
-      <div className="flex items-center justify-between mb-2">
-        <label className="text-sm font-medium text-gray-700">{label}</label>
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-bold text-gray-800">{value.toFixed(1)}</span>
-          {value !== defaultValue && (
-            <span className="text-xs text-gray-400">{defaultLabel}</span>
-          )}
-        </div>
-      </div>
-      <input
-        type="range"
-        min="0.5"
-        max="5.0"
-        step="0.1"
-        value={value}
-        onChange={(e) => onChange(parseFloat(e.target.value))}
-        className="w-full h-2 bg-cream-200 rounded-full appearance-none cursor-pointer accent-moss-600"
-      />
-      <div className="flex justify-between text-xs text-gray-400 mt-1">
-        <span>0.5</span>
-        <span>5.0</span>
-      </div>
-    </div>
-  );
-}
