@@ -1,7 +1,7 @@
 # MedFlow — Documentação Completa
 
 > Copiloto financeiro e de carga para médicos plantonistas.
-> Versão: 1.1 · Março 2026
+> Versão: 1.2 · Março 2026
 
 ---
 
@@ -105,21 +105,23 @@ Alternativa: Login com Google (OAuth 2.0).
 
 **Etapa 1 — Perfil Financeiro:**
 ```
-├─ Custos fixos mensais (aluguel, alimentação, etc.)
-├─ Meta de poupança mensal
-├─ Valor médio de plantão
-└─ Parcelamentos (descrição, valor mensal, meses restantes)
+├─ Meta mínima mensal (R$)
+├─ Meta ideal mensal (R$)
+└─ Valor médio de plantão (R$)
 ```
 
 **Etapa 2 — Perfil de Trabalho:**
 ```
-├─ Tipos de plantão (12h, 24h, Noturno)
-├─ Máximo de horas semanais (opcional)
-└─ Dias preferidos de descanso (Dom-Sáb)
+├─ Tipos de plantão (12h Diurno, 12h Noturno, 24h, 24h Invertido)
+├─ Máximo de horas semanais (opcional, sem limite superior)
+├─ Dias preferidos de descanso (Dom-Sáb)
+└─ Custos energéticos pessoais
+    ├─ Diurno 12h (0.5–5.0, padrão 1.0) — escala "Leve" a "Pesado"
+    ├─ Noturno 12h (0.5–5.0, padrão 1.5)
+    └─ Plantão 24h (0.5–5.0, padrão 2.5)
 ```
 
 **Após Onboarding:**
-- Sistema calcula automaticamente `metaMínima` e `metaIdeal`
 - Redireciona para o Dashboard
 - Cria registros: FinancialProfile, WorkProfile, Subscription (ESSENTIAL)
 
@@ -479,7 +481,8 @@ frontend/
 │   │   │   ├── card.tsx
 │   │   │   ├── spinner.tsx
 │   │   │   ├── progress-bar.tsx
-│   │   │   └── risk-badge.tsx
+│   │   │   ├── risk-badge.tsx
+│   │   │   └── energy-cost-slider.tsx  # Slider de custo energético (onboarding + settings)
 │   │   ├── shifts/
 │   │   │   ├── shift-card.tsx
 │   │   │   └── shift-form-modal.tsx
@@ -506,7 +509,7 @@ frontend/
 ### Enums
 
 ```
-ShiftType:         TWELVE_HOURS, TWENTY_FOUR_HOURS, NIGHT
+ShiftType:         TWELVE_DAY, TWELVE_NIGHT, TWENTY_FOUR, TWENTY_FOUR_INVERTED
 ShiftStatus:       CONFIRMED, SIMULATED, CANCELLED
 RiskLevel:         SAFE, MODERATE, HIGH
 SubscriptionPlan:  ESSENTIAL, PRO
@@ -550,11 +553,10 @@ User (1:N) ──→ RefreshToken
 **FinancialProfile**
 | Campo | Tipo | Descrição |
 |-------|------|-----------|
-| fixedMonthlyCosts | Float | Custos fixos mensais |
-| savingsGoal | Float | Meta de poupança |
+| savingsGoal | Float | Meta de poupança (default: 0) |
 | averageShiftValue | Float | Valor médio de plantão |
-| minimumMonthlyGoal | Float | Meta mínima (calculada) = custos + parcelas |
-| idealMonthlyGoal | Float | Meta ideal (calculada) = mínima + poupança |
+| minimumMonthlyGoal | Float | Meta mínima mensal (definida pelo usuário) |
+| idealMonthlyGoal | Float | Meta ideal mensal (definida pelo usuário) |
 
 **Installment**
 | Campo | Tipo | Descrição |
@@ -568,17 +570,20 @@ User (1:N) ──→ RefreshToken
 | Campo | Tipo | Descrição |
 |-------|------|-----------|
 | shiftTypes | ShiftType[] | Tipos de plantão aceitos |
-| maxWeeklyHours | Int? | Limite pessoal de horas/semana |
+| maxWeeklyHours | Int? | Limite pessoal de horas/semana (sem teto) |
 | preferredRestDays | Int[] | Dias preferenciais de descanso (0=Dom) |
 | maxConsecutiveShifts | Int | Máximo de plantões seguidos (default: 3) |
 | maxConsecutiveNights | Int | Máximo de noturnos seguidos (default: 2) |
+| energyCostDiurno | Float | Custo energético 12h diurno (0.5–5.0, default: 1.0) |
+| energyCostNoturno | Float | Custo energético 12h noturno (0.5–5.0, default: 1.5) |
+| energyCost24h | Float | Custo energético 24h (0.5–5.0, default: 2.5) |
 
 **Shift**
 | Campo | Tipo | Descrição |
 |-------|------|-----------|
 | date | DateTime | Início do plantão |
 | endDate | DateTime | Fim do plantão |
-| type | ShiftType | Tipo (12h, 24h, Noturno) |
+| type | ShiftType | Tipo (12h Diurno, 12h Noturno, 24h, 24h Invertido) |
 | hours | Int | Duração em horas |
 | value | Float | Valor em R$ |
 | location | String | Hospital/local |
@@ -659,8 +664,9 @@ User (1:N) ──→ RefreshToken
 | Método | Rota | Descrição |
 |--------|------|-----------|
 | GET | `/users/me` | Perfil do usuário atual (com perfis) |
-| POST | `/users/onboarding` | Completar onboarding (financeiro + trabalho) |
-| PATCH | `/users/profile` | Atualizar perfil (nome, avatar) |
+| POST | `/users/onboarding` | Completar onboarding (financeiro + trabalho + custos energéticos) |
+| PATCH | `/users/profile` | Atualizar perfil (nome, gênero) |
+| PATCH | `/users/work-profile` | Atualizar perfil de trabalho (custos energéticos, etc.) |
 | DELETE | `/users/account` | Excluir conta (cascade) |
 
 #### Finance (`/finance`) — Autenticado
@@ -777,7 +783,7 @@ User (1:N) ──→ RefreshToken
 | Esqueci Senha | `/auth/forgot-password` | Formulário de e-mail para reset |
 | Reset Senha | `/auth/reset-password?token=...` | Nova senha com validação de token |
 | OAuth Callback | `/auth/callback?token=...&refresh=...` | Handler de OAuth |
-| Onboarding | `/onboarding` | 2 etapas: financeiro + trabalho |
+| Onboarding | `/onboarding` | 2 etapas: financeiro + trabalho (inclui custos energéticos) |
 | Dashboard | `/dashboard` | Hub com KPIs, risco, projeção |
 | Plantões | `/shifts` | Lista e gestão de plantões |
 | Hospitais | `/hospitals` | CRUD de hospitais |
@@ -786,7 +792,7 @@ User (1:N) ──→ RefreshToken
 | Simular | `/simulate` | Simulador "Aceito ou Não?" |
 | Smart Planner | `/smart-planner` | Cenários otimizados por IA |
 | Histórico Risco | `/risk-history` | Timeline de avaliações |
-| Configurações | `/settings` | Perfil e wearables |
+| Configurações | `/settings` | Perfil, custos energéticos e wearables |
 | Analytics | `/analytics` | Analytics avançado com gráficos e rankings |
 
 #### Componentes da Página Analytics

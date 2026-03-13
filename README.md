@@ -22,6 +22,7 @@
 - **Simulador "Aceito ou Não?"** — Simule o impacto financeiro e de risco antes de aceitar um plantão.
 - **Gestão de hospitais** — Cadastre e gerencie os hospitais onde você trabalha.
 - **Templates de plantão** — Crie modelos reutilizáveis para agilizar o registro.
+- **Custos energéticos personalizados** — Defina o impacto de cada tipo de plantão na sua energia (escala "Leve" a "Pesado").
 - **Planejamento inteligente (otimização)** — Sugestões de escala baseadas em regras e preferências.
 - **Histórico de risco** — Acompanhe sua fadiga ao longo do tempo com avaliações automáticas.
 - **Analytics avançado** — Visualize receita por hospital, tipo de plantão e tendência de crescimento ao longo do tempo.
