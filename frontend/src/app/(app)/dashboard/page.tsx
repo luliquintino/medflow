@@ -1,7 +1,8 @@
 "use client";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { TrendingUp, Clock, Calendar, Zap, ArrowRight, AlertTriangle, Battery } from "lucide-react";
+import { TrendingUp, Clock, Calendar, Zap, ArrowRight, AlertTriangle, Battery, Watch, Activity } from "lucide-react";
+import { clsx } from "clsx";
 import { useTranslations } from "next-intl";
 import { api, unwrap } from "@/lib/api";
 import { formatCurrency } from "@/lib/format";
@@ -19,6 +20,14 @@ export default function DashboardPage() {
   const { user } = useAuthStore();
   const t = useTranslations("dashboard");
   const tCommon = useTranslations("common");
+  const tSettings = useTranslations("settings");
+
+  const WEARABLE_PROVIDERS = [
+    { id: "apple_health", name: tSettings("wearables.appleHealth"), description: tSettings("wearables.appleHealthDesc"), color: "bg-red-500" },
+    { id: "garmin", name: tSettings("wearables.garmin"), description: tSettings("wearables.garminDesc"), color: "bg-blue-600" },
+    { id: "oura", name: tSettings("wearables.ouraRing"), description: tSettings("wearables.ouraRingDesc"), color: "bg-purple-600" },
+    { id: "whoop", name: tSettings("wearables.whoop"), description: tSettings("wearables.whoopDesc"), color: "bg-green-600" },
+  ];
 
   const { data, isLoading } = useQuery({
     queryKey: ["dashboard"],
@@ -224,6 +233,35 @@ export default function DashboardPage() {
           </div>
         </Card>
       )}
+
+      {/* Wearables */}
+      <div>
+        <h3 className="text-base font-semibold text-gray-800 mb-4 flex items-center gap-2">
+          <Watch className="w-4 h-4 text-moss-600" />
+          {tSettings("wearables.title")}
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {WEARABLE_PROVIDERS.map((provider) => (
+            <Card key={provider.id} padding="sm">
+              <div className="flex items-center gap-3">
+                <div className={clsx("w-10 h-10 rounded-xl flex items-center justify-center text-white", provider.color)}>
+                  <Activity className="w-5 h-5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-sm text-gray-800">{provider.name}</p>
+                  <p className="text-xs text-gray-500 truncate">{provider.description}</p>
+                </div>
+                <span className="text-xs text-gray-400 bg-cream-100 px-2 py-1 rounded-lg">
+                  {tCommon("comingSoon")}
+                </span>
+              </div>
+            </Card>
+          ))}
+        </div>
+        <p className="text-xs text-gray-400 mt-3">
+          {tSettings("wearables.description")}
+        </p>
+      </div>
 
       {/* CTA */}
       <Link href="/simulate">

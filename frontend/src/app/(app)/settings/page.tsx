@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { User, Watch, Activity, Battery, RotateCcw, Save, Pencil } from "lucide-react";
+import { User, Battery, RotateCcw, Save, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { api, unwrap, getErrorMessage } from "@/lib/api";
@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { EnergyCostSlider } from "@/components/ui/energy-cost-slider";
 import { useAuthStore } from "@/store/auth.store";
-import { clsx } from "clsx";
 import type { User as UserType, Gender } from "@/types";
 
 const selectClass =
@@ -24,40 +23,12 @@ const ENERGY_DEFAULTS = {
 
 export default function SettingsPage() {
   const t = useTranslations("settings");
-  const tCommon = useTranslations("common");
 
   const GENDER_OPTIONS: { value: Gender; label: string }[] = [
     { value: "MALE", label: t("gender.male") },
     { value: "FEMALE", label: t("gender.female") },
     { value: "NON_BINARY", label: t("gender.nonBinary") },
     { value: "PREFER_NOT_TO_SAY", label: t("gender.preferNotToSay") },
-  ];
-
-  const WEARABLE_PROVIDERS = [
-    {
-      id: "apple_health",
-      name: t("wearables.appleHealth"),
-      description: t("wearables.appleHealthDesc"),
-      color: "bg-red-500",
-    },
-    {
-      id: "garmin",
-      name: t("wearables.garmin"),
-      description: t("wearables.garminDesc"),
-      color: "bg-blue-600",
-    },
-    {
-      id: "oura",
-      name: t("wearables.ouraRing"),
-      description: t("wearables.ouraRingDesc"),
-      color: "bg-purple-600",
-    },
-    {
-      id: "whoop",
-      name: t("wearables.whoop"),
-      description: t("wearables.whoopDesc"),
-      color: "bg-green-600",
-    },
   ];
 
   const { user, setUser } = useAuthStore();
@@ -309,35 +280,6 @@ export default function SettingsPage() {
           </div>
         )}
       </Card>
-
-      {/* Wearable Providers */}
-      <div>
-        <h3 className="text-base font-semibold text-gray-800 mb-4 flex items-center gap-2">
-          <Watch className="w-4 h-4 text-moss-600" />
-          {t("wearables.title")}
-        </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {WEARABLE_PROVIDERS.map((provider) => (
-            <Card key={provider.id} padding="sm">
-              <div className="flex items-center gap-3">
-                <div className={clsx("w-10 h-10 rounded-xl flex items-center justify-center text-white", provider.color)}>
-                  <Activity className="w-5 h-5" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm text-gray-800">{provider.name}</p>
-                  <p className="text-xs text-gray-500 truncate">{provider.description}</p>
-                </div>
-                <span className="text-xs text-gray-400 bg-cream-100 px-2 py-1 rounded-lg">
-                  {tCommon("comingSoon")}
-                </span>
-              </div>
-            </Card>
-          ))}
-        </div>
-        <p className="text-xs text-gray-400 mt-3">
-          {t("wearables.description")}
-        </p>
-      </div>
     </div>
   );
 }

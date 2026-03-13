@@ -159,6 +159,7 @@ MEDFLOW
   ├─ Barras de progresso (Meta Mínima & Ideal)
   ├─ Avaliação de risco com recomendações
   ├─ Gráfico de projeção 3 meses (Recharts)
+  ├─ Wearables (Apple Health, Garmin, Oura, Whoop)
   └─ CTA: "Simular um Plantão"
 
   PLANTÕES (Shifts)
@@ -210,9 +211,7 @@ MEDFLOW
 
   CONFIGURAÇÕES (Settings)
   ├─ Perfil do usuário
-  ├─ Wearables (Apple Health, Garmin, Oura, Whoop)
-  ├─ Dados mais recentes (HRV, sono, recuperação)
-  └─ Histórico de 7 dias
+  └─ Custos energéticos pessoais
 ```
 
 ### Conexões entre Features
@@ -784,7 +783,7 @@ User (1:N) ──→ RefreshToken
 | Reset Senha | `/auth/reset-password?token=...` | Nova senha com validação de token |
 | OAuth Callback | `/auth/callback?token=...&refresh=...` | Handler de OAuth |
 | Onboarding | `/onboarding` | 2 etapas: financeiro + trabalho (inclui custos energéticos) |
-| Dashboard | `/dashboard` | Hub com KPIs, risco, projeção |
+| Dashboard | `/dashboard` | Hub com KPIs, risco, projeção e wearables |
 | Plantões | `/shifts` | Lista e gestão de plantões |
 | Hospitais | `/hospitals` | CRUD de hospitais |
 | Templates | `/hospitals/[id]/templates` | Templates por hospital |
@@ -792,7 +791,7 @@ User (1:N) ──→ RefreshToken
 | Simular | `/simulate` | Simulador "Aceito ou Não?" |
 | Smart Planner | `/smart-planner` | Cenários otimizados por IA |
 | Histórico Risco | `/risk-history` | Timeline de avaliações |
-| Configurações | `/settings` | Perfil, custos energéticos e wearables |
+| Configurações | `/settings` | Perfil e custos energéticos |
 | Analytics | `/analytics` | Analytics avançado com gráficos e rankings |
 
 #### Componentes da Página Analytics
