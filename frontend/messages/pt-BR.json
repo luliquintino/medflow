@@ -361,9 +361,7 @@
     "locationPlaceholder": "Hospital / UPA / Pronto-Socorro",
     "notesLabel": "Observações (opcional)",
     "notesPlaceholder": "Alguma anotação...",
-    "statusLabel": "Status",
-    "statusConfirmed": "Confirmado",
-    "statusSimulated": "Simulado",
+    "simulationCta": "Faça a simulação e veja se é bom você aceitar esse plantão com base em dados",
     "cancel": "Cancelar",
     "save": "Salvar",
     "add": "Adicionar"

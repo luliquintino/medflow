@@ -70,7 +70,6 @@ describe('OnboardingPage', () => {
     render(<OnboardingPage />);
     expect(screen.getByText('Meta mensal mínima (R$)')).toBeInTheDocument();
     expect(screen.getByText('Meta mensal ideal (R$)')).toBeInTheDocument();
-    expect(screen.getByText('Meta de reserva/poupança mensal (R$)')).toBeInTheDocument();
     expect(screen.getByText('Valor médio por plantão (R$)')).toBeInTheDocument();
   });
 

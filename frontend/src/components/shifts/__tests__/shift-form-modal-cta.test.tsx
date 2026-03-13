@@ -25,11 +25,22 @@ const mockWatch = jest.fn((field: string) => {
   if (field === 'status') return 'CONFIRMED';
   return '';
 });
+const mockHandleSubmit = jest.fn((cb: any) => (e: any) => {
+  e?.preventDefault();
+  cb({
+    date: '2025-01-15T08:00',
+    type: 'TWELVE_DAY',
+    value: 1500,
+    location: 'Hospital A',
+    notes: '',
+    status: 'CONFIRMED',
+  });
+});
 
 jest.mock('react-hook-form', () => ({
   useForm: jest.fn(() => ({
     register: jest.fn(() => ({})),
-    handleSubmit: jest.fn(() => (e: any) => { e?.preventDefault(); }),
+    handleSubmit: mockHandleSubmit,
     reset: mockReset,
     setValue: mockSetValue,
     watch: mockWatch,
@@ -85,83 +96,95 @@ import { ShiftFormModal } from '../shift-form-modal';
 
 const mockUseQuery = useQuery as jest.Mock;
 
-const defaultProps = {
-  isOpen: true,
-  onClose: jest.fn(),
-  editingShift: null,
-};
+describe('ShiftFormModal – CTA & Status', () => {
+  const defaultProps = {
+    isOpen: true,
+    onClose: jest.fn(),
+    editingShift: null,
+  };
 
-const mockEditingShift = {
-  id: '1',
-  date: '2025-01-15T08:00:00Z',
-  endDate: '2025-01-15T20:00:00Z',
-  type: 'TWELVE_DAY' as const,
-  hours: 12,
-  value: 1500,
-  location: 'Hospital A',
-  status: 'CONFIRMED' as const,
-  hospitalId: undefined,
-  createdAt: '2025-01-01T00:00:00Z',
-};
-
-describe('ShiftFormModal', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockUseQuery.mockReturnValue({ data: [], isLoading: false });
   });
 
-  it('returns null when isOpen is false', () => {
-    const { container } = render(
-      <ShiftFormModal {...defaultProps} isOpen={false} />
-    );
-    expect(container.innerHTML).toBe('');
-  });
-
-  it('renders "Novo plantão" title when no editingShift', () => {
+  it('renders the simulation CTA link with correct href="/simulate"', () => {
     render(<ShiftFormModal {...defaultProps} />);
-    expect(screen.getByText('Novo plantão')).toBeInTheDocument();
+
+    const ctaLink = screen.getByText(
+      'Faça a simulação e veja se é bom você aceitar esse plantão com base em dados'
+    ).closest('a');
+
+    expect(ctaLink).toHaveAttribute('href', '/simulate');
   });
 
-  it('renders "Editar plantão" title when editingShift provided', () => {
-    render(
-      <ShiftFormModal {...defaultProps} editingShift={mockEditingShift} />
-    );
-    expect(screen.getByText('Editar plantão')).toBeInTheDocument();
-  });
-
-  it('shows form fields (date input, type buttons, value input)', () => {
+  it('renders the simulation CTA with correct Portuguese text', () => {
     render(<ShiftFormModal {...defaultProps} />);
-    expect(screen.getByText('Data e hora')).toBeInTheDocument();
-    expect(screen.getByText('Tipo')).toBeInTheDocument();
-    expect(screen.getByText('Valor (R$)')).toBeInTheDocument();
-    expect(screen.getByText('Local')).toBeInTheDocument();
-    expect(screen.getByText('12h Diurno')).toBeInTheDocument();
-    expect(screen.getByText('12h Noturno')).toBeInTheDocument();
-    expect(screen.getByText('24h')).toBeInTheDocument();
-    expect(screen.getByText('24h Invertido')).toBeInTheDocument();
+
+    expect(
+      screen.getByText(
+        'Faça a simulação e veja se é bom você aceitar esse plantão com base em dados'
+      )
+    ).toBeInTheDocument();
   });
 
-  it('cancel button calls onClose', () => {
+  it('renders the BarChart3 icon inside the CTA', () => {
+    render(<ShiftFormModal {...defaultProps} />);
+
+    // The CTA link contains the BarChart3 icon (mocked as data-testid="icon-barchart3")
+    expect(screen.getByTestId('icon-barchart3')).toBeInTheDocument();
+  });
+
+  it('clicking CTA calls onClose (closes the modal)', () => {
     const onClose = jest.fn();
     render(<ShiftFormModal {...defaultProps} onClose={onClose} />);
-    fireEvent.click(screen.getByText('Cancelar'));
+
+    const ctaLink = screen.getByText(
+      'Faça a simulação e veja se é bom você aceitar esse plantão com base em dados'
+    ).closest('a')!;
+
+    fireEvent.click(ctaLink);
+
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  it('shows simulation CTA link', () => {
+  it('does NOT render a CONFIRMED/SIMULATED status toggle (it was removed)', () => {
     render(<ShiftFormModal {...defaultProps} />);
-    expect(screen.getByText('Faça a simulação e veja se é bom você aceitar esse plantão com base em dados')).toBeInTheDocument();
-  });
 
-  it('shows "Adicionar" submit button when creating new shift', () => {
-    render(<ShiftFormModal {...defaultProps} />);
-    expect(screen.getByText('Adicionar')).toBeInTheDocument();
-  });
-
-  it('shows "Salvar" submit button when editing shift', () => {
-    render(
-      <ShiftFormModal {...defaultProps} editingShift={mockEditingShift} />
+    // The old status toggle buttons should not exist
+    const allButtons = screen.getAllByRole('button');
+    const statusButtons = allButtons.filter(
+      (btn) =>
+        btn.textContent === 'CONFIRMED' ||
+        btn.textContent === 'SIMULATED' ||
+        btn.textContent === 'Confirmado' ||
+        btn.textContent === 'Simulado'
     );
-    expect(screen.getByText('Salvar')).toBeInTheDocument();
+    expect(statusButtons).toHaveLength(0);
+
+    // There should be no select or radio for status
+    expect(screen.queryByLabelText(/status/i)).not.toBeInTheDocument();
+  });
+
+  it('form submits with status defaulting to CONFIRMED', () => {
+    const { useMutation } = require('@tanstack/react-query');
+    const mockMutate = jest.fn();
+    (useMutation as jest.Mock).mockReturnValue({
+      mutate: mockMutate,
+      mutateAsync: jest.fn(),
+      isPending: false,
+    });
+
+    render(<ShiftFormModal {...defaultProps} />);
+
+    // Click the submit button ("Adicionar")
+    fireEvent.click(screen.getByText('Adicionar'));
+
+    // handleSubmit callback should have been invoked with data including status: CONFIRMED
+    expect(mockMutate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        status: 'CONFIRMED',
+      })
+    );
   });
 });

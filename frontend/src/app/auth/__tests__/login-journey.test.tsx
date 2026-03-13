@@ -76,7 +76,6 @@ describe('Login Journey', () => {
     const user = userEvent.setup();
     render(<LoginPage />);
 
-    // Only fill password, leave email empty to trigger email validation
     await user.type(screen.getByPlaceholderText('Sua senha'), 'password123');
     await user.click(screen.getByRole('button', { name: /entrar/i }));
 

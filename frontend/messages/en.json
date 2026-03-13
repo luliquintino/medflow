@@ -361,9 +361,7 @@
     "locationPlaceholder": "Hospital / UPA / ER",
     "notesLabel": "Notes (optional)",
     "notesPlaceholder": "Any notes...",
-    "statusLabel": "Status",
-    "statusConfirmed": "Confirmed",
-    "statusSimulated": "Simulated",
+    "simulationCta": "Run a simulation and see if it's worth taking this shift based on data",
     "cancel": "Cancel",
     "save": "Save",
     "add": "Add"

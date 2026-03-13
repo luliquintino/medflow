@@ -118,7 +118,8 @@ describe('Frontend Edge Cases', () => {
       const DashboardPage = (await import('../app/(app)/dashboard/page')).default;
       render(<DashboardPage />);
       // Should render greeting at minimum
-      expect(screen.getByText('Olá, Dra. Luiza')).toBeInTheDocument();
+      // The i18n mock doesn't parse ICU select syntax, so the raw template with {name} partially replaced is rendered
+      expect(screen.getByText(/Olá, Dra\. Luiza/)).toBeInTheDocument();
     });
 
     it('renders KPI placeholders when finance is null', async () => {

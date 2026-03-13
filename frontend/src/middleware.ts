@@ -9,7 +9,7 @@ export function middleware(request: NextRequest) {
 
   // --- Locale detection (runs on all requests) ---
   const localeCookie = request.cookies.get('NEXT_LOCALE')?.value;
-  let response = NextResponse.next();
+  const response = NextResponse.next();
 
   if (!localeCookie || !SUPPORTED_LOCALES.includes(localeCookie)) {
     const acceptLang = request.headers.get('Accept-Language') || '';

@@ -38,6 +38,6 @@ export const mockPrismaService = {
     delete: jest.fn(),
     createMany: jest.fn(),
   },
-  riskHistory: { create: jest.fn(), findMany: jest.fn() },
+  riskHistory: { create: jest.fn(), findMany: jest.fn(), findFirst: jest.fn(), update: jest.fn() },
   wearableData: { create: jest.fn(), findMany: jest.fn() },
 };

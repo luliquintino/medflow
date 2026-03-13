@@ -1,13 +1,14 @@
 "use client";
 import { useState, useEffect, useRef, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { X } from "lucide-react";
+import { X, BarChart3 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { clsx } from "clsx";
 import { track } from "@vercel/analytics";
 import { useTranslations } from "next-intl";
+import Link from "next/link";
 import { api, unwrap, getErrorMessage } from "@/lib/api";
 import { formatCurrency } from "@/lib/format";
 import { Button } from "@/components/ui/button";
@@ -275,29 +276,21 @@ export function ShiftFormModal({ isOpen, onClose, editingShift, defaultDate, onS
           <Input label={t("locationLabel")} placeholder={t("locationPlaceholder")} error={errors.location?.message} {...register("location")} />
           <Input label={t("notesLabel")} placeholder={t("notesPlaceholder")} {...register("notes")} />
 
-          {/* Status */}
-          <div>
-            <label className="text-sm font-medium text-gray-700 mb-2 block">{t("statusLabel")}</label>
-            <div className="flex gap-2">
-              {["CONFIRMED", "SIMULATED"].map((s) => (
-                <button
-                  key={s}
-                  type="button"
-                  onClick={() => setValue("status", s as FormData["status"])}
-                  className={clsx(
-                    "flex-1 py-2 rounded-xl text-sm font-medium border transition-all",
-                    watch("status") === s
-                      ? "bg-moss-600 text-white border-moss-600"
-                      : "bg-white border-cream-300 text-gray-600"
-                  )}
-                >
-                  {s === "CONFIRMED" ? t("statusConfirmed") : t("statusSimulated")}
-                </button>
-              ))}
-            </div>
-          </div>
-
           {error && <p className="text-sm text-red-500 bg-red-50 rounded-xl px-3 py-2">{error}</p>}
+
+          {/* Simulation CTA */}
+          <Link
+            href="/simulate"
+            onClick={handleClose}
+            className="flex items-center gap-3 rounded-2xl border border-moss-200 bg-moss-50/60 px-4 py-3 transition-all hover:bg-moss-100 hover:border-moss-300 group"
+          >
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-moss-600 text-white">
+              <BarChart3 className="h-4 w-4" />
+            </div>
+            <p className="text-sm text-gray-600 leading-snug group-hover:text-gray-800">
+              {t("simulationCta")}
+            </p>
+          </Link>
 
           <div className="flex gap-3 pt-2">
             <Button type="button" variant="secondary" onClick={handleClose} className="flex-1">

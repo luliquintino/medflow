@@ -10,6 +10,7 @@ jest.mock('lucide-react', () => ({
 const mockUsePathname = jest.fn();
 jest.mock('next/navigation', () => ({
   usePathname: () => mockUsePathname(),
+  useRouter: () => ({ push: jest.fn(), replace: jest.fn(), refresh: jest.fn() }),
 }));
 
 jest.mock('next/image', () => ({

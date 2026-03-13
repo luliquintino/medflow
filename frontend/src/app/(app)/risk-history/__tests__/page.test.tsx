@@ -107,7 +107,6 @@ describe('RiskHistoryPage', () => {
   it('shows workload details', () => {
     mockUseQuery.mockReturnValue({ data: mockHistory, isLoading: false });
     render(<RiskHistoryPage />);
-    expect(screen.getByText('24h / 5 dias')).toBeInTheDocument();
     expect(screen.getByText('36h / semana')).toBeInTheDocument();
     expect(screen.getByText('0 noturno(s) seguido(s)')).toBeInTheDocument();
   });

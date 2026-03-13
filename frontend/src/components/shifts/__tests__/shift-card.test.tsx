@@ -39,12 +39,14 @@ describe('ShiftCard', () => {
 
   it('should render shift type label', () => {
     render(<ShiftCard shift={createShift()} />);
-    expect(screen.getByText('12 horas')).toBeInTheDocument();
+    expect(screen.getByText('12h Diurno')).toBeInTheDocument();
   });
 
   it('should render 24h type label', () => {
     render(<ShiftCard shift={createShift({ type: 'TWENTY_FOUR', hours: 24 })} />);
-    expect(screen.getByText('24h')).toBeInTheDocument();
+    // "24h" appears both as type label and hours display, so use getAllByText
+    const matches = screen.getAllByText('24h');
+    expect(matches.length).toBeGreaterThanOrEqual(1);
   });
 
   it('should render night type label', () => {

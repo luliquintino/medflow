@@ -116,7 +116,10 @@ export function unwrap<T>(response: { data: { data: T } }): T {
 
 export function getErrorMessage(error: unknown): string {
   if (error instanceof AxiosError) {
-    const msg = error.response?.data?.message;
+    if (!error.response) {
+      return "Sem conexão com o servidor. Verifique sua internet ou tente novamente.";
+    }
+    const msg = error.response.data?.message;
     if (Array.isArray(msg)) return msg[0];
     return msg || "Algo deu errado. Tente novamente.";
   }

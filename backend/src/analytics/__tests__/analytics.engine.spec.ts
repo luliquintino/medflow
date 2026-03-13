@@ -195,14 +195,14 @@ describe('AnalyticsEngine', () => {
       expect(twelve?.totalRevenue).toBe(3000);
       expect(twelve?.shiftCount).toBe(2);
       expect(twelve?.avgPerHour).toBe(125); // 3000 / 24 hours
-      expect(twelve?.typeLabel).toBe('Diurno 12h');
+      expect(twelve?.typeLabel).toBe('12h Diurno');
 
       expect(twentyFour?.totalRevenue).toBe(2000);
       expect(twentyFour?.avgPerHour).toBeCloseTo(83.33, 1);
-      expect(twentyFour?.typeLabel).toBe('Plantão 24h');
+      expect(twentyFour?.typeLabel).toBe('24h');
 
       expect(night?.totalRevenue).toBe(1800);
-      expect(night?.typeLabel).toBe('Noturno');
+      expect(night?.typeLabel).toBe('12h Noturno');
     });
   });
 

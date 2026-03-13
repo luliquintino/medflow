@@ -45,6 +45,7 @@ describe('RiskEngineService', () => {
 
       prisma.shift.findMany.mockResolvedValue(shifts);
       prisma.workProfile.findUnique.mockResolvedValue(workProfile);
+      prisma.riskHistory.findFirst.mockResolvedValue(null);
       prisma.riskHistory.create.mockResolvedValue({ id: 'risk-1' });
 
       const result = await service.evaluate(userId);
@@ -89,6 +90,7 @@ describe('RiskEngineService', () => {
 
       prisma.shift.findMany.mockResolvedValue(shifts);
       prisma.workProfile.findUnique.mockResolvedValue(null);
+      prisma.riskHistory.findFirst.mockResolvedValue(null);
       prisma.riskHistory.create.mockResolvedValue({ id: 'risk-1' });
 
       const result = await service.evaluate(userId);
@@ -101,6 +103,7 @@ describe('RiskEngineService', () => {
 
       prisma.shift.findMany.mockResolvedValue([]);
       prisma.workProfile.findUnique.mockResolvedValue(null);
+      prisma.riskHistory.findFirst.mockResolvedValue(null);
       prisma.riskHistory.create.mockResolvedValue({ id: 'risk-1' });
 
       const result = await service.evaluate(userId);
@@ -116,6 +119,7 @@ describe('RiskEngineService', () => {
 
       prisma.shift.findMany.mockResolvedValue([]);
       prisma.workProfile.findUnique.mockResolvedValue(null);
+      prisma.riskHistory.findFirst.mockResolvedValue(null);
       prisma.riskHistory.create.mockResolvedValue({ id: 'risk-1' });
 
       const result = await service.evaluate(userId);
@@ -132,6 +136,7 @@ describe('RiskEngineService', () => {
 
       prisma.shift.findMany.mockResolvedValue([]);
       prisma.workProfile.findUnique.mockResolvedValue(null);
+      prisma.riskHistory.findFirst.mockResolvedValue(null);
       prisma.riskHistory.create.mockResolvedValue({ id: 'risk-1' });
 
       await service.evaluate(userId);
@@ -151,6 +156,27 @@ describe('RiskEngineService', () => {
           consecutiveNights: 0,
         }),
       });
+    });
+
+    it('should update existing snapshot when one exists today', async () => {
+      const userId = 'user-1';
+      const existingSnapshot = { id: 'existing-risk-1', userId };
+
+      prisma.shift.findMany.mockResolvedValue([]);
+      prisma.workProfile.findUnique.mockResolvedValue(null);
+      prisma.riskHistory.findFirst.mockResolvedValue(existingSnapshot);
+      prisma.riskHistory.update.mockResolvedValue({ id: 'existing-risk-1' });
+
+      await service.evaluate(userId);
+
+      expect(prisma.riskHistory.update).toHaveBeenCalledWith({
+        where: { id: 'existing-risk-1' },
+        data: expect.objectContaining({
+          riskLevel: 'SAFE',
+          riskScore: 0,
+        }),
+      });
+      expect(prisma.riskHistory.create).not.toHaveBeenCalled();
     });
   });
 
@@ -245,14 +271,14 @@ describe('RiskEngineService', () => {
           userId,
           riskLevel: 'SAFE',
           riskScore: 10,
-          createdAt: new Date(),
+          createdAt: new Date('2026-03-13T10:00:00Z'),
         },
         {
           id: 'rh-2',
           userId,
           riskLevel: 'MODERATE',
           riskScore: 45,
-          createdAt: new Date(),
+          createdAt: new Date('2026-03-12T10:00:00Z'),
         },
       ];
 
@@ -263,7 +289,7 @@ describe('RiskEngineService', () => {
       expect(prisma.riskHistory.findMany).toHaveBeenCalledWith({
         where: { userId },
         orderBy: { createdAt: 'desc' },
-        take: 30,
+        take: 90, // limit * 3 to compensate for legacy duplicates
       });
       expect(result).toEqual(history);
       expect(result).toHaveLength(2);
@@ -279,7 +305,7 @@ describe('RiskEngineService', () => {
       expect(prisma.riskHistory.findMany).toHaveBeenCalledWith({
         where: { userId },
         orderBy: { createdAt: 'desc' },
-        take: 10,
+        take: 30, // 10 * 3
       });
     });
 
@@ -291,6 +317,25 @@ describe('RiskEngineService', () => {
       const result = await service.getHistory(userId);
 
       expect(result).toEqual([]);
+    });
+
+    it('should deduplicate entries from the same day', async () => {
+      const userId = 'user-1';
+      const sameDay = new Date('2026-03-13T10:00:00Z');
+      const history = [
+        { id: 'rh-1', userId, riskLevel: 'MODERATE', riskScore: 45, createdAt: new Date('2026-03-13T15:00:00Z') },
+        { id: 'rh-2', userId, riskLevel: 'SAFE', riskScore: 10, createdAt: new Date('2026-03-13T08:00:00Z') },
+        { id: 'rh-3', userId, riskLevel: 'SAFE', riskScore: 5, createdAt: new Date('2026-03-12T10:00:00Z') },
+      ];
+
+      prisma.riskHistory.findMany.mockResolvedValue(history);
+
+      const result = await service.getHistory(userId);
+
+      // Should keep only one entry per day (the first one seen, which is the most recent)
+      expect(result).toHaveLength(2);
+      expect(result[0].id).toBe('rh-1');
+      expect(result[1].id).toBe('rh-3');
     });
   });
 });

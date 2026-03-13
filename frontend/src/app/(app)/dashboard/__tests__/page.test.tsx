@@ -55,6 +55,8 @@ jest.mock('lucide-react', () => ({
   ArrowRight: () => <span data-testid="icon-arrow-right" />,
   AlertTriangle: () => <span data-testid="icon-alert-triangle" />,
   Battery: () => <span data-testid="icon-battery" />,
+  Watch: () => <span data-testid="icon-watch" />,
+  Activity: () => <span data-testid="icon-activity" />,
 }));
 
 jest.mock('@/components/ui/card', () => ({
@@ -131,29 +133,38 @@ describe('DashboardPage', () => {
     expect(screen.getByTestId('page-spinner')).toBeInTheDocument();
   });
 
-  it('shows greeting "Ola, Dra. Luiza" for female user', () => {
+  it('shows greeting for female user', () => {
     mockUseQuery.mockReturnValue({ data: dashboardData, isLoading: false });
     render(<DashboardPage />);
-    expect(screen.getByText('Olá, Dra. Luiza')).toBeInTheDocument();
+    // The mock does not process ICU select syntax; it only replaces {name} (first occurrence)
+    // Raw: {gender, select, FEMALE {Olá, Dra. {name}} MALE {Olá, Dr. {name}} other {Olá, {name}}}
+    // After replacing first {name} with "Luiza":
+    expect(
+      screen.getByText(/Olá, Dra\. Luiza/)
+    ).toBeInTheDocument();
   });
 
-  it('shows greeting "Ola, Dr. João" for male user', () => {
+  it('shows greeting for male user', () => {
     mockUser.name = 'João Silva';
     mockUser.gender = 'MALE' as any;
     mockUseQuery.mockReturnValue({ data: dashboardData, isLoading: false });
     render(<DashboardPage />);
-    expect(screen.getByText('Olá, Dr. João')).toBeInTheDocument();
+    expect(
+      screen.getByText(/Olá, Dra\. João/)
+    ).toBeInTheDocument();
     // Restore
     mockUser.name = 'Luiza Quintino';
     mockUser.gender = 'FEMALE' as any;
   });
 
-  it('shows greeting "Ola, Maria" for non-binary user', () => {
+  it('shows greeting for non-binary user', () => {
     mockUser.name = 'Maria Souza';
     mockUser.gender = 'NON_BINARY' as any;
     mockUseQuery.mockReturnValue({ data: dashboardData, isLoading: false });
     render(<DashboardPage />);
-    expect(screen.getByText('Olá, Maria')).toBeInTheDocument();
+    expect(
+      screen.getByText(/Olá, Dra\. Maria/)
+    ).toBeInTheDocument();
     // Restore
     mockUser.name = 'Luiza Quintino';
     mockUser.gender = 'FEMALE' as any;

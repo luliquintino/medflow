@@ -1,7 +1,7 @@
 # MedFlow — Documentação Completa
 
 > Copiloto financeiro e de carga para médicos plantonistas.
-> Versão: 1.3 · Março 2026
+> Versão: 1.4 · Março 2026
 
 ---
 
@@ -27,6 +27,7 @@
 18. [Event Tracking (Vercel Analytics)](#18-event-tracking-vercel-analytics)
 19. [Deploy & Infraestrutura](#19-deploy--infraestrutura)
 20. [Internacionalização (i18n)](#20-internacionalização-i18n)
+21. [Infraestrutura de Testes](#21-infraestrutura-de-testes)
 
 ---
 
@@ -1317,36 +1318,38 @@ NEXT_PUBLIC_API_URL=http://127.0.0.1:3001/api/v1  # URL do backend
 
 ### Visão Geral
 
-O projeto possui **767 testes** distribuídos em **99 suites**, cobrindo todos os módulos, páginas, componentes, jornadas de usuário e testes E2E.
+O projeto possui **770+ testes** distribuídos em **99+ suites**, cobrindo todos os módulos, páginas, componentes, jornadas de usuário, edge cases e testes E2E.
 
-### Backend (46 suites / 393 testes)
+### Backend (46 suites / 396 testes)
 
 | Categoria | Suites | Testes | Cobertura |
 |-----------|--------|--------|-----------|
 | Serviços | 12 | ~120 | Auth, Users, Shifts, Finance, Hospitals, Risk Engine, Dashboard, Subscription, Wearable, Mail, Shift Templates, Analytics |
 | Controllers | 12 | ~100 | Todos os endpoints HTTP com validações de DTO |
-| Engines | 4 | ~50 | Finance Engine, Shifts Engine (Workload), Optimization Engine, Analytics Engine |
+| Engines | 4 | ~55 | Finance Engine, Shifts Engine (Workload), Optimization Engine, Analytics Engine |
 | Infraestrutura | 4 | ~20 | JWT Guard, HTTP Exception Filter, Decorators, Response Interceptor |
 | Schema | 1 | ~41 | Validação do schema Prisma (modelos, enums, relações) |
 | E2E | 11 | ~52 | Fluxos completos de auth, users, shifts, finance, hospitals, risk, dashboard, wearable, subscription, optimization, analytics |
-| Edge Cases | 2 | ~15 | Cenários limítrofes e permissões |
+| Edge Cases | 2+ | ~15+ | Cenários limítrofes, permissões, auth lockout, finance edge cases |
 
 **Frameworks:** Jest + NestJS Testing Utilities
 
-**Mock Factory:** `backend/test/mocks/prisma.mock.ts` — cria mocks automáticos para todos os modelos do Prisma, eliminando a necessidade de mocks manuais.
+**Mock Factory:** `backend/test/mocks/prisma.mock.ts` — cria mocks para todos os modelos do Prisma (User, Shift, Hospital, RiskHistory, etc.) com métodos findMany, findUnique, findFirst, create, update, delete.
 
-### Frontend (~53 suites / ~374 testes)
+### Frontend (53+ suites / 374+ testes)
 
 | Categoria | Suites | Testes | Cobertura |
 |-----------|--------|--------|-----------|
-| Componentes UI | 6 | ~40 | Button, Input, Card, ProgressBar, RiskBadge, Spinner |
+| Componentes UI | 7 | ~45 | Button, Input, Card, ProgressBar, RiskBadge, Spinner, PasswordInput |
 | Componentes Layout | 2 | ~15 | Sidebar, Topbar |
-| Componentes Shifts | 1 | ~8 | ShiftCard |
+| Componentes Shifts | 2 | ~15 | ShiftCard, ShiftFormModal (incl. CTA de simulação) |
 | Páginas App | 10 | ~90 | Dashboard, Shifts, Hospitals, Finance, Simulate, Smart Planner, Risk History, Settings, Onboarding, Analytics |
 | Auth Pages | 4 | ~25 | Login, Register, Forgot Password, Reset Password |
 | Jornadas | 3 | ~25 | Login Journey, Register Journey, Password Recovery Journey |
-| Integração | 2 | ~15 | API Client (interceptors, refresh), Auth Store (Zustand) |
-| Edge Cases | 2 | ~20 | Erros de API, estados vazios, dados nulos |
+| Integração | 2 | ~15 | API Client (interceptors, refresh, error handling), Auth Store (Zustand) |
+| Edge Cases | 3+ | ~25+ | Erros de API, erros de rede, estados vazios, dados nulos, login edge cases |
+| Finance Components | 9 | ~40 | AnalyticsPreview, BudgetModal, FinanceInsights, FinanceKPIs, FinanceProgress, MonthNavigator, MonthShiftsList, ProjectionChart |
+| Analytics Components | 6 | ~30 | AnalyticsKPIs, GrowthTrendChart, HospitalIncomeChart, HospitalRanking, MonthlyIncomeChart, ShiftTypeBreakdown |
 
 **Frameworks:** Jest + React Testing Library + @testing-library/user-event
 
@@ -1583,4 +1586,50 @@ O Topbar inclui um seletor de idioma que persiste a preferência do usuário via
 
 ---
 
-> Documento gerado em Março 2026. MedFlow v1.3.
+## 21. Infraestrutura de Testes
+
+### Mocks do Frontend
+
+O frontend usa mocks customizados para isolar componentes Next.js e bibliotecas externas:
+
+| Mock | Arquivo | Função |
+|------|---------|--------|
+| `next-intl` | `src/__mocks__/next-intl.ts` | Lê `messages/pt-BR.json` e resolve chaves aninhadas com interpolação de parâmetros |
+| `next/link` | `src/__mocks__/next/link.tsx` | Renderiza `<a>` tags com href |
+| `next/navigation` | `src/__mocks__/next/navigation.ts` | Mocks para useRouter, usePathname, useSearchParams |
+| `next/image` | `src/__mocks__/next/image.tsx` | Renderiza `<img>` tags |
+| `@vercel/analytics` | `src/__mocks__/@vercel/analytics.ts` | Mock de track() e inject() |
+
+**Detalhe do mock i18n:** O mock de `next-intl` não retorna chaves brutas — ele lê as traduções reais do `pt-BR.json`, permitindo que os testes validem o texto que o usuário de fato vê. Suporta `useTranslations`, `useLocale`, `useMessages`, `useFormatter` e `NextIntlClientProvider`.
+
+### Mock do Prisma (Backend)
+
+`backend/test/mocks/prisma.mock.ts` exporta um objeto `mockPrismaService` com mocks jest.fn() para todos os modelos:
+
+```
+User, RefreshToken, Subscription, Shift, FinancialProfile,
+WorkProfile, Hospital, ShiftTemplate, RiskHistory, WearableData
+```
+
+Cada modelo inclui: `findMany`, `findUnique`, `findFirst`, `create`, `update`, `delete` (conforme uso).
+
+### Jest Config
+
+| Projeto | Arquivo | Ambiente | Transform |
+|---------|---------|----------|-----------|
+| Backend | `jest.config.ts` | node | ts-jest |
+| Frontend | `jest.config.js` | jsdom | ts-jest com tsconfig.jest.json |
+
+### Cobertura por Tipo de Teste
+
+```
+Unitários         → Serviços, engines, componentes, stores, hooks
+Integração        → Controllers + guards, páginas + API mock
+E2E (Backend)     → Fluxos completos via supertest (auth → shifts → finance)
+Jornadas (FE)     → Login, registro, recuperação de senha (userEvent)
+Edge Cases        → Erros de rede, lockout, dados nulos, validações
+```
+
+---
+
+> Documento gerado em Março 2026. MedFlow v1.4.

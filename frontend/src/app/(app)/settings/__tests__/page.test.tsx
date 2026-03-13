@@ -114,13 +114,9 @@ describe('SettingsPage', () => {
     expect(screen.getByText('24h')).toBeInTheDocument();
   });
 
-  it('shows wearable providers section', () => {
+  it('does not render wearable providers (moved to dashboard)', () => {
     render(<SettingsPage />);
-    expect(screen.getByText('Wearables conectados')).toBeInTheDocument();
-    expect(screen.getByText('Apple Health')).toBeInTheDocument();
-    expect(screen.getByText('Garmin')).toBeInTheDocument();
-    expect(screen.getByText('Oura Ring')).toBeInTheDocument();
-    expect(screen.getByText('Whoop')).toBeInTheDocument();
+    expect(screen.queryByText('Wearables conectados')).not.toBeInTheDocument();
   });
 
   it('shows edit button for profile', () => {

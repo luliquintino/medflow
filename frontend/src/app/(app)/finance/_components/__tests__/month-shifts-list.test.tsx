@@ -13,7 +13,7 @@ jest.mock('@/components/ui/card', () => ({
 }));
 
 jest.mock('@/components/shifts/shift-card', () => ({
-  ShiftCard: ({ shift }: any) => <div data-testid="shift-card">{shift.hospital}</div>,
+  ShiftCard: ({ shift }: any) => <div data-testid="shift-card">{shift.hospital?.name || shift.location}</div>,
 }));
 
 jest.mock('lucide-react', () => ({
@@ -145,7 +145,8 @@ describe('MonthShiftsList', () => {
         onAdd={mockOnAdd}
       />
     );
-    expect(screen.getByText(/2 confirmados/)).toBeInTheDocument();
+    // The i18n mock doesn't parse ICU plural syntax, so it returns the raw template string
+    expect(screen.getByText(/confirmado/)).toBeInTheDocument();
   });
 
   it('shows total revenue in summary', () => {

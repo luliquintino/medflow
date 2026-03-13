@@ -71,10 +71,10 @@ describe('Register Journey', () => {
     expect(screen.getByText('Entrar').closest('a')).toHaveAttribute('href', '/auth/login');
   });
 
-  it('shows gender select options', () => {
+  it('shows CRM field with hint', () => {
     render(<RegisterPage />);
-    expect(screen.getByText('Masculino')).toBeInTheDocument();
-    expect(screen.getByText('Feminino')).toBeInTheDocument();
+    expect(screen.getByText('CRM')).toBeInTheDocument();
+    expect(screen.getByText('Formato: numero/UF (ex: 123456/SP)')).toBeInTheDocument();
   });
 
   it('shows submit button', () => {
@@ -141,10 +141,6 @@ describe('Register Journey', () => {
 
     await user.type(screen.getByPlaceholderText('Mínimo 8 caracteres'), 'Password1');
     await user.type(screen.getByPlaceholderText('Repita a senha'), 'Password1');
-
-    // Select gender to avoid Zod enum validation on empty string
-    const genderSelect = screen.getByDisplayValue('Prefiro nao informar');
-    await user.selectOptions(genderSelect, 'FEMALE');
 
     await user.click(screen.getByRole('button', { name: /criar conta/i }));
 
