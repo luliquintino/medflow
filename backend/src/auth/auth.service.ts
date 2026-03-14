@@ -235,6 +235,9 @@ export class AuthService {
         passwordHash,
         resetPasswordToken: null,
         resetPasswordExpiry: null,
+        failedLoginAttempts: 0,
+        lockedUntil: null,
+        lastFailedLoginAt: null,
       },
     });
 
