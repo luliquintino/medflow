@@ -12,12 +12,12 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
-import { ShiftType } from '@prisma/client';
 import { ShiftsService } from './shifts.service';
 import { CreateShiftDto } from './dto/create-shift.dto';
 import { UpdateShiftDto } from './dto/update-shift.dto';
 import { QueryShiftsDto } from './dto/query-shifts.dto';
 import { CheckConflictsDto } from './dto/check-conflicts.dto';
+import { SimulateWorkloadDto } from './dto/simulate-workload.dto';
 import { QueryShiftHistoryDto } from './dto/query-shift-history.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -51,9 +51,9 @@ export class ShiftsController {
   @ApiOperation({ summary: 'Simular carga de trabalho com plantão hipotético' })
   simulateWorkload(
     @CurrentUser('id') userId: string,
-    @Body() body: { date: string; type: ShiftType; hours: number; value: number },
+    @Body() dto: SimulateWorkloadDto,
   ) {
-    return this.shiftsService.simulateWorkload(userId, body);
+    return this.shiftsService.simulateWorkload(userId, dto);
   }
 
   @Post('check-conflicts')

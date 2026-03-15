@@ -10,6 +10,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
+import { randomBytes } from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import { MailService } from '../mail/mail.service';
 import { RegisterDto } from './dto/register.dto';
@@ -185,7 +186,7 @@ export class AuthService {
       return { message: genericMessage };
     }
 
-    const token = uuidv4();
+    const token = randomBytes(32).toString('hex');
     const expiry = new Date(Date.now() + 1000 * 60 * 60); // 1 hour
 
     await this.prisma.user.update({
@@ -256,20 +257,26 @@ export class AuthService {
   // ─── AUTH CODE (for OAuth callback security) ──────
 
   createAuthCode(userId: string, email: string): string {
-    const code = uuidv4();
-    this.authCodes.set(code, {
-      userId,
-      email,
-      expiresAt: Date.now() + 60 * 1000, // 60 seconds
-    });
-
-    // Cleanup expired codes periodically
-    if (this.authCodes.size > 100) {
-      const now = Date.now();
+    // Cleanup expired codes before adding new ones
+    const now = Date.now();
+    if (this.authCodes.size >= 50) {
       for (const [key, val] of this.authCodes) {
         if (val.expiresAt < now) this.authCodes.delete(key);
       }
     }
+
+    // Hard cap: reject if still too many codes after cleanup (DoS protection)
+    if (this.authCodes.size >= 1000) {
+      this.logger.warn('Auth code map at capacity, rejecting new code creation');
+      throw new InternalServerErrorException('Serviço temporariamente indisponível.');
+    }
+
+    const code = uuidv4();
+    this.authCodes.set(code, {
+      userId,
+      email,
+      expiresAt: now + 60 * 1000, // 60 seconds
+    });
 
     return code;
   }

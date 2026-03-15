@@ -6,6 +6,7 @@ import { UpdateShiftDto } from './dto/update-shift.dto';
 import { QueryShiftsDto } from './dto/query-shifts.dto';
 import { CheckConflictsDto } from './dto/check-conflicts.dto';
 import { QueryShiftHistoryDto } from './dto/query-shift-history.dto';
+import { SimulateWorkloadDto } from './dto/simulate-workload.dto';
 import { ShiftType } from '@prisma/client';
 
 @Injectable()
@@ -55,12 +56,17 @@ export class ShiftsService {
     if (query.type) where.type = query.type;
     if (query.status) where.status = query.status;
 
+    const take = Math.min(parseInt(query.limit, 10) || 100, 500);
+    const skip = parseInt(query.offset, 10) || 0;
+
     return this.prisma.shift.findMany({
       where,
       include: {
         hospital: { select: { id: true, name: true } },
       },
       orderBy: { date: 'desc' },
+      take,
+      skip,
     });
   }
 
@@ -107,10 +113,7 @@ export class ShiftsService {
     return WorkloadEngine.calculate(shifts as any, new Date(), energyCosts);
   }
 
-  async simulateWorkload(
-    userId: string,
-    hypothetical: { date: string; type: ShiftType; hours: number; value: number },
-  ) {
+  async simulateWorkload(userId: string, hypothetical: SimulateWorkloadDto) {
     const [shifts, workProfile] = await Promise.all([
       this.prisma.shift.findMany({
         where: { userId, status: 'CONFIRMED' },
@@ -251,10 +254,15 @@ export class ShiftsService {
     if (query.hospitalId) where.hospitalId = query.hospitalId;
     if (query.type) where.type = query.type;
 
+    const take = Math.min(parseInt(query.limit, 10) || 100, 500);
+    const skip = parseInt(query.offset, 10) || 0;
+
     const shifts = await this.prisma.shift.findMany({
       where,
       include: { hospital: { select: { id: true, name: true } } },
       orderBy: { date: 'desc' },
+      take,
+      skip,
     });
 
     // Compute monthly summary

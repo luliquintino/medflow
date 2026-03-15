@@ -10,8 +10,14 @@ import { mockJwtService } from '../../../test/mocks/jwt.mock';
 import { mockConfigService } from '../../../test/mocks/config.mock';
 import { mockMailService } from '../../../test/mocks/mail.mock';
 import * as bcrypt from 'bcryptjs';
+import * as crypto from 'crypto';
 
 jest.mock('uuid', () => ({ v4: () => 'mock-uuid' }));
+
+const MOCK_RESET_TOKEN = 'a'.repeat(64);
+jest.spyOn(crypto, 'randomBytes').mockReturnValue(
+  Buffer.from(MOCK_RESET_TOKEN, 'hex') as any,
+);
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -284,18 +290,18 @@ describe('AuthService', () => {
       expect(mockPrismaService.user.update).toHaveBeenCalledWith({
         where: { id: 'user-1' },
         data: expect.objectContaining({
-          resetPasswordToken: 'mock-uuid',
+          resetPasswordToken: MOCK_RESET_TOKEN,
           resetPasswordExpiry: expect.any(Date),
         }),
       });
       expect(mockMailService.sendPasswordReset).toHaveBeenCalledWith(
         'test@example.com',
         'Dr. Test',
-        'http://localhost:3000/auth/reset-password?token=mock-uuid',
+        `http://localhost:3000/auth/reset-password?token=${MOCK_RESET_TOKEN}`,
       );
       expect(result).toHaveProperty('message');
       expect(result).toHaveProperty('resetUrl');
-      expect(result.resetUrl).toContain('mock-uuid');
+      expect(result.resetUrl).toContain(MOCK_RESET_TOKEN);
     });
 
     it('should return resetUrl even when email sending fails', async () => {
@@ -311,7 +317,7 @@ describe('AuthService', () => {
       const result = await service.forgotPassword(forgotDto);
 
       expect(result).toHaveProperty('resetUrl');
-      expect(result.resetUrl).toContain('mock-uuid');
+      expect(result.resetUrl).toContain(MOCK_RESET_TOKEN);
     });
 
     it('should return same message for non-existing email (no email enumeration)', async () => {
@@ -352,6 +358,9 @@ describe('AuthService', () => {
           passwordHash: 'new-hashed-password',
           resetPasswordToken: null,
           resetPasswordExpiry: null,
+          failedLoginAttempts: 0,
+          lockedUntil: null,
+          lastFailedLoginAt: null,
         },
       });
       expect(mockPrismaService.refreshToken.deleteMany).toHaveBeenCalledWith({
