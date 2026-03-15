@@ -9,7 +9,7 @@
 [![Prisma](https://img.shields.io/badge/Prisma-7-2D3748?logo=prisma&logoColor=white)](https://www.prisma.io/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+[![License: Custom](https://img.shields.io/badge/License-Custom%20%7C%20Non--Commercial-red.svg)](./LICENSE)
 
 ---
 
@@ -72,9 +72,9 @@ npm run dev
 
 ### 4. Acesse a aplicação
 
-Abra [http://localhost:3002](http://localhost:3002) no navegador.
+Abra http://localhost:3002 no navegador.
 
-> **Produção:** O app está live em [https://medflow.tec.br](https://medflow.tec.br)
+> **Produção:** O app está live em https://medflow.tec.br
 
 ---
 
@@ -226,6 +226,7 @@ npm test -- --testPathPattern="shifts"   # apenas testes de shifts
 O projeto utiliza **GitHub Actions** para integração contínua. A pipeline roda automaticamente em push e pull requests para `main` e `develop`.
 
 A pipeline executa:
+
 - **Backend**: Instala dependências, gera Prisma Client, lint, testes e cobertura (com PostgreSQL 16)
 - **Frontend**: Instala dependências, lint, testes, cobertura e build de produção
 
@@ -245,4 +246,17 @@ Para documentação técnica completa (arquitetura, API, banco de dados, engines
 
 ## Licença
 
-Este projeto está licenciado sob a [MIT License](./LICENSE).
+Este projeto está licenciado sob uma **Licença Personalizada de Uso Não-Comercial**.
+
+- ✅ Uso pessoal e não-comercial é **livre e permitido**
+- ❌ Uso comercial **requer autorização prévia** da autora
+
+Para uso comercial, entre em contato:
+📧 luizacqoliveira@gmail.com
+🌐 https://www.linkedin.com/in/luizacqoliveira/
+
+Consulte o arquivo [LICENSE](./LICENSE) para os termos completos.
+
+---
+
+© 2026 Luli Quintino. Todos os direitos comerciais reservados.
