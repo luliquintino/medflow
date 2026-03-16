@@ -8,7 +8,7 @@ import { formatCurrency } from "@/lib/format";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ProgressBar } from "@/components/ui/progress-bar";
-import { RiskBadge } from "@/components/ui/risk-badge";
+import { FlowBadge } from "@/components/ui/flow-badge";
 import { PageSpinner } from "@/components/ui/spinner";
 import { clsx } from "clsx";
 import type { OptimizationResult, OptimizationScenario } from "@/types";
@@ -196,7 +196,7 @@ function ScenarioCard({
                 {formatCurrency(scenario.sustainabilityIndex)}/ex
               </span>
             )}
-            <RiskBadge level={scenario.riskLevel} size="sm" />
+            <FlowBadge level={scenario.riskLevel} size="sm" />
           </div>
         </div>
 
