@@ -99,23 +99,33 @@ describe('WorkloadEngine', () => {
       expect(result.breakdown[0].baseCost).toBe(1.0);
     });
 
-    it('should calculate higher cost for night shifts', () => {
+    it('should calculate higher cost for night shifts (1.4)', () => {
       const shift = makeShift({
         date: new Date('2026-03-10T19:00:00'),
         type: 'TWELVE_NIGHT' as any,
       });
       const result = WorkloadEngine.calculateExhaustion([shift]);
-      expect(result.totalExhaustion).toBe(1.5);
+      expect(result.totalExhaustion).toBe(1.4);
     });
 
-    it('should calculate highest cost for 24h shifts', () => {
+    it('should calculate cost for 24h shifts (2.2)', () => {
       const shift = makeShift({
         date: new Date('2026-03-10T07:00:00'),
         type: 'TWENTY_FOUR' as any,
         hours: 24,
       });
       const result = WorkloadEngine.calculateExhaustion([shift]);
-      expect(result.totalExhaustion).toBe(2.5);
+      expect(result.totalExhaustion).toBe(2.2);
+    });
+
+    it('should calculate cost for 24h inverted shifts (2.4)', () => {
+      const shift = makeShift({
+        date: new Date('2026-03-10T19:00:00'),
+        type: 'TWENTY_FOUR_INVERTED' as any,
+        hours: 24,
+      });
+      const result = WorkloadEngine.calculateExhaustion([shift]);
+      expect(result.totalExhaustion).toBe(2.4);
     });
 
     it('should add penalty for consecutive shifts (< 48h gap)', () => {
@@ -157,7 +167,7 @@ describe('WorkloadEngine', () => {
       const result = WorkloadEngine.calculateExhaustion(shifts);
       // 3rd night gets PENALTY_THIRD_CONSECUTIVE_NIGHT = 0.7
       const thirdShiftCost = result.breakdown[2].totalCost;
-      expect(thirdShiftCost).toBeGreaterThan(1.5); // base 1.5 + penalties
+      expect(thirdShiftCost).toBeGreaterThan(1.4); // base 1.4 + penalties
     });
 
     it('should return empty breakdown for empty shifts', () => {

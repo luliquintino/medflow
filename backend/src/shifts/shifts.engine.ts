@@ -10,14 +10,16 @@ import { ShiftType } from '@prisma/client';
 
 export interface EnergyCosts {
   diurno: number; // default 1.0
-  noturno: number; // default 1.5
-  h24: number; // default 2.5
+  noturno: number; // default 1.4
+  h24: number; // default 2.2
+  h24Invertido: number; // default 2.4
 }
 
 export const DEFAULT_ENERGY_COSTS: EnergyCosts = {
   diurno: 1.0,
-  noturno: 1.5,
-  h24: 2.5,
+  noturno: 1.4,
+  h24: 2.2,
+  h24Invertido: 2.4,
 };
 
 // ─── Penalty constants ──────────────────────────────────────────────────────
@@ -84,8 +86,9 @@ function getBaseCost(type: ShiftType, costs: EnergyCosts): number {
     case 'TWELVE_NIGHT':
       return costs.noturno;
     case 'TWENTY_FOUR':
-    case 'TWENTY_FOUR_INVERTED':
       return costs.h24;
+    case 'TWENTY_FOUR_INVERTED':
+      return costs.h24Invertido;
     case 'TWELVE_DAY':
     default:
       return costs.diurno;
