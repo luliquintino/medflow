@@ -73,6 +73,8 @@ export class UsersService {
         ...(work.energyCostDiurno !== undefined && { energyCostDiurno: work.energyCostDiurno }),
         ...(work.energyCostNoturno !== undefined && { energyCostNoturno: work.energyCostNoturno }),
         ...(work.energyCost24h !== undefined && { energyCost24h: work.energyCost24h }),
+        ...(work.energyCost24hInvertido !== undefined && { energyCost24hInvertido: work.energyCost24hInvertido }),
+        ...(work.maxNightShifts !== undefined && { maxNightShifts: work.maxNightShifts }),
       },
       create: {
         userId,
@@ -82,6 +84,8 @@ export class UsersService {
         ...(work.energyCostDiurno !== undefined && { energyCostDiurno: work.energyCostDiurno }),
         ...(work.energyCostNoturno !== undefined && { energyCostNoturno: work.energyCostNoturno }),
         ...(work.energyCost24h !== undefined && { energyCost24h: work.energyCost24h }),
+        ...(work.energyCost24hInvertido !== undefined && { energyCost24hInvertido: work.energyCost24hInvertido }),
+        ...(work.maxNightShifts !== undefined && { maxNightShifts: work.maxNightShifts }),
       },
     });
 
@@ -113,6 +117,8 @@ export class UsersService {
       energyCostDiurno?: number;
       energyCostNoturno?: number;
       energyCost24h?: number;
+      energyCost24hInvertido?: number;
+      maxNightShifts?: number;
     },
   ) {
     const existing = await this.prisma.workProfile.findUnique({ where: { userId } });

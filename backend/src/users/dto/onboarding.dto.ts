@@ -80,6 +80,28 @@ export class OnboardingWorkDto {
   @Min(0.5)
   @Max(5.0)
   energyCost24h?: number;
+
+  @ApiProperty({
+    example: 2.4,
+    required: false,
+    description: 'Custo energético 24h invertido (0.5-5.0)',
+  })
+  @IsOptional()
+  @IsNumber()
+  @Min(0.5)
+  @Max(5.0)
+  energyCost24hInvertido?: number;
+
+  @ApiProperty({
+    example: 2,
+    required: false,
+    description: 'Máximo de plantões noturnos consecutivos',
+  })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(7)
+  maxNightShifts?: number;
 }
 
 export class CompleteOnboardingDto {
