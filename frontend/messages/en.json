@@ -502,7 +502,9 @@
     "sustainability": "Sustainability",
     "perExhaustion": "/ exhaustion",
     "reducesSustainability": "This shift reduces your sustainability (current average: {value}/exhaustion)",
-    "improvesSustainability": "This shift improves your sustainability (current average: {value}/exhaustion)"
+    "improvesSustainability": "This shift improves your sustainability (current average: {value}/exhaustion)",
+    "insights": "Insights",
+    "evidence": "Scientific Evidence"
   },
 
   "riskHistory": {

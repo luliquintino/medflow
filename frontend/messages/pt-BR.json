@@ -502,7 +502,9 @@
     "sustainability": "Sustentabilidade",
     "perExhaustion": "/ exaustão",
     "reducesSustainability": "Este plantão reduz sua sustentabilidade (média atual: {value}/exaustão)",
-    "improvesSustainability": "Este plantão melhora sua sustentabilidade (média atual: {value}/exaustão)"
+    "improvesSustainability": "Este plantão melhora sua sustentabilidade (média atual: {value}/exaustão)",
+    "insights": "Insights",
+    "evidence": "Evidência Científica"
   },
 
   "riskHistory": {

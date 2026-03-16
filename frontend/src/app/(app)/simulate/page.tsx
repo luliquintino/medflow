@@ -3,14 +3,14 @@ import { useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Zap, TrendingUp, Clock, CheckCircle2, XCircle, ArrowRight, Battery } from "lucide-react";
+import { Zap, TrendingUp, Clock, CheckCircle2, XCircle, ArrowRight, Battery, MessageCircle, BookOpen } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { api, unwrap, getErrorMessage } from "@/lib/api";
 import { formatCurrency } from "@/lib/format";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { RiskBadge } from "@/components/ui/risk-badge";
+import { FlowBadge } from "@/components/ui/flow-badge";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { clsx } from "clsx";
 import { track } from "@vercel/analytics";
@@ -72,8 +72,9 @@ export default function SimulatePage() {
   }
 
   const verdict = (r: SimulateResult) => {
-    if (r.risk.level === "HIGH") return { ok: false, text: t("verdictHigh"), color: "text-red-700", bg: "bg-red-50 border-red-200" };
-    if (r.risk.level === "MODERATE" && !r.finance.idealReachedBefore)
+    if (r.risk.level === "PILAR_RISCO_FADIGA" || r.risk.level === "PILAR_ALTO_RISCO")
+      return { ok: false, text: t("verdictHigh"), color: "text-red-700", bg: "bg-red-50 border-red-200" };
+    if (r.risk.level === "PILAR_CARGA_ELEVADA" && !r.finance.idealReachedBefore)
       return { ok: true, text: t("verdictModerate"), color: "text-amber-700", bg: "bg-amber-50 border-amber-200" };
     return { ok: true, text: t("verdictSafe"), color: "text-moss-700", bg: "bg-moss-50 border-moss-200" };
   };
@@ -217,7 +218,7 @@ export default function SimulatePage() {
                 <Clock className="w-4 h-4 text-amber-500" />
                 {t("workloadImpact")}
               </CardTitle>
-              <RiskBadge level={result.risk.level} />
+              <FlowBadge level={result.risk.level} />
             </CardHeader>
             <div className="grid grid-cols-2 gap-3">
               {[
@@ -234,7 +235,7 @@ export default function SimulatePage() {
                 </div>
               ))}
             </div>
-            {result.risk.level !== "SAFE" && (
+            {result.risk.level !== "PILAR_SUSTENTAVEL" && (
               <div className="mt-4 bg-amber-50 rounded-xl p-3 border border-amber-100">
                 <p className="text-xs text-amber-700 leading-relaxed">
                   <strong>{t("triggeredRules")}</strong>{" "}
@@ -285,6 +286,45 @@ export default function SimulatePage() {
               )}
             </div>
           </Card>
+
+          {/* Insights */}
+          {result.risk.insights && result.risk.insights.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MessageCircle className="w-4 h-4 text-moss-500" />
+                  {t("insights")}
+                </CardTitle>
+              </CardHeader>
+              <ul className="space-y-2">
+                {result.risk.insights.map((insight: string, i: number) => (
+                  <li key={i} className="text-sm text-gray-600 bg-sand-100 rounded-xl px-3 py-2">
+                    {insight}
+                  </li>
+                ))}
+              </ul>
+            </Card>
+          )}
+
+          {/* Scientific evidence */}
+          {result.risk.evidence && result.risk.evidence.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BookOpen className="w-4 h-4 text-blue-500" />
+                  {t("evidence")}
+                </CardTitle>
+              </CardHeader>
+              <div className="space-y-2">
+                {result.risk.evidence.map((e: { factor: string; citation: string; summary: string }, i: number) => (
+                  <div key={i} className="bg-blue-50 rounded-xl px-3 py-2 border border-blue-100">
+                    <p className="text-sm text-gray-700">{e.summary}</p>
+                    <p className="text-xs text-blue-600 mt-1 italic">{e.citation}</p>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
         </div>
       )}
     </div>
