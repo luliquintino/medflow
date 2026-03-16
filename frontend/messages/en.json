@@ -242,6 +242,9 @@
       "maxWeeklyHoursLabel": "Maximum weekly hours limit",
       "maxWeeklyHoursPlaceholder": "E.g., 60",
       "maxWeeklyHoursHint": "Used to calculate burnout alerts and overload risks",
+      "maxNightShiftsLabel": "Maximum consecutive night shifts",
+      "maxNightShiftsPlaceholder": "E.g., 3",
+      "maxNightShiftsHint": "Maximum number of consecutive night shifts before a rest day",
       "restDaysLabel": "Preferred rest days",
       "energyCostsTitle": "Personal energy costs",
       "energyCostsDescription": "Adjust if you feel more or less impact than average for each shift type."

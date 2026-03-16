@@ -242,6 +242,9 @@
       "maxWeeklyHoursLabel": "Limite máximo de horas semanais",
       "maxWeeklyHoursPlaceholder": "Ex: 60",
       "maxWeeklyHoursHint": "Usado para calcular alertas de burnout e riscos de sobrecarga",
+      "maxNightShiftsLabel": "Máximo de noturnos consecutivos",
+      "maxNightShiftsPlaceholder": "Ex: 3",
+      "maxNightShiftsHint": "Número máximo de plantões noturnos seguidos antes de um descanso",
       "restDaysLabel": "Dias preferenciais de descanso",
       "energyCostsTitle": "Custos energéticos pessoais",
       "energyCostsDescription": "Ajuste se você sente mais ou menos impacto que a média em cada tipo de plantão."

@@ -17,8 +17,9 @@ const selectClass =
 
 const ENERGY_DEFAULTS = {
   energyCostDiurno: 1.0,
-  energyCostNoturno: 1.5,
-  energyCost24h: 2.5,
+  energyCostNoturno: 1.4,
+  energyCost24h: 2.2,
+  energyCost24hInvertido: 2.4,
 };
 
 export default function SettingsPage() {
@@ -42,6 +43,7 @@ export default function SettingsPage() {
   const [energyCostDiurno, setEnergyCostDiurno] = useState(ENERGY_DEFAULTS.energyCostDiurno);
   const [energyCostNoturno, setEnergyCostNoturno] = useState(ENERGY_DEFAULTS.energyCostNoturno);
   const [energyCost24h, setEnergyCost24h] = useState(ENERGY_DEFAULTS.energyCost24h);
+  const [energyCost24hInv, setEnergyCost24hInv] = useState(ENERGY_DEFAULTS.energyCost24hInvertido);
 
   const { data: profile } = useQuery({
     queryKey: ["me"],
@@ -53,6 +55,7 @@ export default function SettingsPage() {
       setEnergyCostDiurno(profile.workProfile.energyCostDiurno ?? ENERGY_DEFAULTS.energyCostDiurno);
       setEnergyCostNoturno(profile.workProfile.energyCostNoturno ?? ENERGY_DEFAULTS.energyCostNoturno);
       setEnergyCost24h(profile.workProfile.energyCost24h ?? ENERGY_DEFAULTS.energyCost24h);
+      setEnergyCost24hInv(profile.workProfile.energyCost24hInvertido ?? ENERGY_DEFAULTS.energyCost24hInvertido);
     }
   }, [profile]);
 
@@ -79,7 +82,7 @@ export default function SettingsPage() {
   });
 
   const energyMutation = useMutation({
-    mutationFn: (data: { energyCostDiurno: number; energyCostNoturno: number; energyCost24h: number }) =>
+    mutationFn: (data: { energyCostDiurno: number; energyCostNoturno: number; energyCost24h: number; energyCost24hInvertido: number }) =>
       api.patch("/users/work-profile", data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["me"] });
@@ -243,10 +246,19 @@ export default function SettingsPage() {
               scaleLow={t("energy.scaleLow")}
               scaleHigh={t("energy.scaleHigh")}
             />
+            <EnergyCostSlider
+              label={t("energy.cost24hInvertido")}
+              value={energyCost24hInv}
+              defaultValue={ENERGY_DEFAULTS.energyCost24hInvertido}
+              onChange={setEnergyCost24hInv}
+              defaultLabel={t("energy.defaultLabel", { value: ENERGY_DEFAULTS.energyCost24hInvertido.toFixed(1) })}
+              scaleLow={t("energy.scaleLow")}
+              scaleHigh={t("energy.scaleHigh")}
+            />
 
             <div className="flex gap-3 pt-2">
               <Button
-                onClick={() => energyMutation.mutate({ energyCostDiurno, energyCostNoturno, energyCost24h })}
+                onClick={() => energyMutation.mutate({ energyCostDiurno, energyCostNoturno, energyCost24h, energyCost24hInvertido: energyCost24hInv })}
                 loading={energyMutation.isPending}
                 icon={<Save className="w-4 h-4" />}
                 className="flex-1"
@@ -259,6 +271,7 @@ export default function SettingsPage() {
                   setEnergyCostDiurno(ENERGY_DEFAULTS.energyCostDiurno);
                   setEnergyCostNoturno(ENERGY_DEFAULTS.energyCostNoturno);
                   setEnergyCost24h(ENERGY_DEFAULTS.energyCost24h);
+                  setEnergyCost24hInv(ENERGY_DEFAULTS.energyCost24hInvertido);
                 }}
                 icon={<RotateCcw className="w-4 h-4" />}
               >

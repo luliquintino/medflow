@@ -27,8 +27,9 @@ const DAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] as const;
 
 const ENERGY_DEFAULTS = {
   energyCostDiurno: 1.0,
-  energyCostNoturno: 1.5,
-  energyCost24h: 2.5,
+  energyCostNoturno: 1.4,
+  energyCost24h: 2.2,
+  energyCost24hInvertido: 2.4,
 };
 
 function createSchema(tv: (key: string) => string) {
@@ -38,6 +39,10 @@ function createSchema(tv: (key: string) => string) {
     averageShiftValue: z.coerce.number().min(0),
     shiftTypes: z.array(z.string()).min(1, tv("selectAtLeastOneType")),
     maxWeeklyHours: z.preprocess(
+      (v) => (v === "" || v === undefined ? undefined : Number(v)),
+      z.number().min(1).optional(),
+    ),
+    maxNightShifts: z.preprocess(
       (v) => (v === "" || v === undefined ? undefined : Number(v)),
       z.number().min(1).optional(),
     ),
@@ -61,6 +66,7 @@ export default function OnboardingPage() {
   const [energyCostDiurno, setEnergyCostDiurno] = useState(ENERGY_DEFAULTS.energyCostDiurno);
   const [energyCostNoturno, setEnergyCostNoturno] = useState(ENERGY_DEFAULTS.energyCostNoturno);
   const [energyCost24h, setEnergyCost24h] = useState(ENERGY_DEFAULTS.energyCost24h);
+  const [energyCost24hInvertido, setEnergyCost24hInvertido] = useState(ENERGY_DEFAULTS.energyCost24hInvertido);
 
   const schema = useMemo(() => createSchema(tv), [tv]);
 
@@ -111,10 +117,12 @@ export default function OnboardingPage() {
         work: {
           shiftTypes: data.shiftTypes,
           maxWeeklyHours: data.maxWeeklyHours || undefined,
+          maxNightShifts: data.maxNightShifts || undefined,
           preferredRestDays: data.preferredRestDays,
           energyCostDiurno,
           energyCostNoturno,
           energyCost24h,
+          energyCost24hInvertido,
         },
       });
       const user = unwrap<User>(res);
@@ -237,6 +245,16 @@ export default function OnboardingPage() {
                 error={errors.maxWeeklyHours?.message}
               />
 
+              {/* Max night shifts */}
+              <Input
+                label={t("workProfile.maxNightShiftsLabel")}
+                type="number"
+                placeholder={t("workProfile.maxNightShiftsPlaceholder")}
+                hint={t("workProfile.maxNightShiftsHint")}
+                {...register("maxNightShifts")}
+                error={errors.maxNightShifts?.message}
+              />
+
               {/* Rest days */}
               <div>
                 <label className="text-sm font-medium text-gray-700 mb-3 block">
@@ -294,6 +312,15 @@ export default function OnboardingPage() {
                     defaultValue={ENERGY_DEFAULTS.energyCost24h}
                     onChange={setEnergyCost24h}
                     defaultLabel={tSettings("energy.defaultLabel", { value: ENERGY_DEFAULTS.energyCost24h.toFixed(1) })}
+                    scaleLow={tSettings("energy.scaleLow")}
+                    scaleHigh={tSettings("energy.scaleHigh")}
+                  />
+                  <EnergyCostSlider
+                    label={tSettings("energy.cost24hInvertido")}
+                    value={energyCost24hInvertido}
+                    defaultValue={ENERGY_DEFAULTS.energyCost24hInvertido}
+                    onChange={setEnergyCost24hInvertido}
+                    defaultLabel={tSettings("energy.defaultLabel", { value: ENERGY_DEFAULTS.energyCost24hInvertido.toFixed(1) })}
                     scaleLow={tSettings("energy.scaleLow")}
                     scaleHigh={tSettings("energy.scaleHigh")}
                   />
