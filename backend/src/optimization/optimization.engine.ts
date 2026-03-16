@@ -6,6 +6,7 @@
  */
 
 import { EnergyCosts, DEFAULT_ENERGY_COSTS, WorkloadEngine } from '../shifts/shifts.engine';
+import { FlowScoreLevel } from '../shifts/flow-score.engine';
 
 // ─── Interfaces ──────────────────────────────────────────────────────────────
 
@@ -52,7 +53,7 @@ export interface OptimizationScenario {
   totalIncome: number;
   totalExhaustion: number;
   sustainabilityIndex: number;
-  riskLevel: 'SAFE' | 'MODERATE' | 'HIGH';
+  riskLevel: FlowScoreLevel;
   optimizationScore: number; // 0-100
 }
 
@@ -150,7 +151,7 @@ export class OptimizationEngine {
       }
     }
 
-    const filtered = scenarios.filter((s) => s.riskLevel !== 'HIGH');
+    const filtered = scenarios.filter((s) => s.riskLevel !== 'PILAR_RISCO_FADIGA' && s.riskLevel !== 'PILAR_ALTO_RISCO');
     filtered.sort((a, b) => b.optimizationScore - a.optimizationScore);
 
     return {
@@ -390,7 +391,7 @@ export class OptimizationEngine {
   private static assessRisk(
     newShifts: OptimizationScenario['shifts'],
     input: OptimizationInput,
-  ): 'SAFE' | 'MODERATE' | 'HIGH' {
+  ): FlowScoreLevel {
     const allShifts = [
       ...input.confirmedShifts.map((s) => ({
         date: new Date(s.date),
@@ -442,16 +443,16 @@ export class OptimizationEngine {
       maxConsecutiveNights > limits.maxConsecutiveNights ||
       maxHoursIn5Days > limits.maxHoursIn5Days
     ) {
-      return 'HIGH';
+      return 'PILAR_RISCO_FADIGA';
     }
     if (
       maxWeeklyHours > limits.maxWeeklyHours * 0.8 ||
       maxConsecutiveNights >= limits.maxConsecutiveNights ||
       maxHoursIn5Days > limits.maxHoursIn5Days * 0.8
     ) {
-      return 'MODERATE';
+      return 'PILAR_CARGA_ELEVADA';
     }
-    return 'SAFE';
+    return 'PILAR_SUSTENTAVEL';
   }
 
   // ─── Score de otimizacao (sustainability-aware) ────────────────────────

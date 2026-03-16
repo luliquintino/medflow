@@ -55,7 +55,8 @@ describe('OptimizationEngine', () => {
   it('should not suggest HIGH risk scenarios', () => {
     const result = OptimizationEngine.optimize(baseInput);
     result.suggestedScenarios.forEach((s) => {
-      expect(s.riskLevel).not.toBe('HIGH');
+      expect(s.riskLevel).not.toBe('PILAR_RISCO_FADIGA');
+      expect(s.riskLevel).not.toBe('PILAR_ALTO_RISCO');
     });
   });
 
