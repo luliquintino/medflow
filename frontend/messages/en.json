@@ -36,7 +36,7 @@
     "analytics": "Analytics",
     "smartPlanner": "Planning",
     "simulate": "Accept or Decline?",
-    "riskHistory": "Risk History",
+    "riskHistory": "Flow Score History",
     "shiftHistory": "History",
     "settings": "Settings",
     "finance": "Financial Dashboard"
@@ -505,16 +505,16 @@
   },
 
   "riskHistory": {
-    "title": "Risk History",
+    "title": "Flow Score History",
     "subtitle": "Track how your workload has evolved over time.",
-    "emptyState": "No records yet. History is generated automatically.",
+    "distributionTitle": "Flow Score Distribution",
+    "safe": "Sustainable",
+    "moderate": "Heavy Load",
+    "high": "Fatigue Risk",
+    "emptyState": "No Flow Score records yet. Your data will appear here as you use the app.",
     "scoreLabel": "Score: {score}/100",
-    "hoursInWeek": "{hours}h / week",
-    "consecutiveNights": "{count} consecutive night(s)",
-    "distributionTitle": "Risk Distribution",
-    "safe": "Safe",
-    "moderate": "Moderate",
-    "high": "High"
+    "hoursInWeek": "{hours}h in week",
+    "consecutiveNights": "{count} night shifts"
   },
 
   "settings": {
@@ -544,6 +544,8 @@
       "diurno12h": "12h Day",
       "noturno12h": "12h Night",
       "plantao24h": "24h",
+      "cost24hInvertido": "24h Inverted",
+      "cost24hInvertidoDesc": "Energy cost of the 24h inverted shift",
       "save": "Save",
       "restoreDefaults": "Restore defaults",
       "defaultLabel": "(default: {value})",
@@ -571,6 +573,13 @@
     "safe": "Safe",
     "moderate": "Moderate",
     "high": "High"
+  },
+
+  "flowScore": {
+    "pilar_sustentavel": "Sustainable",
+    "pilar_carga_elevada": "Heavy Load",
+    "pilar_risco_fadiga": "Fatigue Risk",
+    "pilar_alto_risco": "High Risk"
   },
 
   "shiftTypes": {

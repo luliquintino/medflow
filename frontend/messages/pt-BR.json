@@ -36,7 +36,7 @@
     "analytics": "Analytics",
     "smartPlanner": "Planejamento",
     "simulate": "Aceito ou Não?",
-    "riskHistory": "Histórico de Risco",
+    "riskHistory": "Histórico de Flow Score",
     "shiftHistory": "Histórico",
     "settings": "Configurações",
     "finance": "Painel Financeiro"
@@ -505,16 +505,16 @@
   },
 
   "riskHistory": {
-    "title": "Historico de Risco",
+    "title": "Histórico de Flow Score",
     "subtitle": "Acompanhe como sua carga de trabalho evoluiu ao longo do tempo.",
-    "emptyState": "Nenhum registro ainda. O historico e gerado automaticamente.",
+    "distributionTitle": "Distribuição de Flow Score",
+    "safe": "Sustentável",
+    "moderate": "Carga Elevada",
+    "high": "Risco de Fadiga",
+    "emptyState": "Nenhum registro de Flow Score ainda. Seus dados aparecerão aqui conforme usar o app.",
     "scoreLabel": "Score: {score}/100",
-    "hoursInWeek": "{hours}h / semana",
-    "consecutiveNights": "{count} noturno(s) seguido(s)",
-    "distributionTitle": "Distribuição de Risco",
-    "safe": "Seguro",
-    "moderate": "Moderado",
-    "high": "Alto"
+    "hoursInWeek": "{hours}h na semana",
+    "consecutiveNights": "{count} noturnos"
   },
 
   "settings": {
@@ -544,6 +544,8 @@
       "diurno12h": "12h Diurno",
       "noturno12h": "12h Noturno",
       "plantao24h": "24h",
+      "cost24hInvertido": "24h Invertido",
+      "cost24hInvertidoDesc": "Custo energético do plantão de 24h invertido",
       "save": "Salvar",
       "restoreDefaults": "Restaurar padrões",
       "defaultLabel": "(padrão: {value})",
@@ -571,6 +573,13 @@
     "safe": "Seguro",
     "moderate": "Moderado",
     "high": "Alto"
+  },
+
+  "flowScore": {
+    "pilar_sustentavel": "Sustentável",
+    "pilar_carga_elevada": "Carga Elevada",
+    "pilar_risco_fadiga": "Risco de Fadiga",
+    "pilar_alto_risco": "Alto Risco"
   },
 
   "shiftTypes": {
