@@ -39,6 +39,8 @@ export interface WorkProfile {
   energyCostDiurno: number;
   energyCostNoturno: number;
   energyCost24h: number;
+  energyCost24hInvertido: number;
+  maxNightShifts: number;
 }
 
 // ─── Shifts ──────────────────────────────────────────────────────────────────
@@ -118,7 +120,7 @@ export interface OptimizationScenario {
   totalIncome: number;
   totalExhaustion: number;
   sustainabilityIndex: number;
-  riskLevel: RiskLevel;
+  riskLevel: FlowScore;
   optimizationScore: number;
 }
 
@@ -239,19 +241,28 @@ export interface WorkloadSummary {
   shiftExhaustionBreakdown: ShiftExhaustion[];
 }
 
-// ─── Risk ────────────────────────────────────────────────────────────────────
+// ─── Risk / FlowScore ────────────────────────────────────────────────────────
 
-export type RiskLevel = "SAFE" | "MODERATE" | "HIGH";
+export type FlowScore = "PILAR_SUSTENTAVEL" | "PILAR_CARGA_ELEVADA" | "PILAR_RISCO_FADIGA" | "PILAR_ALTO_RISCO";
+
+/** @deprecated Use FlowScore instead */
+export type RiskLevel = FlowScore;
 
 export interface RiskRule {
   id: string;
   triggered: boolean;
-  level: RiskLevel;
+  level: FlowScore;
   message: string;
 }
 
+export interface EvidenceCitation {
+  factor: string;
+  citation: string;
+  summary: string;
+}
+
 export interface RiskResult {
-  level: RiskLevel;
+  level: FlowScore;
   score: number;
   triggeredRules: string[];
   recommendation: string;
@@ -260,6 +271,28 @@ export interface RiskResult {
   sustainabilityIndex: number;
   shiftExhaustionBreakdown: ShiftExhaustion[];
   workload: WorkloadSummary;
+  insights: string[];
+  evidence: EvidenceCitation[];
+}
+
+export interface WorkloadMetrics {
+  hours7d: number;
+  hours14d: number;
+  hours28d: number;
+  avgWeeklyHours28d: number;
+  nightShifts7d: number;
+  longShifts7d: number;
+  consecutiveShifts: number;
+  fatigueScore7d: number;
+  fatigueScore14d: number;
+  fatigueScore28d: number;
+}
+
+export interface RecoveryDebt {
+  hoursSinceLastShift: number | null;
+  restQuality: "GOOD" | "PARTIAL" | "POOR";
+  recoveryDebtHours: number;
+  isRecovered: boolean;
 }
 
 // ─── Dashboard ───────────────────────────────────────────────────────────────
