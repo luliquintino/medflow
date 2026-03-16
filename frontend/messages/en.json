@@ -514,6 +514,7 @@
     "safe": "Sustainable",
     "moderate": "Heavy Load",
     "high": "Fatigue Risk",
+    "altoRisco": "High Risk",
     "emptyState": "No Flow Score records yet. Your data will appear here as you use the app.",
     "scoreLabel": "Score: {score}/100",
     "hoursInWeek": "{hours}h in week",

@@ -3,29 +3,37 @@
 import { useTranslations } from "next-intl";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
 import { Card } from "@/components/ui/card";
-import type { RiskLevel } from "@/types";
+import type { FlowScore } from "@/types";
 
 interface RiskHistoryRecord {
-  riskLevel: RiskLevel;
+  riskLevel: FlowScore;
 }
 
-const LEVEL_COLORS: Record<RiskLevel, string> = {
-  SAFE: "#638f46",
-  MODERATE: "#f59e0b",
-  HIGH: "#ef4444",
+const LEVEL_COLORS: Record<FlowScore, string> = {
+  PILAR_SUSTENTAVEL: "#638f46",
+  PILAR_CARGA_ELEVADA: "#f59e0b",
+  PILAR_RISCO_FADIGA: "#f97316",
+  PILAR_ALTO_RISCO: "#ef4444",
 };
 
-const LEVEL_KEYS: RiskLevel[] = ["SAFE", "MODERATE", "HIGH"];
+const LEVEL_KEYS: FlowScore[] = ["PILAR_SUSTENTAVEL", "PILAR_CARGA_ELEVADA", "PILAR_RISCO_FADIGA", "PILAR_ALTO_RISCO"];
 
 export function RiskDistributionChart({ history }: { history: RiskHistoryRecord[] }) {
   const t = useTranslations("riskHistory");
 
-  const counts: Record<RiskLevel, number> = { SAFE: 0, MODERATE: 0, HIGH: 0 };
+  const LEVEL_NAMES: Record<FlowScore, string> = {
+    PILAR_SUSTENTAVEL: "safe",
+    PILAR_CARGA_ELEVADA: "moderate",
+    PILAR_RISCO_FADIGA: "high",
+    PILAR_ALTO_RISCO: "altoRisco",
+  };
+
+  const counts: Record<FlowScore, number> = { PILAR_SUSTENTAVEL: 0, PILAR_CARGA_ELEVADA: 0, PILAR_RISCO_FADIGA: 0, PILAR_ALTO_RISCO: 0 };
   history.forEach((r) => counts[r.riskLevel]++);
 
   const data = LEVEL_KEYS
     .map((level) => ({
-      name: t(level === "SAFE" ? "safe" : level === "MODERATE" ? "moderate" : "high"),
+      name: t(LEVEL_NAMES[level]),
       value: counts[level],
       level,
     }))

@@ -5,14 +5,14 @@ import { useTranslations } from "next-intl";
 import { api, unwrap } from "@/lib/api";
 import { formatDate } from "@/lib/format";
 import { Card } from "@/components/ui/card";
-import { RiskBadge } from "@/components/ui/risk-badge";
+import { FlowBadge } from "@/components/ui/flow-badge";
 import { PageSpinner } from "@/components/ui/spinner";
 import { RiskDistributionChart } from "./_components/risk-distribution-chart";
-import type { RiskLevel } from "@/types";
+import type { FlowScore } from "@/types";
 
 interface RiskHistoryRecord {
   id: string;
-  riskLevel: RiskLevel;
+  riskLevel: FlowScore;
   riskScore: number;
   createdAt: string;
   hoursInWeek: number;
@@ -53,7 +53,7 @@ export default function RiskHistoryPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <RiskBadge level={record.riskLevel} size="sm" />
+                    <FlowBadge level={record.riskLevel} size="sm" />
                     <span className="text-xs text-gray-400">
                       {t("scoreLabel", { score: record.riskScore })}
                     </span>

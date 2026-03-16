@@ -514,6 +514,7 @@
     "safe": "Sustentável",
     "moderate": "Carga Elevada",
     "high": "Risco de Fadiga",
+    "altoRisco": "Alto Risco",
     "emptyState": "Nenhum registro de Flow Score ainda. Seus dados aparecerão aqui conforme usar o app.",
     "scoreLabel": "Score: {score}/100",
     "hoursInWeek": "{hours}h na semana",
