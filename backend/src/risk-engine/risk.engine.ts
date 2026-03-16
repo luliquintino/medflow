@@ -11,8 +11,15 @@ import {
   ShiftExhaustion,
   WorkloadEngine,
 } from '../shifts/shifts.engine';
-
-export type RiskLevel = 'SAFE' | 'MODERATE' | 'HIGH';
+import {
+  FlowScoreLevel,
+  calculateFlowScore,
+  calculateWorkloadMetrics,
+  calculateRecoveryDebt,
+  generateInsights,
+  getEvidence,
+  EvidenceCitation,
+} from '../shifts/flow-score.engine';
 
 export interface RiskInput {
   hoursInLastWeek: number;
@@ -35,12 +42,12 @@ export interface RiskInput {
 export interface RiskRule {
   id: string;
   triggered: boolean;
-  level: RiskLevel;
+  level: FlowScoreLevel;
   message: string;
 }
 
 export interface RiskResult {
-  level: RiskLevel;
+  level: FlowScoreLevel;
   score: number; // 0–100
   triggeredRules: string[];
   recommendation: string;
@@ -49,6 +56,9 @@ export interface RiskResult {
   exhaustionScore: number;
   sustainabilityIndex: number;
   shiftExhaustionBreakdown: ShiftExhaustion[];
+  // FRMS additions
+  insights: string[];
+  evidence: EvidenceCitation[];
 }
 
 // ─── Exhaustion limit ──────────────────────────────────────────────────────
@@ -61,31 +71,31 @@ const RULES = {
   HOURS_WEEK: (h: number): RiskRule => ({
     id: 'HOURS_WEEK',
     triggered: h >= 60,
-    level: 'HIGH',
+    level: 'PILAR_RISCO_FADIGA',
     message: `Você está com ${h}h na semana (limite recomendado: 60h).`,
   }),
   HOURS_WEEK_MODERATE: (h: number): RiskRule => ({
     id: 'HOURS_WEEK_MODERATE',
     triggered: h >= 44 && h < 60,
-    level: 'MODERATE',
+    level: 'PILAR_CARGA_ELEVADA',
     message: `Carga semanal elevada: ${h}h. Considere um descanso.`,
   }),
   CONSECUTIVE_NIGHTS: (n: number): RiskRule => ({
     id: 'CONSECUTIVE_NIGHTS',
     triggered: n >= 3,
-    level: 'HIGH',
+    level: 'PILAR_RISCO_FADIGA',
     message: `${n} noturnos consecutivos são prejudiciais ao ciclo circadiano.`,
   }),
   CONSECUTIVE_NIGHTS_MODERATE: (n: number): RiskRule => ({
     id: 'CONSECUTIVE_NIGHTS_MODERATE',
     triggered: n === 2,
-    level: 'MODERATE',
+    level: 'PILAR_CARGA_ELEVADA',
     message: `2 noturnos seguidos — tente intercalar com diurnos ou folga.`,
   }),
   SHORT_RECOVERY: (h: number | null): RiskRule => ({
     id: 'SHORT_RECOVERY',
     triggered: h !== null && h < 48,
-    level: 'HIGH',
+    level: 'PILAR_RISCO_FADIGA',
     message:
       h !== null
         ? `Apenas ${Math.round(h)}h de descanso desde o último plantão (mínimo recomendado: 48h).`
@@ -94,26 +104,26 @@ const RULES = {
   SHORT_RECOVERY_MODERATE: (h: number | null): RiskRule => ({
     id: 'SHORT_RECOVERY_MODERATE',
     triggered: h !== null && h >= 48 && h < 72,
-    level: 'MODERATE',
+    level: 'PILAR_CARGA_ELEVADA',
     message:
       h !== null ? `Intervalo de ${Math.round(h)}h desde o último plantão — ideal seria 72h.` : '',
   }),
   PERSONAL_LIMIT: (h: number, limit?: number): RiskRule => ({
     id: 'PERSONAL_LIMIT',
     triggered: limit !== undefined && h > limit,
-    level: 'MODERATE',
+    level: 'PILAR_CARGA_ELEVADA',
     message: limit ? `Você definiu um limite pessoal de ${limit}h/semana e está com ${h}h.` : '',
   }),
   HIGH_EXHAUSTION: (score: number): RiskRule => ({
     id: 'HIGH_EXHAUSTION',
     triggered: score >= EXHAUSTION_WEEKLY_LIMIT,
-    level: 'HIGH',
+    level: 'PILAR_RISCO_FADIGA',
     message: `Score de exaustão ${score.toFixed(1)} excede o limite sustentável (${EXHAUSTION_WEEKLY_LIMIT}).`,
   }),
   MODERATE_EXHAUSTION: (score: number): RiskRule => ({
     id: 'MODERATE_EXHAUSTION',
     triggered: score >= EXHAUSTION_WEEKLY_LIMIT * 0.7 && score < EXHAUSTION_WEEKLY_LIMIT,
-    level: 'MODERATE',
+    level: 'PILAR_CARGA_ELEVADA',
     message: `Score de exaustão ${score.toFixed(1)} se aproxima do limite sustentável (${EXHAUSTION_WEEKLY_LIMIT}).`,
   }),
 };
@@ -152,13 +162,6 @@ export class RiskEngine {
     const triggered = allRules.filter((r) => r.triggered);
     const triggeredIds = triggered.map((r) => r.id);
 
-    const hasHigh = triggered.some((r) => r.level === 'HIGH');
-    const hasModerate = triggered.some((r) => r.level === 'MODERATE');
-
-    let level: RiskLevel = 'SAFE';
-    if (hasHigh) level = 'HIGH';
-    else if (hasModerate) level = 'MODERATE';
-
     // Score: 4 dimensions (40+20+15+25=100)
     let score = 0;
     score += Math.min(40, (input.hoursInLastWeek / 60) * 40);
@@ -168,6 +171,33 @@ export class RiskEngine {
     }
     score += Math.min(25, (exhaustionScore / EXHAUSTION_WEEKLY_LIMIT) * 25);
     score = Math.round(Math.min(100, score));
+
+    // Use FlowScore engine for the final level determination
+    let level: FlowScoreLevel;
+    if (input.shifts && input.shifts.length > 0) {
+      const now = new Date();
+      const workloadMetrics = calculateWorkloadMetrics(input.shifts as any, now);
+      const recoveryDebt = calculateRecoveryDebt(input.shifts as any, now);
+      level = calculateFlowScore(workloadMetrics, recoveryDebt);
+    } else {
+      // Fallback: derive from rule triggers
+      const hasHigh = triggered.some((r) => r.level === 'PILAR_RISCO_FADIGA' || r.level === 'PILAR_ALTO_RISCO');
+      const hasModerate = triggered.some((r) => r.level === 'PILAR_CARGA_ELEVADA');
+      level = 'PILAR_SUSTENTAVEL';
+      if (hasHigh) level = 'PILAR_RISCO_FADIGA';
+      else if (hasModerate) level = 'PILAR_CARGA_ELEVADA';
+    }
+
+    // Generate insights and evidence via FRMS engine
+    let insights: string[] = [];
+    let evidence: EvidenceCitation[] = [];
+    if (input.shifts && input.shifts.length > 0) {
+      const now = new Date();
+      const workloadMetrics = calculateWorkloadMetrics(input.shifts as any, now);
+      const recoveryDebt = calculateRecoveryDebt(input.shifts as any, now);
+      insights = generateInsights(workloadMetrics, recoveryDebt, level);
+      evidence = getEvidence(workloadMetrics, recoveryDebt);
+    }
 
     const recommendation = this.buildRecommendation(level, triggered);
 
@@ -180,20 +210,22 @@ export class RiskEngine {
       exhaustionScore: Math.round(exhaustionScore * 10) / 10,
       sustainabilityIndex,
       shiftExhaustionBreakdown,
+      insights,
+      evidence,
     };
   }
 
-  private static buildRecommendation(level: RiskLevel, triggered: RiskRule[]): string {
-    if (level === 'SAFE') {
+  private static buildRecommendation(level: FlowScoreLevel, triggered: RiskRule[]): string {
+    if (level === 'PILAR_SUSTENTAVEL') {
       return 'Você está dentro de um ritmo saudável. Continue assim — seu corpo agradece.';
     }
 
-    if (level === 'MODERATE') {
+    if (level === 'PILAR_CARGA_ELEVADA') {
       const msgs = triggered.map((r) => r.message).filter(Boolean);
       return 'Atenção: ' + msgs[0] + ' Que tal planejar uma folga antes do próximo plantão?';
     }
 
-    // HIGH
+    // PILAR_RISCO_FADIGA or PILAR_ALTO_RISCO
     const msgs = triggered.map((r) => r.message).filter(Boolean);
     return (
       'Sinal de alerta: ' +

@@ -48,7 +48,7 @@ describe('DashboardService', () => {
         shiftsThisMonth: 10,
       };
       const riskResult = {
-        level: 'SAFE',
+        level: 'PILAR_SUSTENTAVEL',
         score: 15,
         triggeredRules: [],
         recommendation: 'Continue assim.',
@@ -77,7 +77,7 @@ describe('DashboardService', () => {
         totalHoursThisWeek: 0,
       });
       mockRiskEngineService.evaluate.mockResolvedValue({
-        level: 'SAFE',
+        level: 'PILAR_SUSTENTAVEL',
         score: 0,
       });
 
@@ -85,7 +85,7 @@ describe('DashboardService', () => {
 
       expect(result.finance).toBeNull();
       expect(result.workload).toEqual({ totalHoursThisWeek: 0 });
-      expect(result.risk).toEqual({ level: 'SAFE', score: 0 });
+      expect(result.risk).toEqual({ level: 'PILAR_SUSTENTAVEL', score: 0 });
     });
 
     it('should return null for workload when shifts service fails', async () => {
@@ -94,7 +94,7 @@ describe('DashboardService', () => {
       mockFinanceService.getSummary.mockResolvedValue({ totalRevenue: 5000 });
       mockShiftsService.getWorkloadSummary.mockRejectedValue(new Error('No shifts found'));
       mockRiskEngineService.evaluate.mockResolvedValue({
-        level: 'SAFE',
+        level: 'PILAR_SUSTENTAVEL',
         score: 0,
       });
 
@@ -102,7 +102,7 @@ describe('DashboardService', () => {
 
       expect(result.finance).toEqual({ totalRevenue: 5000 });
       expect(result.workload).toBeNull();
-      expect(result.risk).toEqual({ level: 'SAFE', score: 0 });
+      expect(result.risk).toEqual({ level: 'PILAR_SUSTENTAVEL', score: 0 });
     });
 
     it('should return null for risk when risk engine fails', async () => {

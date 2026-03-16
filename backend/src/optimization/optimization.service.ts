@@ -145,6 +145,7 @@ export class OptimizationService {
       diurno: workProfile.energyCostDiurno ?? DEFAULT_ENERGY_COSTS.diurno,
       noturno: workProfile.energyCostNoturno ?? DEFAULT_ENERGY_COSTS.noturno,
       h24: workProfile.energyCost24h ?? DEFAULT_ENERGY_COSTS.h24,
+      h24Invertido: workProfile.energyCost24hInvertido ?? DEFAULT_ENERGY_COSTS.h24Invertido,
     };
   }
 }

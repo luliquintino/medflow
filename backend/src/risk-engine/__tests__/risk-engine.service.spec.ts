@@ -41,6 +41,7 @@ describe('RiskEngineService', () => {
         energyCostDiurno: 1.0,
         energyCostNoturno: 1.5,
         energyCost24h: 2.5,
+        energyCost24hInvertido: 2.4,
       };
 
       prisma.shift.findMany.mockResolvedValue(shifts);
@@ -95,7 +96,7 @@ describe('RiskEngineService', () => {
 
       const result = await service.evaluate(userId);
 
-      expect(result.level).toBe('SAFE');
+      expect(result.level).toBe('PILAR_SUSTENTAVEL');
     });
 
     it('should handle no shifts (empty array)', async () => {
@@ -108,7 +109,7 @@ describe('RiskEngineService', () => {
 
       const result = await service.evaluate(userId);
 
-      expect(result.level).toBe('SAFE');
+      expect(result.level).toBe('PILAR_SUSTENTAVEL');
       expect(result.score).toBe(0);
       expect(result.triggeredRules).toEqual([]);
       expect(result.workload).toBeDefined();
@@ -128,7 +129,7 @@ describe('RiskEngineService', () => {
         where: { userId },
       });
       expect(result).toBeDefined();
-      expect(result.level).toBe('SAFE');
+      expect(result.level).toBe('PILAR_SUSTENTAVEL');
     });
 
     it('should persist risk history after evaluation', async () => {
@@ -145,7 +146,7 @@ describe('RiskEngineService', () => {
       expect(prisma.riskHistory.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
           userId,
-          riskLevel: 'SAFE',
+          riskLevel: 'PILAR_SUSTENTAVEL',
           riskScore: 0,
           triggerRules: [],
           recommendation: expect.any(String),
@@ -172,7 +173,7 @@ describe('RiskEngineService', () => {
       expect(prisma.riskHistory.update).toHaveBeenCalledWith({
         where: { id: 'existing-risk-1' },
         data: expect.objectContaining({
-          riskLevel: 'SAFE',
+          riskLevel: 'PILAR_SUSTENTAVEL',
           riskScore: 0,
         }),
       });
@@ -244,6 +245,7 @@ describe('RiskEngineService', () => {
         energyCostDiurno: 1.2,
         energyCostNoturno: 1.8,
         energyCost24h: 3.0,
+        energyCost24hInvertido: 3.2,
       };
 
       prisma.shift.findMany.mockResolvedValue([]);
@@ -269,14 +271,14 @@ describe('RiskEngineService', () => {
         {
           id: 'rh-1',
           userId,
-          riskLevel: 'SAFE',
+          riskLevel: 'PILAR_SUSTENTAVEL',
           riskScore: 10,
           createdAt: new Date('2026-03-13T10:00:00Z'),
         },
         {
           id: 'rh-2',
           userId,
-          riskLevel: 'MODERATE',
+          riskLevel: 'PILAR_CARGA_ELEVADA',
           riskScore: 45,
           createdAt: new Date('2026-03-12T10:00:00Z'),
         },
@@ -323,9 +325,9 @@ describe('RiskEngineService', () => {
       const userId = 'user-1';
       const sameDay = new Date('2026-03-13T10:00:00Z');
       const history = [
-        { id: 'rh-1', userId, riskLevel: 'MODERATE', riskScore: 45, createdAt: new Date('2026-03-13T15:00:00Z') },
-        { id: 'rh-2', userId, riskLevel: 'SAFE', riskScore: 10, createdAt: new Date('2026-03-13T08:00:00Z') },
-        { id: 'rh-3', userId, riskLevel: 'SAFE', riskScore: 5, createdAt: new Date('2026-03-12T10:00:00Z') },
+        { id: 'rh-1', userId, riskLevel: 'PILAR_CARGA_ELEVADA', riskScore: 45, createdAt: new Date('2026-03-13T15:00:00Z') },
+        { id: 'rh-2', userId, riskLevel: 'PILAR_SUSTENTAVEL', riskScore: 10, createdAt: new Date('2026-03-13T08:00:00Z') },
+        { id: 'rh-3', userId, riskLevel: 'PILAR_SUSTENTAVEL', riskScore: 5, createdAt: new Date('2026-03-12T10:00:00Z') },
       ];
 
       prisma.riskHistory.findMany.mockResolvedValue(history);

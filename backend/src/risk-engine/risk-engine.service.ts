@@ -3,7 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { RiskEngine, RiskInput } from './risk.engine';
 import { WorkloadEngine, EnergyCosts, DEFAULT_ENERGY_COSTS } from '../shifts/shifts.engine';
 import { diffHours } from '../common/utils/date.utils';
-import { ShiftType } from '@prisma/client';
+import { FlowScore, ShiftType } from '@prisma/client';
 
 @Injectable()
 export class RiskEngineService {
@@ -56,7 +56,7 @@ export class RiskEngineService {
     weekStart.setHours(0, 0, 0, 0);
 
     const snapshotData = {
-      riskLevel: result.level,
+      riskLevel: result.level as FlowScore,
       riskScore: result.score,
       triggerRules: result.triggeredRules,
       recommendation: result.recommendation,
@@ -78,7 +78,12 @@ export class RiskEngineService {
       });
     }
 
-    return { ...result, workload };
+    return {
+      ...result,
+      workload,
+      insights: result.insights,
+      evidence: result.evidence,
+    };
   }
 
   async simulateWithShift(
@@ -140,7 +145,12 @@ export class RiskEngineService {
     };
 
     const result = RiskEngine.evaluate(input);
-    return { ...result, workload: workloadAfter };
+    return {
+      ...result,
+      workload: workloadAfter,
+      insights: result.insights,
+      evidence: result.evidence,
+    };
   }
 
   async getHistory(userId: string, limit = 30) {
@@ -168,6 +178,7 @@ export class RiskEngineService {
       diurno: workProfile.energyCostDiurno ?? DEFAULT_ENERGY_COSTS.diurno,
       noturno: workProfile.energyCostNoturno ?? DEFAULT_ENERGY_COSTS.noturno,
       h24: workProfile.energyCost24h ?? DEFAULT_ENERGY_COSTS.h24,
+      h24Invertido: workProfile.energyCost24hInvertido ?? DEFAULT_ENERGY_COSTS.h24Invertido,
     };
   }
 }

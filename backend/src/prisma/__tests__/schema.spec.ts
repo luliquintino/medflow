@@ -44,8 +44,8 @@ describe('Prisma Schema', () => {
       expect(enumTypes).toContain('ShiftStatus');
     });
 
-    it('should reference RiskLevel enum', () => {
-      expect(enumTypes).toContain('RiskLevel');
+    it('should reference FlowScore enum', () => {
+      expect(enumTypes).toContain('FlowScore');
     });
 
     it('should reference Gender enum', () => {
@@ -252,10 +252,10 @@ describe('Prisma Schema', () => {
     const rhModel = dmmf.datamodel.models.find((m) => m.name === 'RiskHistory');
     const fields = rhModel?.fields ?? [];
 
-    it('should have riskLevel field as RiskLevel enum', () => {
+    it('should have riskLevel field as FlowScore enum', () => {
       const riskLevelField = fields.find((f) => f.name === 'riskLevel');
       expect(riskLevelField).toBeDefined();
-      expect(riskLevelField?.type).toBe('RiskLevel');
+      expect(riskLevelField?.type).toBe('FlowScore');
       expect(riskLevelField?.kind).toBe('enum');
     });
 

@@ -27,7 +27,7 @@ describe('RiskEngineController', () => {
   describe('evaluate', () => {
     it('should call riskService.evaluate with userId', async () => {
       const userId = 'user-1';
-      const result = { score: 42, level: 'MODERATE', factors: [] };
+      const result = { score: 42, level: 'PILAR_CARGA_ELEVADA', factors: [] };
       mockRiskEngineService.evaluate.mockResolvedValue(result);
 
       expect(await controller.evaluate(userId)).toEqual(result);
