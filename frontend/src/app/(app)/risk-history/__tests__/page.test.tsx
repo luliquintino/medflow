@@ -28,8 +28,8 @@ jest.mock('@/components/ui/card', () => ({
   CardTitle: ({ children }: any) => <div>{children}</div>,
 }));
 
-jest.mock('@/components/ui/risk-badge', () => ({
-  RiskBadge: ({ level }: any) => <span data-testid="risk-badge">{level}</span>,
+jest.mock('@/components/ui/flow-badge', () => ({
+  FlowBadge: ({ level }: any) => <span data-testid="flow-badge">{level}</span>,
 }));
 
 jest.mock('@/components/ui/spinner', () => ({
@@ -43,7 +43,7 @@ const mockUseQuery = useQuery as jest.Mock;
 const mockHistory = [
   {
     id: '1',
-    riskLevel: 'SAFE',
+    riskLevel: 'PILAR_SUSTENTAVEL',
     riskScore: 25,
     hoursIn5Days: 24,
     hoursInWeek: 36,
@@ -53,7 +53,7 @@ const mockHistory = [
   },
   {
     id: '2',
-    riskLevel: 'MODERATE',
+    riskLevel: 'PILAR_CARGA_ELEVADA',
     riskScore: 55,
     hoursIn5Days: 48,
     hoursInWeek: 56,
@@ -77,7 +77,7 @@ describe('RiskHistoryPage', () => {
   it('renders risk history page heading', () => {
     mockUseQuery.mockReturnValue({ data: mockHistory, isLoading: false });
     render(<RiskHistoryPage />);
-    expect(screen.getByText('Historico de Risco')).toBeInTheDocument();
+    expect(screen.getByText('Histórico de Flow Score')).toBeInTheDocument();
   });
 
   it('renders page description', () => {
@@ -91,10 +91,10 @@ describe('RiskHistoryPage', () => {
   it('renders risk history records', () => {
     mockUseQuery.mockReturnValue({ data: mockHistory, isLoading: false });
     render(<RiskHistoryPage />);
-    const badges = screen.getAllByTestId('risk-badge');
+    const badges = screen.getAllByTestId('flow-badge');
     expect(badges.length).toBe(2);
-    expect(badges[0]).toHaveTextContent('SAFE');
-    expect(badges[1]).toHaveTextContent('MODERATE');
+    expect(badges[0]).toHaveTextContent('PILAR_SUSTENTAVEL');
+    expect(badges[1]).toHaveTextContent('PILAR_CARGA_ELEVADA');
   });
 
   it('shows risk scores', () => {
@@ -107,15 +107,15 @@ describe('RiskHistoryPage', () => {
   it('shows workload details', () => {
     mockUseQuery.mockReturnValue({ data: mockHistory, isLoading: false });
     render(<RiskHistoryPage />);
-    expect(screen.getByText('36h / semana')).toBeInTheDocument();
-    expect(screen.getByText('0 noturno(s) seguido(s)')).toBeInTheDocument();
+    expect(screen.getByText('36h na semana')).toBeInTheDocument();
+    expect(screen.getByText('0 noturnos')).toBeInTheDocument();
   });
 
   it('shows empty state when no history', () => {
     mockUseQuery.mockReturnValue({ data: [], isLoading: false });
     render(<RiskHistoryPage />);
     expect(
-      screen.getByText('Nenhum registro ainda. O historico e gerado automaticamente.')
+      screen.getByText('Nenhum registro de Flow Score ainda. Seus dados aparecerão aqui conforme usar o app.')
     ).toBeInTheDocument();
   });
 

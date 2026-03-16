@@ -78,6 +78,10 @@ jest.mock('@/components/ui/progress-bar', () => ({
   ProgressBar: ({ label, value }: any) => <div data-testid="progress-bar">{label}: {value}%</div>,
 }));
 
+jest.mock('@/components/ui/flow-badge', () => ({
+  FlowBadge: ({ level }: any) => <span data-testid="flow-badge">{level}</span>,
+}));
+
 jest.mock('@/components/ui/risk-badge', () => ({
   RiskBadge: ({ level }: any) => <span data-testid="risk-badge">{level}</span>,
 }));
@@ -198,7 +202,7 @@ describe('Frontend Edge Cases', () => {
       const RiskHistoryPage = (await import('../app/(app)/risk-history/page')).default;
       render(<RiskHistoryPage />);
       expect(
-        screen.getByText('Nenhum registro ainda. O historico e gerado automaticamente.')
+        screen.getByText('Nenhum registro de Flow Score ainda. Seus dados aparecerão aqui conforme usar o app.')
       ).toBeInTheDocument();
     });
   });

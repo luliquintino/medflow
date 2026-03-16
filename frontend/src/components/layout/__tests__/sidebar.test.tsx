@@ -62,7 +62,7 @@ describe('Sidebar', () => {
     expect(screen.getByText('Analytics')).toBeInTheDocument();
     expect(screen.getByText('Aceito ou Não?')).toBeInTheDocument();
     expect(screen.getByText('Planejamento')).toBeInTheDocument();
-    expect(screen.getByText('Histórico de Risco')).toBeInTheDocument();
+    expect(screen.getByText('Histórico de Flow Score')).toBeInTheDocument();
     expect(screen.getByText('Configurações')).toBeInTheDocument();
   });
 

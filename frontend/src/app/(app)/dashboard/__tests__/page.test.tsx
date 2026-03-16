@@ -69,8 +69,8 @@ jest.mock('@/components/ui/progress-bar', () => ({
   ProgressBar: ({ label, value }: any) => <div data-testid="progress-bar">{label}: {value}%</div>,
 }));
 
-jest.mock('@/components/ui/risk-badge', () => ({
-  RiskBadge: ({ level }: any) => <span data-testid="risk-badge">{level}</span>,
+jest.mock('@/components/ui/flow-badge', () => ({
+  FlowBadge: ({ level }: any) => <span data-testid="flow-badge">{level}</span>,
 }));
 
 jest.mock('@/components/ui/spinner', () => ({
@@ -116,7 +116,7 @@ const dashboardData = {
     sustainabilityIndex: 900,
   },
   risk: {
-    level: 'SAFE',
+    level: 'PILAR_SUSTENTAVEL',
     score: 30,
     recommendation: 'Continue assim!',
   },
@@ -178,10 +178,10 @@ describe('DashboardPage', () => {
     ).toBeInTheDocument();
   });
 
-  it('shows MODERATE message', () => {
+  it('shows PILAR_CARGA_ELEVADA message', () => {
     const moderateData = {
       ...dashboardData,
-      risk: { ...dashboardData.risk, level: 'MODERATE' },
+      risk: { ...dashboardData.risk, level: 'PILAR_CARGA_ELEVADA' },
     };
     mockUseQuery.mockReturnValue({ data: moderateData, isLoading: false });
     render(<DashboardPage />);
@@ -190,10 +190,10 @@ describe('DashboardPage', () => {
     ).toBeInTheDocument();
   });
 
-  it('shows HIGH message', () => {
+  it('shows PILAR_ALTO_RISCO message', () => {
     const highData = {
       ...dashboardData,
-      risk: { ...dashboardData.risk, level: 'HIGH' },
+      risk: { ...dashboardData.risk, level: 'PILAR_ALTO_RISCO' },
     };
     mockUseQuery.mockReturnValue({ data: highData, isLoading: false });
     render(<DashboardPage />);
@@ -208,7 +208,7 @@ describe('DashboardPage', () => {
     expect(screen.getByText('Receita do mês')).toBeInTheDocument();
     expect(screen.getByText('Plantões confirmados')).toBeInTheDocument();
     expect(screen.getAllByText('Horas na semana').length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText('Nível de risco')).toBeInTheDocument();
+    expect(screen.getByText('Flow Score')).toBeInTheDocument();
   });
 
   it('renders financial revenue value', () => {
