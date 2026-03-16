@@ -26,10 +26,11 @@ enum ShiftStatus {
   CANCELLED
 }
 
-enum RiskLevel {
-  SAFE
-  MODERATE
-  HIGH
+enum FlowScore {
+  PILAR_SUSTENTAVEL
+  PILAR_CARGA_ELEVADA
+  PILAR_RISCO_FADIGA
+  PILAR_ALTO_RISCO
 }
 
 enum SubscriptionPlan {
@@ -150,6 +151,8 @@ model WorkProfile {
   energyCostDiurno      Float       @default(1.0)   // 12h diurno
   energyCostNoturno     Float       @default(1.5)   // 12h noturno
   energyCost24h         Float       @default(2.5)   // 24h
+  energyCost24hInvertido Float      @default(2.4)
+  maxNightShifts         Int        @default(2)
 
   createdAt             DateTime    @default(now())
   updatedAt             DateTime    @updatedAt
@@ -242,7 +245,7 @@ model RiskHistory {
   userId          String
   user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  riskLevel       RiskLevel
+  riskLevel       FlowScore
   riskScore       Float
   triggerRules    String[]  // which rules were triggered
   recommendation  String
