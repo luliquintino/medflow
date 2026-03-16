@@ -73,9 +73,13 @@ describe('Risk Engine (e2e)', () => {
       expect(data).toHaveProperty('level');
       expect(data).toHaveProperty('score');
       expect(data).toHaveProperty('recommendation');
-      expect(['SAFE', 'MODERATE', 'HIGH']).toContain(data.level);
+      expect(['PILAR_SUSTENTAVEL', 'PILAR_CARGA_ELEVADA', 'PILAR_RISCO_FADIGA', 'PILAR_ALTO_RISCO']).toContain(data.level);
       expect(typeof data.score).toBe('number');
       expect(typeof data.recommendation).toBe('string');
+
+      // Should include FRMS insights and evidence
+      expect(data).toHaveProperty('insights');
+      expect(data).toHaveProperty('evidence');
 
       // Should also include workload metrics
       expect(data).toHaveProperty('workload');
@@ -103,8 +107,12 @@ describe('Risk Engine (e2e)', () => {
       expect(data).toHaveProperty('level');
       expect(data).toHaveProperty('score');
       expect(data).toHaveProperty('recommendation');
-      expect(['SAFE', 'MODERATE', 'HIGH']).toContain(data.level);
+      expect(['PILAR_SUSTENTAVEL', 'PILAR_CARGA_ELEVADA', 'PILAR_RISCO_FADIGA', 'PILAR_ALTO_RISCO']).toContain(data.level);
       expect(typeof data.score).toBe('number');
+
+      // Should include FRMS insights and evidence
+      expect(data).toHaveProperty('insights');
+      expect(data).toHaveProperty('evidence');
 
       // Should include workload with the hypothetical shift factored in
       expect(data).toHaveProperty('workload');

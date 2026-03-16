@@ -95,7 +95,7 @@ describe('Optimization (e2e)', () => {
         expect(scenario).toHaveProperty('sustainabilityIndex');
         expect(scenario).toHaveProperty('riskLevel');
         expect(scenario).toHaveProperty('optimizationScore');
-        expect(['SAFE', 'MODERATE', 'HIGH']).toContain(scenario.riskLevel);
+        expect(['PILAR_SUSTENTAVEL', 'PILAR_CARGA_ELEVADA', 'PILAR_RISCO_FADIGA', 'PILAR_ALTO_RISCO']).toContain(scenario.riskLevel);
         expect(Array.isArray(scenario.shifts)).toBe(true);
       }
     });

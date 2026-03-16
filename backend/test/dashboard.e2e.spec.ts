@@ -100,7 +100,7 @@ describe('Dashboard (e2e)', () => {
       if (data.risk) {
         expect(data.risk).toHaveProperty('level');
         expect(data.risk).toHaveProperty('score');
-        expect(['SAFE', 'MODERATE', 'HIGH']).toContain(data.risk.level);
+        expect(['PILAR_SUSTENTAVEL', 'PILAR_CARGA_ELEVADA', 'PILAR_RISCO_FADIGA', 'PILAR_ALTO_RISCO']).toContain(data.risk.level);
         expect(typeof data.risk.score).toBe('number');
       }
 
