@@ -309,13 +309,13 @@ export function generateInsights(
 
   if (recovery.recoveryDebtHours > 0) {
     insights.push(
-      `Dívida de recuperação: ${recovery.recoveryDebtHours}h. Considere descansar antes do próximo plantão.`,
+      `Dívida de recuperação: ${Math.round(recovery.recoveryDebtHours)}h. Considere descansar antes do próximo plantão.`,
     );
   }
 
   if (workload.avgWeeklyHours28d > 55) {
     insights.push(
-      `Nas últimas 4 semanas, sua média é de ${workload.avgWeeklyHours28d}h/semana. Risco de burnout.`,
+      `Nas últimas 4 semanas, sua média é de ${Math.round(workload.avgWeeklyHours28d)}h/semana. Risco de burnout.`,
     );
   }
 

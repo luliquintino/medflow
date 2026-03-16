@@ -178,15 +178,6 @@ export default function DashboardPage() {
               <p className="text-sm text-gray-600 italic bg-sand-100 rounded-xl p-3 leading-relaxed">
                 &ldquo;{risk.recommendation}&rdquo;
               </p>
-              {risk.insights && risk.insights.length > 0 && (
-                <ul className="space-y-1.5">
-                  {risk.insights.map((insight: string, i: number) => (
-                    <li key={i} className="text-sm text-gray-600 bg-sand-100 rounded-xl px-3 py-2">
-                      {insight}
-                    </li>
-                  ))}
-                </ul>
-              )}
               <div className="grid grid-cols-2 gap-3">
                 <Metric label={t("weekHours")} value={`${workload.totalHoursThisWeek}h`} limit="/ 60h" warn={workload.totalHoursThisWeek >= 44} />
                 <Metric label={t("monthHours")} value={`${workload.totalHoursThisMonth}h`} />

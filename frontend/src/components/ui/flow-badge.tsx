@@ -7,6 +7,7 @@ interface FlowBadgeProps {
   level: FlowScore;
   size?: "sm" | "md";
   showDot?: boolean;
+  onClick?: () => void;
 }
 
 const CONFIG: Record<FlowScore, { key: string; dot: string; badge: string }> = {
@@ -32,18 +33,30 @@ const CONFIG: Record<FlowScore, { key: string; dot: string; badge: string }> = {
   },
 };
 
-export function FlowBadge({ level, size = "md", showDot = true }: FlowBadgeProps) {
+export function FlowBadge({ level, size = "md", showDot = true, onClick }: FlowBadgeProps) {
   const t = useTranslations("flowScore");
   const cfg = CONFIG[level] ?? CONFIG.PILAR_SUSTENTAVEL;
 
+  const classes = clsx(
+    "inline-flex items-center gap-1.5 rounded-full border font-medium",
+    cfg.badge,
+    size === "sm" ? "px-2 py-0.5 text-xs" : "px-3 py-1 text-sm",
+    onClick && "cursor-pointer hover:opacity-80 transition-opacity"
+  );
+
+  if (onClick) {
+    return (
+      <button type="button" onClick={onClick} className={classes}>
+        {showDot && (
+          <span className={clsx("rounded-full", cfg.dot, size === "sm" ? "w-1.5 h-1.5" : "w-2 h-2")} />
+        )}
+        {t(cfg.key)}
+      </button>
+    );
+  }
+
   return (
-    <span
-      className={clsx(
-        "inline-flex items-center gap-1.5 rounded-full border font-medium",
-        cfg.badge,
-        size === "sm" ? "px-2 py-0.5 text-xs" : "px-3 py-1 text-sm"
-      )}
-    >
+    <span className={classes}>
       {showDot && (
         <span className={clsx("rounded-full", cfg.dot, size === "sm" ? "w-1.5 h-1.5" : "w-2 h-2")} />
       )}

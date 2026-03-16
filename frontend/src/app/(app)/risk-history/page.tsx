@@ -1,6 +1,7 @@
 "use client";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Shield } from "lucide-react";
+import { Shield, ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { api, unwrap } from "@/lib/api";
 import { formatDate } from "@/lib/format";
@@ -8,6 +9,7 @@ import { Card } from "@/components/ui/card";
 import { FlowBadge } from "@/components/ui/flow-badge";
 import { PageSpinner } from "@/components/ui/spinner";
 import { RiskDistributionChart } from "./_components/risk-distribution-chart";
+import { HistoryDetailModal } from "./_components/history-detail-modal";
 import type { FlowScore } from "@/types";
 
 interface RiskHistoryRecord {
@@ -18,10 +20,12 @@ interface RiskHistoryRecord {
   hoursInWeek: number;
   consecutiveNights: number;
   recommendation?: string;
+  triggerRules?: string[];
 }
 
 export default function RiskHistoryPage() {
   const t = useTranslations("riskHistory");
+  const [selectedRecord, setSelectedRecord] = useState<RiskHistoryRecord | null>(null);
 
   const { data: history = [], isLoading } = useQuery({
     queryKey: ["risk-history"],
@@ -49,32 +53,46 @@ export default function RiskHistoryPage() {
       ) : (
         <div className="space-y-3">
           {history.map((record) => (
-            <Card key={record.id} padding="sm">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <FlowBadge level={record.riskLevel} size="sm" />
-                    <span className="text-xs text-gray-400">
-                      {t("scoreLabel", { score: record.riskScore })}
-                    </span>
+            <button
+              key={record.id}
+              type="button"
+              onClick={() => setSelectedRecord(record)}
+              className="w-full text-left"
+            >
+              <Card padding="sm" className="hover:border-cream-400 transition-colors cursor-pointer">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <FlowBadge level={record.riskLevel} size="sm" />
+                      <span className="text-xs text-gray-400">
+                        {t("scoreLabel", { score: record.riskScore })}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {formatDate(record.createdAt)}
+                    </p>
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {formatDate(record.createdAt)}
-                  </p>
+                  <div className="flex items-center gap-2">
+                    <div className="text-right text-xs text-gray-500 space-y-0.5">
+                      <p>{t("hoursInWeek", { hours: record.hoursInWeek })}</p>
+                      <p>{t("consecutiveNights", { count: record.consecutiveNights })}</p>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-gray-300 flex-shrink-0" />
+                  </div>
                 </div>
-                <div className="text-right text-xs text-gray-500 space-y-0.5">
-                  <p>{t("hoursInWeek", { hours: record.hoursInWeek })}</p>
-                  <p>{t("consecutiveNights", { count: record.consecutiveNights })}</p>
-                </div>
-              </div>
-              {record.recommendation && (
-                <p className="text-xs text-gray-600 italic mt-2 bg-sand-100 rounded-lg px-3 py-2">
-                  &ldquo;{record.recommendation}&rdquo;
-                </p>
-              )}
-            </Card>
+              </Card>
+            </button>
           ))}
         </div>
+      )}
+
+      {/* Detail modal */}
+      {selectedRecord && (
+        <HistoryDetailModal
+          isOpen={!!selectedRecord}
+          onClose={() => setSelectedRecord(null)}
+          record={selectedRecord}
+        />
       )}
     </div>
   );

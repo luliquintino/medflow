@@ -507,7 +507,14 @@
     "reducesSustainability": "This shift reduces your sustainability (current average: {value}/exhaustion)",
     "improvesSustainability": "This shift improves your sustainability (current average: {value}/exhaustion)",
     "insights": "Insights",
-    "evidence": "Scientific Evidence"
+    "evidence": "Scientific Evidence",
+    "seeDetails": "See Flow Score details",
+    "highRiskWarning": "Your current workload shows elevated fatigue risk.",
+    "seeWhyClassified": "See why it was classified this way"
+  },
+
+  "riskModal": {
+    "title": "Flow Score Details"
   },
 
   "riskHistory": {
@@ -521,7 +528,15 @@
     "emptyState": "No Flow Score records yet. Your data will appear here as you use the app.",
     "scoreLabel": "Score: {score}/100",
     "hoursInWeek": "{hours}h in week",
-    "consecutiveNights": "{count} night shifts"
+    "consecutiveNights": "{count} night shifts",
+    "detailTitle": "How we reached this score",
+    "dataConsidered": "Data considered",
+    "hoursInWeekLabel": "Weekly hours",
+    "consecutiveNightsLabel": "Consecutive night shifts",
+    "riskScoreLabel": "Risk score",
+    "rulesTriggered": "Triggered rules",
+    "howCalculated": "How we calculate",
+    "scientificBasis": "Medical evidence"
   },
 
   "settings": {

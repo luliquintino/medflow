@@ -222,15 +222,17 @@ export class RiskEngine {
 
     if (level === 'PILAR_CARGA_ELEVADA') {
       const msgs = triggered.map((r) => r.message).filter(Boolean);
-      return 'Atenção: ' + msgs[0] + ' Que tal planejar uma folga antes do próximo plantão?';
+      const detail = msgs.length > 0 ? msgs[0] + ' ' : '';
+      return 'Atenção: ' + detail + 'Que tal planejar uma folga antes do próximo plantão?';
     }
 
     // PILAR_RISCO_FADIGA or PILAR_ALTO_RISCO
     const msgs = triggered.map((r) => r.message).filter(Boolean);
+    const detail = msgs.length > 0 ? msgs[0] + ' ' : '';
     return (
       'Sinal de alerta: ' +
-      msgs[0] +
-      ' Recomendamos fortemente uma pausa antes de aceitar novos plantões. Sua saúde é inegociável.'
+      detail +
+      'Recomendamos fortemente uma pausa antes de aceitar novos plantões. Sua saúde é inegociável.'
     );
   }
 }

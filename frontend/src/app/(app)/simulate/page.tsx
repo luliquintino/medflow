@@ -3,7 +3,7 @@ import { useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Zap, TrendingUp, Clock, CheckCircle2, XCircle, ArrowRight, Battery, MessageCircle, BookOpen } from "lucide-react";
+import { Zap, TrendingUp, CheckCircle2, XCircle, ArrowRight, Info } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { api, unwrap, getErrorMessage } from "@/lib/api";
 import { formatCurrency } from "@/lib/format";
@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FlowBadge } from "@/components/ui/flow-badge";
 import { ProgressBar } from "@/components/ui/progress-bar";
+import { RiskDetailModal } from "@/components/ui/risk-detail-modal";
 import { clsx } from "clsx";
 import { track } from "@vercel/analytics";
 import type { SimulationResult, RiskResult, ShiftType } from "@/types";
@@ -37,6 +38,7 @@ export default function SimulatePage() {
   const [result, setResult] = useState<SimulateResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
 
   const { register, handleSubmit, watch, setValue, formState: { errors } } =
     useForm<FormData>({
@@ -70,6 +72,8 @@ export default function SimulatePage() {
       setLoading(false);
     }
   }
+
+  const isHighRisk = result && (result.risk.level === "PILAR_RISCO_FADIGA" || result.risk.level === "PILAR_ALTO_RISCO");
 
   const verdict = (r: SimulateResult) => {
     if (r.risk.level === "PILAR_RISCO_FADIGA" || r.risk.level === "PILAR_ALTO_RISCO")
@@ -140,26 +144,47 @@ export default function SimulatePage() {
         </form>
       </Card>
 
-      {/* Results */}
+      {/* Results — clean & minimal */}
       {result && (
         <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
-          {/* Verdict */}
+          {/* Verdict card */}
           {(() => {
             const v = verdict(result);
             return (
-              <div className={clsx("rounded-2xl border p-5 flex items-start gap-3", v.bg)}>
-                {v.ok
-                  ? <CheckCircle2 className="w-6 h-6 text-moss-600 flex-shrink-0 mt-0.5" />
-                  : <XCircle className="w-6 h-6 text-red-500 flex-shrink-0 mt-0.5" />}
-                <div>
-                  <p className={clsx("font-semibold", v.color)}>{v.text}</p>
-                  <p className="text-sm text-gray-600 mt-1">{result.risk.recommendation}</p>
+              <div className={clsx("rounded-2xl border p-5", v.bg)}>
+                <div className="flex items-start gap-3">
+                  {v.ok
+                    ? <CheckCircle2 className="w-6 h-6 text-moss-600 flex-shrink-0 mt-0.5" />
+                    : <XCircle className="w-6 h-6 text-red-500 flex-shrink-0 mt-0.5" />}
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <p className={clsx("font-semibold", v.color)}>{v.text}</p>
+                      <FlowBadge
+                        level={result.risk.level}
+                        size="sm"
+                        onClick={() => setModalOpen(true)}
+                      />
+                    </div>
+                    {/* Only show recommendation for alarming levels */}
+                    {isHighRisk && result.risk.recommendation && (
+                      <p className="text-sm text-gray-600 mt-1">{result.risk.recommendation}</p>
+                    )}
+                  </div>
                 </div>
+                {/* Subtle "see details" hint */}
+                <button
+                  type="button"
+                  onClick={() => setModalOpen(true)}
+                  className="mt-3 flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 transition-colors ml-9"
+                >
+                  <Info className="w-3.5 h-3.5" />
+                  {t("seeDetails")}
+                </button>
               </div>
             );
           })()}
 
-          {/* Finance impact */}
+          {/* Finance impact — always shown, compact */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -211,121 +236,32 @@ export default function SimulatePage() {
             </div>
           </Card>
 
-          {/* Workload impact */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-amber-500" />
-                {t("workloadImpact")}
-              </CardTitle>
-              <FlowBadge level={result.risk.level} />
-            </CardHeader>
-            <div className="grid grid-cols-2 gap-3">
-              {[
-                { label: t("weekHours"), value: `${result.risk.workload.totalHoursThisWeek}h`, limit: "60h" },
-                { label: t("monthHours"), value: `${result.risk.workload.totalHoursThisMonth}h` },
-                { label: t("consecutiveNight"), value: `${result.risk.workload.consecutiveNightShifts}x`, limit: "3x" },
-                { label: t("consecutiveShifts"), value: `${result.risk.workload.consecutiveShifts}x`, limit: "3x" },
-              ].map(({ label, value, limit }) => (
-                <div key={label} className="bg-sand-100 rounded-xl p-3">
-                  <p className="text-xs text-gray-500">{label}</p>
-                  <p className="text-sm font-bold text-gray-800 mt-0.5">
-                    {value} <span className="text-xs font-normal text-gray-400">/ {limit}</span>
-                  </p>
-                </div>
-              ))}
+          {/* Inline warning — ONLY for alarming levels */}
+          {isHighRisk && (
+            <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex items-start gap-2.5">
+              <XCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm text-red-700 font-medium">{t("highRiskWarning")}</p>
+                <button
+                  type="button"
+                  onClick={() => setModalOpen(true)}
+                  className="text-xs text-red-600 underline underline-offset-2 mt-1 hover:text-red-800 transition-colors"
+                >
+                  {t("seeWhyClassified")}
+                </button>
+              </div>
             </div>
-            {result.risk.level !== "PILAR_SUSTENTAVEL" && (
-              <div className="mt-4 bg-amber-50 rounded-xl p-3 border border-amber-100">
-                <p className="text-xs text-amber-700 leading-relaxed">
-                  <strong>{t("triggeredRules")}</strong>{" "}
-                  {result.risk.triggeredRules.length > 0
-                    ? result.risk.rules.filter((r) => r.triggered).map((r) => r.message).join(" · ")
-                    : t("noTriggeredRules")}
-                </p>
-              </div>
-            )}
-          </Card>
-
-          {/* Exhaustion impact */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Battery className="w-4 h-4 text-purple-500" />
-                {t("energyCost")}
-              </CardTitle>
-            </CardHeader>
-            <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
-                <div className={clsx("rounded-xl p-3", result.risk.exhaustionScore >= 10 ? "bg-red-50" : result.risk.exhaustionScore >= 7 ? "bg-amber-50" : "bg-sand-100")}>
-                  <p className="text-xs text-gray-500">{t("totalExhaustion")}</p>
-                  <p className={clsx("text-lg font-bold mt-0.5", result.risk.exhaustionScore >= 10 ? "text-red-600" : result.risk.exhaustionScore >= 7 ? "text-amber-700" : "text-gray-800")}>
-                    {result.risk.exhaustionScore?.toFixed(1) ?? "0.0"} <span className="text-xs font-normal text-gray-400">/ 10.0</span>
-                  </p>
-                </div>
-                <div className="rounded-xl p-3 bg-sand-100">
-                  <p className="text-xs text-gray-500">{t("sustainability")}</p>
-                  <p className="text-lg font-bold text-gray-800 mt-0.5">
-                    {result.risk.sustainabilityIndex ? formatCurrency(result.risk.sustainabilityIndex) : "—"}
-                    <span className="text-xs font-normal text-gray-400"> {t("perExhaustion")}</span>
-                  </p>
-                </div>
-              </div>
-              {result.risk.workload.sustainabilityIndex > 0 && result.risk.sustainabilityIndex > 0 && (
-                <div className={clsx(
-                  "rounded-xl p-3 border text-xs",
-                  result.risk.sustainabilityIndex < result.risk.workload.sustainabilityIndex
-                    ? "bg-amber-50 border-amber-200 text-amber-700"
-                    : "bg-moss-50 border-moss-200 text-moss-700"
-                )}>
-                  {result.risk.sustainabilityIndex < result.risk.workload.sustainabilityIndex
-                    ? t("reducesSustainability", { value: formatCurrency(result.risk.workload.sustainabilityIndex) })
-                    : t("improvesSustainability", { value: formatCurrency(result.risk.workload.sustainabilityIndex) })
-                  }
-                </div>
-              )}
-            </div>
-          </Card>
-
-          {/* Insights */}
-          {result.risk.insights && result.risk.insights.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <MessageCircle className="w-4 h-4 text-moss-500" />
-                  {t("insights")}
-                </CardTitle>
-              </CardHeader>
-              <ul className="space-y-2">
-                {result.risk.insights.map((insight: string, i: number) => (
-                  <li key={i} className="text-sm text-gray-600 bg-sand-100 rounded-xl px-3 py-2">
-                    {insight}
-                  </li>
-                ))}
-              </ul>
-            </Card>
-          )}
-
-          {/* Scientific evidence */}
-          {result.risk.evidence && result.risk.evidence.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BookOpen className="w-4 h-4 text-blue-500" />
-                  {t("evidence")}
-                </CardTitle>
-              </CardHeader>
-              <div className="space-y-2">
-                {result.risk.evidence.map((e: { factor: string; citation: string; summary: string }, i: number) => (
-                  <div key={i} className="bg-blue-50 rounded-xl px-3 py-2 border border-blue-100">
-                    <p className="text-sm text-gray-700">{e.summary}</p>
-                    <p className="text-xs text-blue-600 mt-1 italic">{e.citation}</p>
-                  </div>
-                ))}
-              </div>
-            </Card>
           )}
         </div>
+      )}
+
+      {/* Risk detail modal */}
+      {result && (
+        <RiskDetailModal
+          isOpen={modalOpen}
+          onClose={() => setModalOpen(false)}
+          risk={result.risk}
+        />
       )}
     </div>
   );
