@@ -11,7 +11,7 @@ import { formatCurrency } from "@/lib/format";
 import { useAuthStore } from "@/store/auth.store";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { ProgressBar } from "@/components/ui/progress-bar";
-import { RiskBadge } from "@/components/ui/risk-badge";
+import { FlowBadge } from "@/components/ui/flow-badge";
 import { PageSpinner } from "@/components/ui/spinner";
 import type { DashboardData } from "@/types";
 import {
@@ -55,11 +55,12 @@ export default function DashboardPage() {
   const monthMessage = () => {
     if (!risk) return t("monthMessages.noData");
     switch (risk.level) {
-      case "SAFE":
+      case "PILAR_SUSTENTAVEL":
         return t("monthMessages.safe");
-      case "MODERATE":
+      case "PILAR_CARGA_ELEVADA":
         return t("monthMessages.moderate");
-      case "HIGH":
+      case "PILAR_RISCO_FADIGA":
+      case "PILAR_ALTO_RISCO":
         return t("monthMessages.high");
       default:
         return t("monthMessages.default");
@@ -107,8 +108,8 @@ export default function DashboardPage() {
         />
         <KpiCard
           icon={<AlertTriangle className="w-4 h-4 text-gray-600" />}
-          label={t("kpi.riskLevel")}
-          value={risk ? <RiskBadge level={risk.level} size="sm" /> : "—"}
+          label={t("kpi.flowScore")}
+          value={risk ? <FlowBadge level={risk.level} size="sm" /> : "—"}
           sub={risk ? t("kpi.riskScore", { score: risk.score }) : ""}
           bg="bg-cream-100"
         />
@@ -170,13 +171,22 @@ export default function DashboardPage() {
         <Card>
           <CardHeader>
             <CardTitle>{t("workload")}</CardTitle>
-            {risk && <RiskBadge level={risk.level} />}
+            {risk && <FlowBadge level={risk.level} />}
           </CardHeader>
           {risk && workload ? (
             <div className="space-y-4">
               <p className="text-sm text-gray-600 italic bg-sand-100 rounded-xl p-3 leading-relaxed">
                 &ldquo;{risk.recommendation}&rdquo;
               </p>
+              {risk.insights && risk.insights.length > 0 && (
+                <ul className="space-y-1.5">
+                  {risk.insights.map((insight: string, i: number) => (
+                    <li key={i} className="text-sm text-gray-600 bg-sand-100 rounded-xl px-3 py-2">
+                      {insight}
+                    </li>
+                  ))}
+                </ul>
+              )}
               <div className="grid grid-cols-2 gap-3">
                 <Metric label={t("weekHours")} value={`${workload.totalHoursThisWeek}h`} limit="/ 60h" warn={workload.totalHoursThisWeek >= 44} />
                 <Metric label={t("monthHours")} value={`${workload.totalHoursThisMonth}h`} />

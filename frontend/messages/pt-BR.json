@@ -278,6 +278,7 @@
       "restRecommended": "Descanso recomendado",
       "calmLoad": "Carga tranquila",
       "riskLevel": "Nível de risco",
+      "flowScore": "Flow Score",
       "riskScore": "Score: {score}/100"
     },
     "financialGoal": "Meta financeira",
