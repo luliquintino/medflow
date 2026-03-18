@@ -39,7 +39,8 @@
     "riskHistory": "Histórico de Flow Score",
     "shiftHistory": "Histórico",
     "settings": "Configurações",
-    "finance": "Painel Financeiro"
+    "finance": "Painel Financeiro",
+    "marketIntelligence": "Inteligência de Mercado"
   },
 
   "topbar": {
@@ -654,5 +655,94 @@
     "noturno12h": "Noturno 12h",
     "plantao24h": "Plantão 24h",
     "personalizado": "Personalizado"
+  },
+
+  "simulateScenario": {
+    "tabQuick": "Simulação rápida",
+    "tabScenario": "Cenário composto",
+    "scenarioTitle": "Monte seu cenário",
+    "scenarioSubtitle": "Adicione plantões e veja o impacto no horizonte de 1, 3 ou 6 meses.",
+    "addShift": "Adicionar plantão",
+    "removeShift": "Remover",
+    "horizon": "Horizonte de projeção",
+    "months1": "1 mês",
+    "months3": "3 meses",
+    "months6": "6 meses",
+    "submitScenario": "Simular cenário",
+    "resultTitle": "Resultado do cenário",
+    "currentRevenue": "Receita atual",
+    "addedRevenue": "Receita adicionada",
+    "totalRevenue": "Receita total",
+    "totalAdded": "Total adicionado",
+    "avgMonthly": "Média mensal",
+    "monthsToMin": "Meses para meta mínima",
+    "monthsToIdeal": "Meses para meta ideal",
+    "alreadyMet": "Já atingida",
+    "goalGap": "Faltam {amount} para a meta ideal",
+    "extraShifts": "+{count} plantões fecham o gap",
+    "flowScoreWarning": "Risco elevado de fadiga neste mês"
+  },
+
+  "enhancedProjections": {
+    "trend": "Tendência",
+    "growing": "Crescendo",
+    "stable": "Estável",
+    "declining": "Caindo",
+    "goalGap": "Gap: {amount}",
+    "suggestedShifts": "+{count} plantões",
+    "bestMonth": "Melhor mês",
+    "worstMonth": "Pior mês",
+    "tooltipGap": "Faltam {count} plantões de ~{value} para meta ideal"
+  },
+
+  "marketIntelligence": {
+    "title": "Inteligência de Mercado",
+    "subtitle": "ROI por hospital, benchmarking pessoal e insights estratégicos.",
+
+    "roi": {
+      "title": "ROI por Hospital",
+      "score": "Score",
+      "tier": "Tier",
+      "ouro": "Ouro",
+      "prata": "Prata",
+      "bronze": "Bronze",
+      "revenuePerHour": "R$/hora",
+      "totalRevenue": "Receita total",
+      "shiftCount": "Plantões",
+      "reliability": "Confiabilidade",
+      "sortByScore": "Por score",
+      "sortByValue": "Por R$/hora",
+      "sortByVolume": "Por volume",
+      "noData": "Registre plantões em hospitais para ver o ROI."
+    },
+
+    "benchmarking": {
+      "title": "Benchmarking",
+      "vsLastMonth": "vs mês anterior",
+      "vsThreeMonthAvg": "vs média 3 meses",
+      "revenue": "Receita",
+      "revenuePerHour": "R$/hora",
+      "hours": "Horas",
+      "shifts": "Plantões",
+      "minimumGoal": "Meta mínima",
+      "idealGoal": "Meta ideal",
+      "onTrack": "No caminho",
+      "offTrack": "Abaixo",
+      "rising": "Subindo",
+      "stable": "Estável",
+      "falling": "Caindo",
+      "noData": "Dados insuficientes. Continue registrando plantões."
+    },
+
+    "insights": {
+      "title": "Insights Estratégicos",
+      "seeMore": "Ver mais",
+      "seeLess": "Ver menos",
+      "opportunity": "Oportunidade",
+      "warning": "Atenção",
+      "achievement": "Conquista",
+      "strategy": "Estratégia",
+      "noData": "Continue usando o app para receber insights personalizados."
+    }
   }
 }

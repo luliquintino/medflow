@@ -368,6 +368,83 @@ export interface AnalyticsData {
   summary: AnalyticsSummary;
 }
 
+// ─── Scenario Simulation ─────────────────────────────────────────────────────
+
+export interface MonthBreakdown {
+  month: string;
+  year: number;
+  monthIndex: number;
+  currentRevenue: number;
+  addedRevenue: number;
+  totalRevenue: number;
+  shiftsCount: number;
+  hoursWorked: number;
+  minimumGoalProgress: number;
+  idealGoalProgress: number;
+  minimumGoalGap: number;
+  idealGoalGap: number;
+  suggestedExtraShifts: number;
+}
+
+export interface ScenarioResult {
+  monthlyBreakdown: MonthBreakdown[];
+  summary: {
+    totalAddedRevenue: number;
+    avgMonthlyIncome: number;
+    monthsToMinGoal: number | null;
+    monthsToIdealGoal: number | null;
+  };
+}
+
+// ─── Hospital ROI ────────────────────────────────────────────────────────────
+
+export interface HospitalRoi {
+  hospitalId: string;
+  hospitalName: string;
+  totalRevenue: number;
+  totalHours: number;
+  revenuePerHour: number;
+  avgShiftValue: number;
+  shiftCount: number;
+  reliabilityScore: number;
+  hospitalScore: number;
+  hospitalTier: "ouro" | "prata" | "bronze";
+  insight: string;
+}
+
+// ─── Benchmarking ────────────────────────────────────────────────────────────
+
+export interface PeriodSnapshot {
+  revenue: number;
+  hours: number;
+  shiftsCount: number;
+  revenuePerHour: number;
+}
+
+export type Trend = "rising" | "stable" | "falling";
+
+export interface BenchmarkingData {
+  currentMonth: PeriodSnapshot;
+  previousMonth: PeriodSnapshot;
+  threeMonthAvg: PeriodSnapshot;
+  sixMonthAvg: PeriodSnapshot;
+  vsLastMonth: { revenue: number; hours: number; revenuePerHour: number };
+  vsThreeMonthAvg: { revenue: number; hours: number; revenuePerHour: number };
+  vsMinimumGoal: { gap: number; progress: number; onTrack: boolean };
+  vsIdealGoal: { gap: number; progress: number; onTrack: boolean };
+  trends: { revenuePerHour: Trend; workload: Trend; goalAttainment: Trend };
+}
+
+// ─── Strategic Insights ──────────────────────────────────────────────────────
+
+export interface StrategicInsight {
+  type: "opportunity" | "warning" | "achievement" | "strategy";
+  priority: number;
+  title: string;
+  description: string;
+  metric?: { value: number; unit: string; trend: Trend };
+}
+
 // ─── API ─────────────────────────────────────────────────────────────────────
 
 export interface ApiResponse<T> {
