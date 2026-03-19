@@ -29,8 +29,13 @@ function HospitalROISection() {
 
   const { data: hospitals = [], isLoading, isError } = useQuery({
     queryKey: ["hospital-roi"],
-    queryFn: () =>
-      api.get("/analytics/hospital-roi").then((r) => unwrap<HospitalRoi[]>(r)).catch(() => []),
+    queryFn: async () => {
+      try {
+        const r = await api.get("/analytics/hospital-roi");
+        const result = unwrap<{ hospitals: HospitalRoi[] }>(r);
+        return result?.hospitals ?? [];
+      } catch { return []; }
+    },
     staleTime: 5 * 60 * 1000,
     retry: 1,
   });
