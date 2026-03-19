@@ -5,7 +5,7 @@ import { clsx } from "clsx";
 import Image from "next/image";
 import {
   LayoutDashboard, Calendar, AlertTriangle,
-  Zap, Settings, LogOut, Building2, Brain, BarChart3, Clock,
+  Zap, Settings, LogOut, Building2, Brain, BarChart3, Clock, TrendingUp,
 } from "lucide-react";
 import { useAuthStore } from "@/store/auth.store";
 import { api } from "@/lib/api";
@@ -16,8 +16,9 @@ const NAV_KEYS = [
   { href: "/hospitals",      icon: Building2,       key: "hospitals" },
   { href: "/shifts",         icon: Calendar,        key: "shifts" },
   { href: "/shifts/history", icon: Clock,           key: "shiftHistory" },
-  { href: "/analytics",      icon: BarChart3,       key: "analytics" },
-  { href: "/smart-planner",  icon: Brain,           key: "smartPlanner" },
+  { href: "/analytics",             icon: BarChart3,       key: "analytics" },
+  { href: "/market-intelligence",  icon: TrendingUp,      key: "marketIntelligence" },
+  { href: "/smart-planner",        icon: Brain,           key: "smartPlanner" },
   { href: "/simulate",       icon: Zap,             key: "simulate" },
   { href: "/risk-history",   icon: AlertTriangle,   key: "riskHistory" },
   { href: "/settings",       icon: Settings,        key: "settings" },

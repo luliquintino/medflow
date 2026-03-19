@@ -3,7 +3,9 @@ import { ShiftStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { FinanceEngine } from './finance.engine';
 import { InsightsEngine } from './finance.insights';
+import { ScenarioEngine, SHIFT_TYPE_HOURS } from './finance-scenario.engine';
 import { SimulateShiftDto } from './dto/simulate-shift.dto';
+import { SimulateScenarioDto } from './dto/simulate-scenario.dto';
 import { UpdateFinancialProfileDto } from './dto/update-financial-profile.dto';
 import { startOfMonth } from '../common/utils/date.utils';
 
@@ -79,10 +81,53 @@ export class FinanceService {
       confirmedRevenueThisMonth: confirmedRevenue,
     });
 
+    // ─── Enhanced Projections (historical 6 months) ─────────────
+    let enhancedProjections = null;
+    if (!isPast) {
+      const sixMonthsAgo = new Date();
+      sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+      sixMonthsAgo.setDate(1);
+      sixMonthsAgo.setHours(0, 0, 0, 0);
+
+      const historicalShifts = await this.prisma.shift.findMany({
+        where: {
+          userId,
+          status: 'CONFIRMED',
+          realized: { not: false },
+          date: { gte: sixMonthsAgo, lt: start },
+        },
+        select: { date: true, value: true },
+        orderBy: { date: 'asc' },
+      });
+
+      // Group by month
+      const monthBuckets = new Map<string, { month: number; year: number; revenue: number }>();
+      for (const s of historicalShifts) {
+        const d = new Date(s.date);
+        const key = `${d.getFullYear()}-${d.getMonth()}`;
+        const entry = monthBuckets.get(key) || { month: d.getMonth(), year: d.getFullYear(), revenue: 0 };
+        entry.revenue += s.value;
+        monthBuckets.set(key, entry);
+      }
+
+      const historicalMonths = Array.from(monthBuckets.values()).sort(
+        (a, b) => a.year * 12 + a.month - (b.year * 12 + b.month),
+      );
+
+      enhancedProjections = FinanceEngine.calculateEnhancedProjections({
+        historicalMonths,
+        projections: result.projections.sixMonths,
+        minimumMonthlyGoal: profile.minimumMonthlyGoal,
+        idealMonthlyGoal: profile.idealMonthlyGoal,
+        averageShiftValue: calculatedAvg,
+      });
+    }
+
     return {
       ...result,
       // Skip projections for past months (not actionable)
       projections: isPast ? { threeMonths: [], sixMonths: [] } : result.projections,
+      enhancedProjections,
       confirmedShiftsCount: confirmedShifts.length,
       simulatedShiftsCount: simulatedShifts.length,
       unrealizedShiftsCount: unrealizedShifts.length,
@@ -223,6 +268,64 @@ export class FinanceService {
     );
 
     return result;
+  }
+
+  // ─── Compound Scenario Simulation ──────────────────────────────
+
+  async simulateScenario(userId: string, dto: SimulateScenarioDto) {
+    const profile = await this.prisma.financialProfile.findUnique({
+      where: { userId },
+    });
+
+    if (!profile) throw new NotFoundException('Perfil financeiro não encontrado.');
+
+    const { start, end } = startOfMonth();
+
+    const allShifts = await this.prisma.shift.findMany({
+      where: {
+        userId,
+        status: 'CONFIRMED',
+        date: { gte: start, lte: end },
+      },
+    });
+
+    // Exclude shifts marked as not realized
+    const currentShifts = allShifts.filter((s) => s.realized !== false);
+
+    // Calculate average shift value from all confirmed shifts (all-time)
+    const allUserConfirmed = await this.prisma.shift.findMany({
+      where: { userId, status: 'CONFIRMED', realized: { not: false } },
+      select: { value: true },
+    });
+    const avgValue =
+      allUserConfirmed.length > 0
+        ? allUserConfirmed.reduce((sum, s) => sum + s.value, 0) / allUserConfirmed.length
+        : profile.averageShiftValue;
+
+    // Map existing shifts to ScenarioShift format
+    const existingShifts = currentShifts.map((s) => ({
+      date: s.date.toISOString().slice(0, 10),
+      value: s.value,
+      hours: s.hours || SHIFT_TYPE_HOURS[s.type] || 12,
+      type: s.type,
+    }));
+
+    // Map DTO shifts to ScenarioShift format with correct hours
+    const hypotheticalShifts = dto.shifts.map((s) => ({
+      date: s.date,
+      value: s.value,
+      hours: SHIFT_TYPE_HOURS[s.type] || 12,
+      type: s.type,
+    }));
+
+    return ScenarioEngine.calculate({
+      existingShifts,
+      hypotheticalShifts,
+      projectionMonths: dto.projectionMonths,
+      minimumMonthlyGoal: profile.minimumMonthlyGoal,
+      idealMonthlyGoal: profile.idealMonthlyGoal,
+      averageShiftValue: avgValue,
+    });
   }
 
   // ─── Budget Management ──────────────────────────────────────

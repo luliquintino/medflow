@@ -38,6 +38,35 @@ export interface MonthProjection {
   goalMet: boolean;
 }
 
+// ─── Enhanced Projections ──────────────────────────────────────────────────
+
+export interface HistoricalMonth {
+  month: number; // 0-11
+  year: number;
+  revenue: number;
+}
+
+export interface EnhancedProjectionsInput {
+  historicalMonths: HistoricalMonth[]; // up to 6 months, oldest first
+  projections: MonthProjection[];
+  minimumMonthlyGoal: number;
+  idealMonthlyGoal: number;
+  averageShiftValue: number;
+}
+
+export interface EnhancedMonthProjection extends MonthProjection {
+  minimumGoalGap: number;
+  idealGoalGap: number;
+  suggestedExtraShifts: number;
+}
+
+export interface EnhancedProjectionsResult {
+  projections: EnhancedMonthProjection[];
+  trend: 'growing' | 'stable' | 'declining';
+  bestMonth: { label: string; revenue: number } | null;
+  worstMonth: { label: string; revenue: number } | null;
+}
+
 export interface SimulationResult {
   beforeRevenue: number;
   afterRevenue: number;
@@ -131,6 +160,66 @@ export class FinanceEngine {
         sixMonths: buildProjections(6),
       },
     };
+  }
+
+  static calculateEnhancedProjections(
+    input: EnhancedProjectionsInput,
+  ): EnhancedProjectionsResult {
+    const { historicalMonths, projections, minimumMonthlyGoal, idealMonthlyGoal, averageShiftValue } = input;
+
+    // Enhanced projections with gap info
+    const enhanced: EnhancedMonthProjection[] = projections.map((p) => {
+      const minGap = Math.max(0, minimumMonthlyGoal - p.projectedRevenue);
+      const idealGap = Math.max(0, idealMonthlyGoal - p.projectedRevenue);
+      const suggestedExtra = averageShiftValue > 0 ? Math.ceil(idealGap / averageShiftValue) : 0;
+
+      return {
+        ...p,
+        minimumGoalGap: Math.round(minGap * 100) / 100,
+        idealGoalGap: Math.round(idealGap * 100) / 100,
+        suggestedExtraShifts: suggestedExtra,
+      };
+    });
+
+    // Trend: compare average of recent 3 months vs older 3 months
+    let trend: 'growing' | 'stable' | 'declining' = 'stable';
+    if (historicalMonths.length >= 2) {
+      const mid = Math.floor(historicalMonths.length / 2);
+      const olderHalf = historicalMonths.slice(0, mid);
+      const recentHalf = historicalMonths.slice(mid);
+
+      const olderAvg =
+        olderHalf.length > 0
+          ? olderHalf.reduce((s, m) => s + m.revenue, 0) / olderHalf.length
+          : 0;
+      const recentAvg =
+        recentHalf.length > 0
+          ? recentHalf.reduce((s, m) => s + m.revenue, 0) / recentHalf.length
+          : 0;
+
+      if (olderAvg > 0) {
+        const change = (recentAvg - olderAvg) / olderAvg;
+        if (change > 0.1) trend = 'growing';
+        else if (change < -0.1) trend = 'declining';
+      } else if (recentAvg > 0) {
+        trend = 'growing';
+      }
+    }
+
+    // Best / worst month from historical data
+    let bestMonth: { label: string; revenue: number } | null = null;
+    let worstMonth: { label: string; revenue: number } | null = null;
+
+    const nonZeroMonths = historicalMonths.filter((m) => m.revenue > 0);
+    if (nonZeroMonths.length > 0) {
+      const best = nonZeroMonths.reduce((a, b) => (b.revenue > a.revenue ? b : a));
+      const worst = nonZeroMonths.reduce((a, b) => (b.revenue < a.revenue ? b : a));
+      const yr = (y: number) => y.toString().slice(-2);
+      bestMonth = { label: `${MONTH_NAMES[best.month]}/${yr(best.year)}`, revenue: best.revenue };
+      worstMonth = { label: `${MONTH_NAMES[worst.month]}/${yr(worst.year)}`, revenue: worst.revenue };
+    }
+
+    return { projections: enhanced, trend, bestMonth, worstMonth };
   }
 
   static simulate(input: FinancialInput, hypotheticalShiftValue: number): SimulationResult {
