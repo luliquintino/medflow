@@ -503,8 +503,8 @@ function CompoundScenarioTab() {
                     tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`}
                   />
                   <Tooltip
-                    formatter={(v: number, name: string) => [
-                      formatCurrency(v),
+                    formatter={(v, name) => [
+                      formatCurrency(Number(v) || 0),
                       name === "currentRevenue" ? t("currentRevenue") : t("addedRevenue"),
                     ]}
                     contentStyle={{
