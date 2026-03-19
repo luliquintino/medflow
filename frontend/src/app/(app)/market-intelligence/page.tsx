@@ -239,8 +239,29 @@ function BenchmarkingSection() {
 
   const { data: bench, isLoading } = useQuery({
     queryKey: ["benchmarking"],
-    queryFn: () =>
-      api.get("/analytics/benchmarking").then((r) => unwrap<BenchmarkingData>(r)).catch(() => null),
+    queryFn: async () => {
+      try {
+        const r = await api.get("/analytics/benchmarking");
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const raw = unwrap<any>(r);
+        if (!raw) return null;
+        // Handle both nested (backend engine) and flat (service-flattened) formats
+        if (raw.snapshots) {
+          return {
+            currentMonth: raw.snapshots.currentMonth,
+            previousMonth: raw.snapshots.previousMonth,
+            threeMonthAvg: raw.snapshots.threeMonthAvg,
+            sixMonthAvg: raw.snapshots.sixMonthAvg,
+            vsLastMonth: raw.deltas.vsLastMonth,
+            vsThreeMonthAvg: raw.deltas.vsThreeMonthAvg,
+            vsMinimumGoal: raw.goals.vsMinimumGoal,
+            vsIdealGoal: raw.goals.vsIdealGoal,
+            trends: raw.trends,
+          } as BenchmarkingData;
+        }
+        return raw as BenchmarkingData;
+      } catch { return null; }
+    },
     staleTime: 5 * 60 * 1000,
     retry: 1,
   });
