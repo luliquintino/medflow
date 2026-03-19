@@ -27,11 +27,12 @@ function HospitalROISection() {
   const [sortBy, setSortBy] = useState<SortKey>("score");
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  const { data: hospitals = [], isLoading } = useQuery({
+  const { data: hospitals = [], isLoading, isError } = useQuery({
     queryKey: ["hospital-roi"],
     queryFn: () =>
-      api.get("/analytics/hospital-roi").then((r) => unwrap<HospitalRoi[]>(r)),
+      api.get("/analytics/hospital-roi").then((r) => unwrap<HospitalRoi[]>(r)).catch(() => []),
     staleTime: 5 * 60 * 1000,
+    retry: 1,
   });
 
   if (isLoading) return <PageSpinner />;
@@ -234,8 +235,9 @@ function BenchmarkingSection() {
   const { data: bench, isLoading } = useQuery({
     queryKey: ["benchmarking"],
     queryFn: () =>
-      api.get("/analytics/benchmarking").then((r) => unwrap<BenchmarkingData>(r)),
+      api.get("/analytics/benchmarking").then((r) => unwrap<BenchmarkingData>(r)).catch(() => null),
     staleTime: 5 * 60 * 1000,
+    retry: 1,
   });
 
   if (isLoading) return <PageSpinner />;
@@ -418,8 +420,9 @@ function StrategicInsightsSection() {
   const { data: insights = [], isLoading } = useQuery({
     queryKey: ["strategic-insights"],
     queryFn: () =>
-      api.get("/analytics/insights").then((r) => unwrap<StrategicInsight[]>(r)),
+      api.get("/analytics/insights").then((r) => unwrap<StrategicInsight[]>(r)).catch(() => []),
     staleTime: 5 * 60 * 1000,
+    retry: 1,
   });
 
   if (isLoading) return <PageSpinner />;
