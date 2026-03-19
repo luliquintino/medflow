@@ -476,7 +476,7 @@ function StrategicInsightsSection() {
                     <span className="text-sm font-bold text-gray-800">
                       {insight.metric.value} {insight.metric.unit}
                     </span>
-                    <TrendIcon trend={insight.metric.trend} />
+                    {insight.metric.trend && <TrendIcon trend={insight.metric.trend} />}
                   </div>
                 )}
               </div>

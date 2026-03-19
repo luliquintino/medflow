@@ -159,10 +159,23 @@ export class AnalyticsService {
       (a, b) => a.year * 12 + a.month - (b.year * 12 + b.month),
     );
 
-    return BenchmarkingEngine.calculate(monthlyData, {
+    const result = BenchmarkingEngine.calculate(monthlyData, {
       minimumMonthlyGoal: profile.minimumMonthlyGoal,
       idealMonthlyGoal: profile.idealMonthlyGoal,
     });
+
+    // Flatten nested structure to match frontend BenchmarkingData type
+    return {
+      currentMonth: result.snapshots.currentMonth,
+      previousMonth: result.snapshots.previousMonth,
+      threeMonthAvg: result.snapshots.threeMonthAvg,
+      sixMonthAvg: result.snapshots.sixMonthAvg,
+      vsLastMonth: result.deltas.vsLastMonth,
+      vsThreeMonthAvg: result.deltas.vsThreeMonthAvg,
+      vsMinimumGoal: result.goals.vsMinimumGoal,
+      vsIdealGoal: result.goals.vsIdealGoal,
+      trends: result.trends,
+    };
   }
 
   // ─── Strategic Insights ───────────────────────────────────────
