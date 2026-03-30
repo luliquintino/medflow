@@ -90,7 +90,7 @@ function HospitalROISection() {
 
       <div className="space-y-3">
         {sorted.map((h) => {
-          const tier = TIER_CONFIG[h.hospitalTier];
+          const tier = TIER_CONFIG[h.hospitalTier] ?? TIER_CONFIG.bronze;
           const isExpanded = expandedId === h.hospitalId;
 
           return (

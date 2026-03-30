@@ -442,7 +442,7 @@ export interface StrategicInsight {
   priority: number;
   title: string;
   description: string;
-  metric?: { value: number; unit: string; trend: Trend };
+  metric?: { value: number; unit: string; trend?: Trend };
 }
 
 // ─── API ─────────────────────────────────────────────────────────────────────
